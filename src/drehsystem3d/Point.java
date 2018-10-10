@@ -55,22 +55,25 @@ public class Point
 	private ArrayList<PVector> path = new ArrayList<>();
 	private int[] pathColor = { 255, 255, 255 };
 	private int pathEntryCount = 0;
+	public static final int internalScale = 1;
 
 	Point(PApplet context, int id, Point parent, float amp, float[] angle, PVector w, float alpha)
 	{
-		this.context = context;
-		this.id = id;
-		init("", parent, getPosFromAngle(amp, angle), w, alpha);
+		this(context, id, "", parent, getPosFromAngle(amp, angle), w, alpha);
+		// this.context = context;
+		// this.id = id;
+		// init("", parent, getPosFromAngle(amp, angle), w, alpha);
 	}
 
 	Point(PApplet context, int id, String name, Point parent, float amp, float[] angle, PVector w, float alpha)
 	{
-		this.context = context;
-		this.id = id;
-		init(name, parent, getPosFromAngle(amp, angle), w, alpha);
+		this(context, id, name, parent, getPosFromAngle(amp, angle), w, alpha);
+		// this.context = context;
+		// this.id = id;
+		// init(name, parent, getPosFromAngle(amp, angle), w, alpha);
 	}
 
-	public PVector getPosFromAngle(float amp, float[] angle)
+	public static PVector getPosFromAngle(float amp, float[] angle)
 	{
 		if (angle.length != 2)
 		{
@@ -84,16 +87,27 @@ public class Point
 
 	Point(PApplet context, int id, Point parent, PVector pos, PVector w, float alpha)
 	{
-		this.context = context;
-		this.id = id;
-		init("", parent, pos, w, alpha);
+		this(context, id, "", parent, pos, w, alpha);
+		// this.context = context;
+		// this.id = id;
+		// init("", parent, pos, w, alpha);
 	}
 
 	Point(PApplet context, int id, String name, Point parent, PVector pos, PVector w, float alpha)
 	{
 		this.context = context;
 		this.id = id;
-		init(name, parent, pos, w, alpha);
+		println("\n\n" + name);
+		this.name = name;
+		this.parent = parent;
+		this.setPos = new PVector(pos.x, pos.y, pos.z).mult(Point.internalScale);
+		this.setW = new PVector(w.x, w.y, w.z);
+		this.setAlpha = alpha;
+		this.lastV = new PVector(0, 0, 0);
+		this.v = new PVector(0, 0, 0);
+		this.a = new PVector(0, 0, 0);
+		calcPos();
+		// init(name, parent, pos, w, alpha);
 	}
 
 	public int getId()
@@ -157,7 +171,7 @@ public class Point
 		println("\n\n" + name);
 		this.name = name;
 		this.parent = parent;
-		this.setPos = new PVector(pos.x, pos.y, pos.z);
+		this.setPos = new PVector(pos.x, pos.y, pos.z).mult(Point.internalScale);
 		this.setW = new PVector(w.x, w.y, w.z);
 		this.setAlpha = alpha;
 		this.lastV = new PVector(0, 0, 0);
@@ -305,6 +319,8 @@ public class Point
 
 			println("pos:" + position);
 			this.pos = rotateV(this.w, position, dTime);
+			// this.pos = position.add(rotateV(this.w, getVector(this.setPos),
+			// (this.context.millis() - this.startTime)));
 
 			if (this.parent != null)
 			{
@@ -340,6 +356,11 @@ public class Point
 			}
 			println("pos:" + this.pos);
 			println("last pos:" + this.lastPos);
+			// this.pos = new PVector((float) Math.floor(this.pos.x), (float)
+			// Math.floor(this.pos.y),
+			// (float) Math.floor(this.pos.z));
+			// println("pos floor:" + this.pos);
+			// println("last pos:" + this.lastPos);
 
 			if (this.visibilityPath && !this.reset)
 			{
@@ -403,79 +424,87 @@ public class Point
 
 	public void draw()
 	{
+		draw(this.context);
+	}
+
+	public void draw(PApplet context)
+	{
 		if (this.newPosReceived)
 		{
 			initPos(this.setPos);
 			this.newPosReceived = false;
 		}
-		this.context.fill(255);
-		this.context.stroke(255);
-		this.context.strokeWeight(1);
+		context.fill(255);
+		context.stroke(255);
+		context.strokeWeight(1);
 		PVector scaledPos = new PVector(this.pos.x, this.pos.y, this.pos.z);
-		scaledPos = scaledPos.mult(this.scaleD);
+		scaledPos = scaledPos.mult(this.scaleD).div(Point.internalScale);
 
 		if (this.visibilityL)
 		{
 			if (this.parent != null)
 			{
 				PVector scaledParentPos = new PVector(this.parent.pos.x, this.parent.pos.y, this.parent.pos.z);
-				scaledParentPos = scaledParentPos.mult(this.scaleD);
-				this.context.line(scaledParentPos.x, scaledParentPos.y, scaledParentPos.z, scaledPos.x, scaledPos.y,
+				scaledParentPos = scaledParentPos.mult(this.scaleD).div(Point.internalScale);
+				context.line(scaledParentPos.x, scaledParentPos.y, scaledParentPos.z, scaledPos.x, scaledPos.y,
 						scaledPos.z);
 			}
 		}
 
-		this.context.strokeWeight(2);
+		context.strokeWeight(2);
 		if (this.visibilityV)
 		{
-			this.context.stroke(0, 0, 255);
-			this.context.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + this.v.x * this.scale,
-					scaledPos.y + this.v.y * this.scale, scaledPos.z + this.v.z * this.scale);
+			context.stroke(0, 0, 255);
+			context.line(scaledPos.x, scaledPos.y, scaledPos.z,
+					scaledPos.x + this.v.x / Point.internalScale * this.scale,
+					scaledPos.y + this.v.y / Point.internalScale * this.scale,
+					scaledPos.z + this.v.z / Point.internalScale * this.scale);
 		}
 		if (this.visibilityA)
 		{
-			this.context.stroke(255, 0, 0);
-			this.context.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + this.a.x * this.scale,
+			context.stroke(255, 0, 0);
+			context.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + this.a.x * this.scale,
 					scaledPos.y + this.a.y * this.scale, scaledPos.z + this.a.z * this.scale);
 		}
 		if (this.parent != null)
 		{
-			this.context.stroke(51);
-			this.context.strokeWeight(4);
+			context.stroke(51);
+			context.strokeWeight(4);
 			PVector start = getVector(this.parent.pos);
-			this.context.stroke(255, 0, 0);
-			this.context.line(start.x * this.scaleD, start.y * this.scaleD, start.z * this.scaleD,
-					start.x * this.scaleD + this.w.x, start.y * this.scaleD + this.w.y,
-					start.z * this.scaleD + this.w.z);
+			context.stroke(255, 0, 0);
+			context.line(start.x * this.scaleD / Point.internalScale, start.y * this.scaleD / Point.internalScale,
+					start.z * this.scaleD / Point.internalScale, start.x * this.scaleD / Point.internalScale + this.w.x,
+					start.y * this.scaleD / Point.internalScale + this.w.y,
+					start.z * this.scaleD / Point.internalScale + this.w.z);
 		}
-		this.context.pushMatrix();
-		this.context.translate(scaledPos.x, scaledPos.y, scaledPos.z);
+		context.pushMatrix();
+		context.translate(scaledPos.x, scaledPos.y, scaledPos.z);
 		if (this.visibilityPath)
 		{
-			this.context.fill(this.pathColor[0], this.pathColor[1], this.pathColor[2]);
+			context.fill(this.pathColor[0], this.pathColor[1], this.pathColor[2]);
 		}
 		else
 		{
-			this.context.fill(255, 255, 255, 50);
+			context.fill(255, 255, 255, 50);
 		}
-		this.context.lights();
-		this.context.noStroke();
+		context.lights();
+		context.noStroke();
 		try
 		{
-			this.context.sphere(10);
+			context.sphere(10);
 		}
 		catch (Exception e)
 		{
 
 		}
-		this.context.popMatrix();
-		this.context.hint(DISABLE_DEPTH_TEST);
-		this.context.fill(255);
+		context.popMatrix();
+		context.hint(DISABLE_DEPTH_TEST);
+		context.fill(255);
 		if (!this.name.equals(""))
 		{
-			this.context.text(this.name, scaledPos.x + this.size, scaledPos.y + this.size, scaledPos.z + this.size);
+			context.text(this.name, scaledPos.x + this.size, scaledPos.y + this.size, scaledPos.z + this.size);
 		}
-		this.context.hint(ENABLE_DEPTH_TEST);
+		context.hint(ENABLE_DEPTH_TEST);
 	}
 
 	public void resetTime()
@@ -501,12 +530,22 @@ public class Point
 		PVector position = getVector(vector);
 		PVector axis = getVector(a).normalize();
 		PVector pn = axis.cross(position);
+		// if (this.parent != null)
+		// {
+		// this.context.stroke(51);
+		// this.context.line(this.parent.pos.x * this.scaleD, this.parent.pos.y
+		// * this.scaleD,
+		// this.parent.pos.z * this.scaleD, (pn.x + this.parent.pos.x) *
+		// this.scaleD,
+		// (pn.y + this.parent.pos.y) * this.scaleD, (pn.z + this.parent.pos.z)
+		// * this.scaleD);
+		// }
 		if (this.parent != null)
 		{
 			this.context.stroke(51);
 			this.context.line(this.parent.pos.x * this.scaleD, this.parent.pos.y * this.scaleD,
-					this.parent.pos.z * this.scaleD, (pn.x + this.parent.pos.x) * this.scaleD,
-					(pn.y + this.parent.pos.y) * this.scaleD, (pn.z + this.parent.pos.z) * this.scaleD);
+					this.parent.pos.z * this.scaleD, (axis.x + this.parent.pos.x) * this.scaleD,
+					(axis.y + this.parent.pos.y) * this.scaleD, (axis.z + this.parent.pos.z) * this.scaleD);
 		}
 		axis = getVector(a).normalize();
 		pn = axis.cross(pn).mult(-1);
@@ -568,18 +607,11 @@ public class Point
 		println("Axis:" + axis);
 		println("pn:" + pn);
 		pn = rotateVZ(pn, angle);
-		if (this.parent != null)
-		{
-			this.context.strokeWeight(4);
-			PVector start = getVector(this.parent.pos);
-			this.context.stroke(255, 0, 255);
-			this.context.line(start.x * this.scaleD, start.y * this.scaleD, start.z * this.scaleD,
-					start.x * this.scaleD + axis.x, start.y * this.scaleD + axis.y, start.z * this.scaleD + axis.z);
-		}
+
 		for (int i = 0; i < positions.size(); i++)
 		{
 			PVector childPos = positions.get(i);
-			this.childs.get(i).w = rotateVZ(this.childs.get(i).w, angle);
+			// this.childs.get(i).w = rotateVZ(this.childs.get(i).w, angle);
 			positions.set(i, rotateVZ(childPos, angle));
 		}
 
@@ -621,18 +653,22 @@ public class Point
 			this.childs.get(i).updatePos(newPos);
 			println("child " + this.childs.get(i).getName() + " new pos:" + this.childs.get(i).getPos());
 		}
-		if (this.parent != null)
-		{
-			this.context.strokeWeight(4);
-			PVector start = getVector(this.parent.pos);
-			this.context.stroke(51);
-			this.context.line(start.x * this.scaleD, start.y * this.scaleD, start.z * this.scaleD,
-					(start.x + offset.x) * this.scaleD, (start.y + offset.y) * this.scaleD,
-					(start.z + offset.z) * this.scaleD);
-			this.context.line((start.x + offset.x) * this.scaleD, (start.y + offset.y) * this.scaleD,
-					(start.z + offset.z) * this.scaleD, (start.x + pn.x) * this.scaleD, (start.y + pn.y) * this.scaleD,
-					(start.z + pn.z) * this.scaleD);
-		}
+		// if (this.parent != null)
+		// {
+		// this.context.strokeWeight(4);
+		// PVector start = getVector(this.parent.pos);
+		// this.context.stroke(51);
+		// this.context.line(start.x * this.scaleD, start.y * this.scaleD,
+		// start.z * this.scaleD,
+		// (start.x + offset.x) * this.scaleD, (start.y + offset.y) *
+		// this.scaleD,
+		// (start.z + offset.z) * this.scaleD);
+		// this.context.line((start.x + offset.x) * this.scaleD, (start.y +
+		// offset.y) * this.scaleD,
+		// (start.z + offset.z) * this.scaleD, (start.x + pn.x) * this.scaleD,
+		// (start.y + pn.y) * this.scaleD,
+		// (start.z + pn.z) * this.scaleD);
+		// }
 		println("offset:" + offset);
 		println("result:" + result);
 		println("result mag:" + result.mag());

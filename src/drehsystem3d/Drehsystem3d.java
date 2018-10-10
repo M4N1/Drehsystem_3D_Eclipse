@@ -412,6 +412,7 @@ public class Drehsystem3d extends PApplet
 		rotateZ(HALF_PI);
 		image(this.xzSurface, -50, -50);
 		popMatrix();
+
 		for (Point p : this.points)
 		{
 			p.setVisibilityL(this.cLines.isChecked());
@@ -422,16 +423,22 @@ public class Drehsystem3d extends PApplet
 			Integer[] colorValue = this.objects.get(id);
 			this.detectionCanvas.fill(colorValue[0], colorValue[1], colorValue[2]);
 			this.detectionCanvas.beginDraw();
-			this.detectionCanvas.noStroke();
-			this.detectionCanvas.pushMatrix();
 			this.detectionCanvas.translate(this.pos.x, this.pos.y);
 			this.detectionCanvas.scale(this.zoom);
-			this.detectionCanvas.rotate(this.angle[0], 0, cos(this.currentAngle[0]), 0);
-			this.detectionCanvas.rotate(
-					(this.currentAngle[0] > HALF_PI || this.currentAngle[0] < -HALF_PI ? -1 : 1) * this.angle[1],
-					cos(this.currentAngle[1]), 0, 0);
-			this.detectionCanvas.rotate(this.angle[2], 0, 0, cos(this.currentAngle[2]));
-			this.detectionCanvas.translate(p.pos.x * this.scaleD, p.pos.y * this.scaleD, p.pos.z * this.scaleD);
+			this.detectionCanvas.rotateY(this.angle[0]);
+			this.detectionCanvas.rotateX(this.angle[1]);
+			// this.detectionCanvas.rotate(this.angle[0], 0,
+			// cos(this.currentAngle[0]), 0);
+			// this.detectionCanvas.rotate(
+			// (this.currentAngle[0] > HALF_PI || this.currentAngle[0] <
+			// -HALF_PI ? -1 : 1) * this.angle[1],
+			// cos(this.currentAngle[1]), 0, 0);
+			// this.detectionCanvas.rotate(this.angle[2], 0, 0,
+			// cos(this.currentAngle[2]));
+			this.detectionCanvas.noStroke();
+			this.detectionCanvas.pushMatrix();
+			this.detectionCanvas.translate(p.pos.x * this.scaleD / Point.internalScale,
+					p.pos.y * this.scaleD / Point.internalScale, p.pos.z * this.scaleD / Point.internalScale);
 			this.detectionCanvas.sphere(10);
 			this.detectionCanvas.popMatrix();
 			this.detectionCanvas.endDraw();
@@ -455,8 +462,12 @@ public class Drehsystem3d extends PApplet
 							{
 								PVector lastPos = path.get(j);
 								PVector pos = path.get(j + 1);
-								line(lastPos.x * this.scaleD, lastPos.y * this.scaleD, lastPos.z * this.scaleD,
-										pos.x * this.scaleD, pos.y * this.scaleD, pos.z * this.scaleD);
+								line(lastPos.x * this.scaleD / Point.internalScale,
+										lastPos.y * this.scaleD / Point.internalScale,
+										lastPos.z * this.scaleD / Point.internalScale,
+										pos.x * this.scaleD / Point.internalScale,
+										pos.y * this.scaleD / Point.internalScale,
+										pos.z * this.scaleD / Point.internalScale);
 							}
 						}
 					}
@@ -501,6 +512,12 @@ public class Drehsystem3d extends PApplet
 			this.menuItem.draw();
 		}
 		hint(ENABLE_DEPTH_TEST);
+		// if (this.mousePressed)
+		// {
+		// background(0);
+		// translate(0, 0, 0);
+		// image(this.detectionCanvas, 0, 0);
+		// }
 	}
 
 	@Override
@@ -560,14 +577,20 @@ public class Drehsystem3d extends PApplet
 							values = new String[] { possibleValues[0] };
 						}
 						PVector scaledPos = new PVector(point.pos.x, point.pos.y, point.pos.z);
-						scaledPos = scaledPos.mult(this.scaleD);
+						scaledPos = scaledPos.mult(this.scaleD).div(Point.internalScale);
 						pushMatrix();
 						translate(this.pos.x, this.pos.y);
 						scale(this.zoom);
-						rotate(this.angle[0], 0, cos(this.currentAngle[0]) + 1, 0);
-						rotate((this.currentAngle[0] > HALF_PI || this.currentAngle[0] < -HALF_PI ? -1 : 1)
-								* this.angle[1], cos(this.currentAngle[1]) + 1, 0, 0);
-						rotate(this.angle[2], 0, 0, cos(this.currentAngle[2]) + 1);
+						rotateY(this.angle[0]);
+						rotateX(this.angle[1]);
+						// rotate(this.angle[0], 0, cos(this.currentAngle[0]) +
+						// 1, 0);
+						// rotate((this.currentAngle[0] > HALF_PI ||
+						// this.currentAngle[0] < -HALF_PI ? -1 : 1)
+						// * this.angle[1], cos(this.currentAngle[1]) + 1, 0,
+						// 0);
+						// rotate(this.angle[2], 0, 0, cos(this.currentAngle[2])
+						// + 1);
 						translate(scaledPos.x, scaledPos.y, scaledPos.z);
 						float x = screenX(0, 0, 0);
 						float y = screenY(0, 0, 0);

@@ -3,7 +3,6 @@ package drehsystem3d;
 import static processing.core.PApplet.atan;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.dist;
-import static processing.core.PApplet.map;
 import static processing.core.PApplet.println;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.DISABLE_DEPTH_TEST;
@@ -41,6 +40,7 @@ public class Point
 	private float drawSpeed = 1;
 	private long startTime = 0;
 	private long lastTime = 0;
+	private long lastEllapsedTime = 0;
 	private float scale = 1;
 	private float scaleD = 40;
 	private boolean setup = true;
@@ -180,7 +180,7 @@ public class Point
 		calcPos();
 	}
 
-	private void initPos(PVector pos)
+	public void initPos(PVector pos)
 	{
 		if (this.parent != null)
 		{
@@ -193,31 +193,6 @@ public class Point
 		}
 		this.lastPos = new PVector(pos.x, pos.y, pos.z);
 		this.pos = new PVector(pos.x, pos.y, pos.z);
-		this.phi[0] = 0;
-		this.phi[1] = 0;
-		if (!(this.pos.x == 0 && this.pos.z == 0))
-		{
-			println("phiXY atan:" + atan(this.pos.z / this.pos.x));
-			this.phi[0] = map(atan(this.pos.z / this.pos.x), -PI, PI, -180, 180);
-			println("phiXY mapped:" + this.phi[0]);
-		}
-		if (!(this.pos.z == 0 && this.pos.y == 0))
-		{
-			println("phiYZ atan:" + atan(this.pos.y / this.pos.z));
-			this.phi[1] = map(atan(this.pos.y / this.pos.z), -PI, PI, -180, 180);
-			println("phiYZ mapped:" + this.phi[1]);
-		}
-		println("Initialised position:" + this.pos);
-		println("Initialised angle:[ " + this.phi[0] + ", " + this.phi[1] + " ]");
-		println("Abs Set position:" + this.absSetPos);
-	}
-
-	public void calcPos()
-	{
-		println("\n\n");
-		this.w = new PVector(this.setW.x, this.setW.y, this.setW.z);
-		this.alpha = this.setAlpha;
-		initPos(this.setPos);
 		if (this.parent != null)
 		{
 			PVector parentPos = new PVector(this.parent.pos.x, this.parent.pos.y, this.parent.pos.z);
@@ -230,6 +205,32 @@ public class Point
 		{
 			this.wAbs = new PVector(this.w.x, this.w.y, this.w.z);
 		}
+		// this.phi[0] = 0;
+		// this.phi[1] = 0;
+		// if (!(this.pos.x == 0 && this.pos.z == 0))
+		// {
+		// println("phiXY atan:" + atan(this.pos.z / this.pos.x));
+		// this.phi[0] = map(atan(this.pos.z / this.pos.x), -PI, PI, -180, 180);
+		// println("phiXY mapped:" + this.phi[0]);
+		// }
+		// if (!(this.pos.z == 0 && this.pos.y == 0))
+		// {
+		// println("phiYZ atan:" + atan(this.pos.y / this.pos.z));
+		// this.phi[1] = map(atan(this.pos.y / this.pos.z), -PI, PI, -180, 180);
+		// println("phiYZ mapped:" + this.phi[1]);
+		// }
+		println("Initialised position:" + this.pos);
+		println("Initialised angle:[ " + this.phi[0] + ", " + this.phi[1] + " ]");
+		println("Abs Set position:" + this.absSetPos);
+	}
+
+	public void calcPos()
+	{
+		println("\n\n");
+		this.w = new PVector(this.setW.x, this.setW.y, this.setW.z);
+		this.alpha = this.setAlpha;
+		initPos(this.setPos);
+
 		println("Position before update:" + this.pos);
 		update();
 		println("Position calculation finished:" + this.pos);
@@ -292,18 +293,19 @@ public class Point
 	public void update()
 	{
 		println("\n" + this.name);
+		float ellapsedTime = (this.context.millis() - this.startTime + this.lastEllapsedTime);
 		float dTime = (this.context.millis() - this.lastTime) * this.drawSpeed;
 		if (this.setup || this.reset)
 		{
-			dTime = 0;
+			ellapsedTime = 0;
 		}
-		if (dTime != 0 || this.setup || this.reset)
+		if (ellapsedTime != 0 || this.setup || this.reset)
 		{
 			this.lastPos = getVector(this.pos);
 			this.lastV = getVector(this.v);
-			this.w.x += this.alpha * this.drawSpeed * dTime / 1000;
-			this.w.y += this.alpha * this.drawSpeed * dTime / 1000;
-			this.w.z += this.alpha * this.drawSpeed * dTime / 1000;
+			this.w.x += this.alpha * this.drawSpeed;
+			this.w.y += this.alpha * this.drawSpeed;
+			this.w.z += this.alpha * this.drawSpeed;
 			println("abs pos:" + this.pos);
 			PVector position = getVector(this.pos);
 			if (this.parent != null)
@@ -318,9 +320,8 @@ public class Point
 			}
 
 			println("pos:" + position);
-			this.pos = rotateV(this.w, position, dTime);
-			// this.pos = position.add(rotateV(this.w, getVector(this.setPos),
-			// (this.context.millis() - this.startTime)));
+			// this.pos = rotateV(this.w, position, dTime);
+			this.pos = rotateV(getVector(this.w).mult(this.drawSpeed), position, ellapsedTime);
 
 			if (this.parent != null)
 			{
@@ -466,17 +467,19 @@ public class Point
 			context.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + this.a.x * this.scale,
 					scaledPos.y + this.a.y * this.scale, scaledPos.z + this.a.z * this.scale);
 		}
-		if (this.parent != null)
-		{
-			context.stroke(51);
-			context.strokeWeight(4);
-			PVector start = getVector(this.parent.pos);
-			context.stroke(255, 0, 0);
-			context.line(start.x * this.scaleD / Point.internalScale, start.y * this.scaleD / Point.internalScale,
-					start.z * this.scaleD / Point.internalScale, start.x * this.scaleD / Point.internalScale + this.w.x,
-					start.y * this.scaleD / Point.internalScale + this.w.y,
-					start.z * this.scaleD / Point.internalScale + this.w.z);
-		}
+		// if (this.parent != null)
+		// {
+		// context.stroke(51);
+		// context.strokeWeight(4);
+		// PVector start = getVector(this.parent.pos);
+		// context.stroke(255, 0, 0);
+		// context.line(start.x * this.scaleD / Point.internalScale, start.y *
+		// this.scaleD / Point.internalScale,
+		// start.z * this.scaleD / Point.internalScale, start.x * this.scaleD /
+		// Point.internalScale + this.w.x,
+		// start.y * this.scaleD / Point.internalScale + this.w.y,
+		// start.z * this.scaleD / Point.internalScale + this.w.z);
+		// }
 		context.pushMatrix();
 		context.translate(scaledPos.x, scaledPos.y, scaledPos.z);
 		if (this.visibilityPath)
@@ -507,10 +510,21 @@ public class Point
 		context.hint(ENABLE_DEPTH_TEST);
 	}
 
-	public void resetTime()
+	public void stopTime()
+	{
+		this.lastEllapsedTime = this.context.millis() - this.startTime;
+	}
+
+	public void startTime()
 	{
 		this.startTime = this.context.millis();
 		this.lastTime = this.context.millis();
+	}
+
+	public void resetTime()
+	{
+		this.lastEllapsedTime = 0;
+		startTime();
 	}
 
 	public void setName(String name)
@@ -523,7 +537,7 @@ public class Point
 		return new PVector(v.x, v.y, v.z);
 	}
 
-	public PVector rotateV(PVector a, PVector vector, float dTime)
+	public PVector rotateV(PVector a, PVector vector, float ellapsedTime)
 	{
 		PVector result = new PVector(0, 0, 0);
 		println("\nrotating " + vector + " around " + a);
@@ -550,23 +564,25 @@ public class Point
 		axis = getVector(a).normalize();
 		pn = axis.cross(pn).mult(-1);
 		axis = getVector(a);
-		float angle = a.mag() * dTime / 1000 * PI / 180;
-		println("rotating by:" + angle + " degrees");
+		float angle = a.mag() * ellapsedTime / 1000 * PI / 180;
+		println("rotating by:" + angle + " rad");
 		println("mag start:" + vector.mag());
 		PVector offset = position.sub(pn);
 		position = getVector(vector);
 
-		this.context.strokeWeight(2);
+		// this.context.strokeWeight(2);
 		println("pn before rotation:" + pn);
 
 		ArrayList<PVector> positions = new ArrayList<>();
 		for (int i = 0; i < this.childs.size(); i++)
 		{
 			Point child = this.childs.get(i);
+			PVector startPos = getVector(child.absSetPos);
 			PVector relPos = getVector(child.pos);
 			if (this.parent != null)
 			{
 				relPos.sub(this.parent.pos);
+				startPos.sub(this.pos);
 			}
 			println("child " + child.getName() + " pos:" + relPos);
 			positions.add(relPos);
@@ -581,7 +597,7 @@ public class Point
 			for (int i = 0; i < positions.size(); i++)
 			{
 				PVector childPos = positions.get(i);
-				this.childs.get(i).w = rotateVX(this.childs.get(i).w, alpha);
+				// this.childs.get(i).w = rotateVX(this.childs.get(i).w, alpha);
 				positions.set(i, rotateVX(childPos, alpha));
 			}
 		}
@@ -596,7 +612,7 @@ public class Point
 			for (int i = 0; i < positions.size(); i++)
 			{
 				PVector childPos = positions.get(i);
-				this.childs.get(i).w = rotateVY(this.childs.get(i).w, alpha);
+				// this.childs.get(i).w = rotateVY(this.childs.get(i).w, alpha);
 				positions.set(i, rotateVY(childPos, alpha));
 			}
 		}
@@ -624,7 +640,7 @@ public class Point
 			for (int i = 0; i < positions.size(); i++)
 			{
 				PVector childPos = positions.get(i);
-				this.childs.get(i).w = rotateVY(this.childs.get(i).w, alpha);
+				// this.childs.get(i).w = rotateVY(this.childs.get(i).w, alpha);
 				positions.set(i, rotateVY(childPos, alpha));
 			}
 		}
@@ -637,7 +653,7 @@ public class Point
 			for (int i = 0; i < positions.size(); i++)
 			{
 				PVector childPos = positions.get(i);
-				this.childs.get(i).w = rotateVX(this.childs.get(i).w, alpha);
+				// this.childs.get(i).w = rotateVX(this.childs.get(i).w, alpha);
 				positions.set(i, rotateVX(childPos, alpha));
 			}
 		}

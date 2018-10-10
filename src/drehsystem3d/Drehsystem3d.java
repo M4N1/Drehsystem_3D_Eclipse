@@ -151,9 +151,8 @@ public class Drehsystem3d extends PApplet
 		float yOff = 0;
 		Point point;
 		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
-		addNewPoint(getLastPoint(), new PVector(0, -5, 0), new PVector(0, 0, 0), 0);
-		point = addNewPoint(getLastPoint(), new PVector(0, -4, 0), new PVector(100, 100, 100), 0);
-		addNewPoint(getLastPoint(), new PVector(0, -4, 0), new PVector(-100, -100, -100), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 50), 0);
+		point = addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
 
 		this.bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
 		this.bReset.setBackground(0);
@@ -247,6 +246,10 @@ public class Drehsystem3d extends PApplet
 			if (this.reset)
 			{
 				println("reset update");
+			}
+			for (Point p : this.points)
+			{
+				p.initPos(p.setPos);
 			}
 			for (Point p : this.points)
 			{
@@ -608,8 +611,7 @@ public class Drehsystem3d extends PApplet
 								// Add point.
 								if (item.equals(possibleValues[0]))
 								{
-									ib = new InputBox("Input",
-											new String[] { "x", "y", "z", "wx", "wy", "wz", "alpha" },
+									ib = new InputBox("Input", new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" },
 											new String[] { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0" });
 									ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
 									ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2,
@@ -663,7 +665,7 @@ public class Drehsystem3d extends PApplet
 								{
 									if (!Drehsystem3d.this.inputWindowOpened)
 									{
-										String[] values = new String[] { "x", "y", "z", "wx", "wy", "wz", "alpha" };
+										String[] values = new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" };
 										String[] standardValues = new String[] { Float.toString(point.setPos.x),
 												Float.toString(point.setPos.y), Float.toString(point.setPos.z),
 												Float.toString(point.setW.x), Float.toString(point.setW.y),
@@ -1144,7 +1146,15 @@ public class Drehsystem3d extends PApplet
 		this.startTime = millis();
 		for (Point p : this.points)
 		{
-			p.resetTime();
+			if (state)
+			{
+				p.stopTime();
+			}
+			else
+			{
+				p.startTime();
+			}
+
 		}
 	}
 

@@ -7,11 +7,11 @@ import drehsystem3d.Listener.*;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class MenuItem extends View {
+public class MenuItem extends View
+{
 	/**
 	 * 
 	 */
-	private Drehsystem3d MenuItem;
 	static final int standardWidth = 120;
 	static final int standardHeight = 200;
 	static final int standardOffset = 15;
@@ -27,20 +27,20 @@ public class MenuItem extends View {
 	String title = "";
 	boolean visible = true;
 
-	MenuItem(Drehsystem3d drehsystem3d, PApplet context, float x, float y, String title, String[] values) {
+	MenuItem(PApplet context, float x, float y, String title, String[] values)
+	{
 		super(context, x + standardOffset, y + standardOffset, standardWidth, standardHeight);
-		MenuItem = drehsystem3d;
 		init(title, values);
 	}
 
-	MenuItem(Drehsystem3d drehsystem3d, PApplet context, float x, float y, int w, int h, String title,
-			String[] values) {
+	MenuItem(PApplet context, float x, float y, int w, int h, String title, String[] values)
+	{
 		super(context, x + standardOffset, y + standardOffset, w, h);
-		MenuItem = drehsystem3d;
 		init(title, values);
 	}
 
-	public boolean onMousePressed() {
+	public boolean onMousePressed()
+	{
 		super.onMousePressed();
 		for (TextView tv : this.textviews)
 			tv.onMousePressed();
@@ -49,13 +49,15 @@ public class MenuItem extends View {
 		return this.clicked;
 	}
 
-	private void init(String title, String[] values) {
+	private void init(String title, String[] values)
+	{
 		this.padding = 10;
 		this.startPosX = (int) this.pos.x + this.padding;
 		this.startPosY = (int) this.pos.y + this.padding;
 		textviews = new ArrayList<TextView>();
 		this.values = values;
-		for (int i = 0; i < this.values.length; i++) {
+		for (int i = 0; i < this.values.length; i++)
+		{
 			final TextView tv = new TextView(this.context, this.startPosX, this.startPosY, this.tvWidth, this.tvHeight);
 			tv.setText(this.values[i]);
 			tv.setTextAlignment(TextView.TEXTALIGNMENT_CENTER);
@@ -67,12 +69,16 @@ public class MenuItem extends View {
 			tv.setBackground(150);
 			tv.setStrokeColor(0);
 			tv.setStrokeWeight(0);
-			tv.setOnClickListener(new OnClickListener() {
+			tv.setOnClickListener(new OnClickListener()
+			{
 				@Override
-				public void onClick(int id) {
+				public void onClick(int id)
+				{
 					Drehsystem3d.println("clicked on menu item " + id);
-					if (context.mouseButton == Drehsystem3d.LEFT) {
-						if (visible) {
+					if (context.mouseButton == Drehsystem3d.LEFT)
+					{
+						if (visible)
+						{
 							visible = false;
 							if (onItemClickListener != null)
 								onItemClickListener.onItemClick(id, tv.getText());
@@ -106,16 +112,19 @@ public class MenuItem extends View {
 		calcPos();
 	}
 
-	public void calcWidth() {
+	public void calcWidth()
+	{
 		int nWidth = 2 * this.padding;
 		int maxTvWidth = 0;
-		for (TextView tv : textviews) {
+		for (TextView tv : textviews)
+		{
 			// println("tv.viewWidth:"+tv.viewWidth);
 			if (tv.viewWidth > maxTvWidth)
 				maxTvWidth = tv.viewWidth;
 		}
 		// println("maxTvWidth:"+maxTvWidth);
-		for (TextView tv : textviews) {
+		for (TextView tv : textviews)
+		{
 			tv.setWidth(maxTvWidth);
 			// println("tv.viewWidth:"+tv.viewWidth);
 		}
@@ -123,9 +132,11 @@ public class MenuItem extends View {
 		this.viewWidth = nWidth;
 	}
 
-	public void calcHeight() {
+	public void calcHeight()
+	{
 		int nHeight = this.padding;
-		for (TextView tv : textviews) {
+		for (TextView tv : textviews)
+		{
 			nHeight += tv.viewHeight + 1;
 			Drehsystem3d.println("viewHeight:" + tv.viewHeight);
 		}
@@ -134,45 +145,56 @@ public class MenuItem extends View {
 		Drehsystem3d.println("this.viewHeight:" + this.viewHeight);
 	}
 
-	public void calcPos() {
+	public void calcPos()
+	{
 		int xMax = this.context.width - this.viewWidth - 10;
 		int yMax = this.context.height - this.viewHeight - 10;
-		if (this.pos.x > xMax) {
+		if (this.pos.x > xMax)
+		{
 			updatePos(xMax - this.pos.x, 0);
 			this.pos.x = xMax;
 		}
-		if (this.pos.y > yMax) {
+		if (this.pos.y > yMax)
+		{
 			updatePos(0, yMax - this.pos.y);
 			this.pos.y = yMax;
 		}
 	}
 
-	public void updatePos(float offsetX, float offsetY) {
-		for (TextView tv : textviews) {
+	public void updatePos(float offsetX, float offsetY)
+	{
+		for (TextView tv : textviews)
+		{
 			Drehsystem3d.println("\nprevious pos:" + tv.pos);
 			tv.setPos(new PVector(tv.pos.x + offsetX, tv.pos.y + offsetY, 0));
 			Drehsystem3d.println("pos update:" + tv.pos);
 		}
 	}
 
-	public void setOnItemClickListener(OnItemClickListener listener) {
+	public void setOnItemClickListener(OnItemClickListener listener)
+	{
 		this.onItemClickListener = listener;
 	}
 
 	@Override
-	public void draw() {
+	public void draw()
+	{
 		// super.draw();
-		if (this.visible) {
+		if (this.visible)
+		{
 			this.context.fill(150, 150, 150, 255);
 			this.context.stroke(0);
 			this.context.strokeWeight(1);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
 			// println("this.viewHeight:" + this.viewHeight);
-			for (int i = 0; i < textviews.size(); i++) {
+			for (int i = 0; i < textviews.size(); i++)
+			{
 				TextView tv = textviews.get(i);
-				if (tv.hovered && tv.backgroundColor == 150) {
+				if (tv.hovered && tv.backgroundColor == 150)
+				{
 					tv.setBackground(255 - tv.backgroundColor);
-				} else if (!tv.hovered) {
+				} else if (!tv.hovered)
+				{
 					tv.setBackground(150);
 				}
 				tv.draw();
@@ -189,7 +211,8 @@ public class MenuItem extends View {
 	}
 
 	@Override
-	public boolean isClicked() {
+	public boolean isClicked()
+	{
 		if (!visible)
 			return false;
 		float mX = this.context.mouseX;
@@ -199,7 +222,8 @@ public class MenuItem extends View {
 	}
 
 	@Override
-	public boolean isHovered() {
+	public boolean isHovered()
+	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
 		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y

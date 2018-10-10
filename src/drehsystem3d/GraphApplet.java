@@ -6,7 +6,8 @@ import java.util.ArrayList;
 
 import processing.core.PApplet;
 
-public class GraphApplet extends PApplet {
+public class GraphApplet extends PApplet
+{
 
 	/**
 	 * 
@@ -26,7 +27,8 @@ public class GraphApplet extends PApplet {
 	DecimalFormat df = new DecimalFormat("#");
 	Drehsystem3d drehsystem3d;
 
-	public GraphApplet(Drehsystem3d drehsystem3d, String title) {
+	public GraphApplet(Drehsystem3d drehsystem3d, String title)
+	{
 		this.drehsystem3d = drehsystem3d;
 		String[] args = { "Velocity" };
 		PApplet.runSketch(args, this);
@@ -34,32 +36,38 @@ public class GraphApplet extends PApplet {
 		surface.setTitle(title);
 	}
 
-	public void settings() {
+	public void settings()
+	{
 		size(1500, 200);
 	}
 
-	public void setup() {
+	public void setup()
+	{
 		df.setRoundingMode(RoundingMode.CEILING);
 		// surface.setTitle("Graph");
 	}
 
 	@Override
-	public void exit() {
+	public void exit()
+	{
 		this.getSurface().setVisible(false);
 		this.visible = false;
 		this.waitingForExit = true;
 		this.noLoop();
 	}
 
-	public void exited() {
+	public void exited()
+	{
 		this.waitingForExit = false;
 		this.exited = true;
 	}
 
-	public void pause() {
+	public void pause()
+	{
 		this.getSurface().setVisible(false);
 		this.visible = false;
-		for (int i = 0; i < this.dataSets.size(); i++) {
+		for (int i = 0; i < this.dataSets.size(); i++)
+		{
 			this.dataSets.get(i).reset();
 			// this.dataSets.set(i, new
 			// DataSet(this.dataSets.get(i).getName())); //new
@@ -70,41 +78,51 @@ public class GraphApplet extends PApplet {
 		this.noLoop();
 	}
 
-	public void resume() {
+	public void resume()
+	{
 		this.getSurface().setVisible(true);
 		this.visible = true;
 		this.exited = false;
 		this.loop();
 	}
 
-	public boolean isVisible() {
+	public boolean isVisible()
+	{
 		return this.visible;
 	}
 
-	public boolean waitingForExit() {
+	public boolean waitingForExit()
+	{
 		return this.waitingForExit;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return this.title;
 	}
 
-	public void keyPressed() {
+	public void keyPressed()
+	{
 		drehsystem3d.handleKeyPressedEvent(keyCode, key);
 		println("key pressed");
 	}
 
-	public void keyReleased() {
+	public void keyReleased()
+	{
 		drehsystem3d.handleKeyReleasedEvent(keyCode, key);
 	}
 
-	public boolean createDataSet(String dataSetName) {
+	public boolean createDataSet(String dataSetName)
+	{
 		return createDataSet(dataSetName, 0, 0, 0);
 	}
 
-	public boolean createDataSet(String dataSetName, int r, int g, int b) {
-		for (DataSet d : dataSets) {
-			if (d.name.equals(dataSetName)) {
+	public boolean createDataSet(String dataSetName, int r, int g, int b)
+	{
+		for (DataSet d : dataSets)
+		{
+			if (d.name.equals(dataSetName))
+			{
 				return false;
 			}
 		}
@@ -113,11 +131,15 @@ public class GraphApplet extends PApplet {
 		return true;
 	}
 
-	public boolean addPoint(String dataSetName, float point) {
-		for (DataSet d : this.dataSets) {
-			if (d.name.equals(dataSetName)) {
+	public boolean addPoint(String dataSetName, float point)
+	{
+		for (DataSet d : this.dataSets)
+		{
+			if (d.name.equals(dataSetName))
+			{
 				d.addPointToBuffer(point);
-				if (d.data.size() + 1 > this.maxSize) {
+				if (d.data.size() + 1 > this.maxSize)
+				{
 					this.maxSize = d.data.size() + 1;
 				}
 				return true;
@@ -131,30 +153,37 @@ public class GraphApplet extends PApplet {
 	// return this.graphPoints.get(this.graphPoints.size()-1);
 	// }
 
-	public void addGraphPoint(float point) {
+	public void addGraphPoint(float point)
+	{
 		this.graphAddBuffer = point;
 		this.bufferLoaded = true;
 	}
 
-	public void setDelta(float dx) {
+	public void setDelta(float dx)
+	{
 		this.dx = dx;
 	}
 
-	public void draw() {
+	public void draw()
+	{
 		background(255);
 		noFill();
 		int startIdx = 0;
-		for (DataSet ds : this.dataSets) {
-			if (ds.isBufferLoaded()) {
+		for (DataSet ds : this.dataSets)
+		{
+			if (ds.isBufferLoaded())
+			{
 				ds.addPointFromBuffer();
 			}
 			println("data size:" + ds.data.size());
 			startIdx = ds.getDataSize() - floor((width - this.margin - 50 * this.dataSets.size()) / (this.dx));
-			if (startIdx > 0) {
+			if (startIdx > 0)
+			{
 				for (int i = 0; i < startIdx; i++)
 					ds.data.remove(0);
 			}
-			if (ds.getDataSize() > this.maxSize) {
+			if (ds.getDataSize() > this.maxSize)
+			{
 				this.maxSize = ds.getDataSize();
 			}
 		}
@@ -163,12 +192,14 @@ public class GraphApplet extends PApplet {
 		strokeWeight(1);
 		line(0, height / 2, width, height / 2);
 
-		for (DataSet ds : this.dataSets) {
+		for (DataSet ds : this.dataSets)
+		{
 			x += 50;
 			line(x, 0, x, height);
 			float dy = ds.getMax() / 10;
 			float y = 0;
-			for (int i = 0; i < 11; i++) {
+			for (int i = 0; i < 11; i++)
+			{
 				float mappedY = map(y, 0, ds.getMax(), this.margin / 2, height - this.margin / 2);
 				line(x - 5, mappedY, x + 5, mappedY);
 				fill(0);
@@ -178,11 +209,14 @@ public class GraphApplet extends PApplet {
 			}
 		}
 
-		for (int i = 1; i < this.maxSize; i++) {
-			for (DataSet d : this.dataSets) {
+		for (int i = 1; i < this.maxSize; i++)
+		{
+			for (DataSet d : this.dataSets)
+			{
 				float p1 = 0;
 				float p2 = 0;
-				if (d.getDataSize() > i) {
+				if (d.getDataSize() > i)
+				{
 					p1 = d.getPoint(i - 1);
 					p2 = d.getPoint(i);
 				}
@@ -197,7 +231,8 @@ public class GraphApplet extends PApplet {
 
 	}
 
-	private class DataSet {
+	private class DataSet
+	{
 		private ArrayList<Float> data = new ArrayList<Float>();
 		private float pointBuffer;
 		private boolean bufferLoaded = false;
@@ -207,53 +242,64 @@ public class GraphApplet extends PApplet {
 		private int g = 0;
 		private int b = 0;
 
-		DataSet(String name) {
+		DataSet(String name)
+		{
 			this.name = name;
 		}
 
-		public void reset() {
+		public void reset()
+		{
 			this.data = new ArrayList<Float>();
 			this.yMax = 10;
 		}
 
-		public String getName() {
+		public String getName()
+		{
 			return this.name;
 		}
 
-		public int getDataSize() {
+		public int getDataSize()
+		{
 			return this.data.size();
 		}
 
-		public float getPoint(int idx) {
+		public float getPoint(int idx)
+		{
 			return this.data.get(idx);
 		}
 
-		public void setColor(int r, int g, int b) {
+		public void setColor(int r, int g, int b)
+		{
 			this.r = r;
 			this.g = g;
 			this.b = b;
 		}
 
-		public void addPointToBuffer(float point) {
+		public void addPointToBuffer(float point)
+		{
 			this.pointBuffer = point;
 			this.bufferLoaded = true;
 		}
 
-		public void addPointFromBuffer() {
+		public void addPointFromBuffer()
+		{
 			this.data.add(this.pointBuffer);
 			if (this.pointBuffer > this.yMax)
 				this.yMax = this.pointBuffer;
 			this.bufferLoaded = false;
 		}
 
-		public void removePoint(int idx) {
+		public void removePoint(int idx)
+		{
 		}
 
-		public float getMax() {
+		public float getMax()
+		{
 			return this.yMax;
 		}
 
-		public boolean isBufferLoaded() {
+		public boolean isBufferLoaded()
+		{
 			return this.bufferLoaded;
 		}
 	}

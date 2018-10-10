@@ -3,7 +3,8 @@ package drehsystem3d;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class Toast extends View {
+public class Toast extends View
+{
 	/**
 	 * 
 	 */
@@ -24,32 +25,36 @@ public class Toast extends View {
 	String text = "";
 	int state = Toast.STATE_ENTER;
 
-	Toast(Drehsystem3d drehsystem3d, PApplet context, String text, int duration) {
+	Toast(Drehsystem3d drehsystem3d, PApplet context, String text, int duration)
+	{
 		super(context, context.width / 2 - standardWidth / 2, context.height);
 		this.context = context;
 		this.text = text;
-		switch (duration) {
-		case Toast.DURATION_SHORT:
-			this.duration = 2000;
-			break;
+		switch (duration)
+		{
+			case Toast.DURATION_SHORT:
+				this.duration = 2000;
+				break;
 
-		case Toast.DURATION_LONG:
-			this.duration = 4000;
-			break;
+			case Toast.DURATION_LONG:
+				this.duration = 4000;
+				break;
 
-		case Toast.DURATION_INFINITE:
-			this.duration = -1;
-			break;
+			case Toast.DURATION_INFINITE:
+				this.duration = -1;
+				break;
 		}
 		this.pos = new PVector(context.width / 2 - standardWidth / 2, context.height, 0);
 	}
 
 	@Override
-	public boolean isClicked() {
+	public boolean isClicked()
+	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
 		if (mX >= this.pos.x && mX <= this.pos.x + Toast.standardWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + Toast.standardHeight) {
+				&& mY <= this.pos.y + Toast.standardHeight)
+		{
 			mousePosDiff = new PVector(mX - this.pos.x, mY - this.pos.y, 0);
 			return true;
 		}
@@ -57,52 +62,63 @@ public class Toast extends View {
 	}
 
 	@Override
-	public boolean isHovered() {
+	public boolean isHovered()
+	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
 		return (mX >= this.pos.x && mX <= this.pos.x + Toast.standardWidth && mY >= this.pos.y
 				&& mY <= this.pos.y + Toast.standardHeight);
 	}
 
-	public void update() {
-		switch (this.state) {
-		case Toast.STATE_ENTER:
-			this.pos.y -= this.speed;
-			if (this.pos.y < this.context.height - 100) {
-				this.state = Toast.STATE_SHOW;
-				this.lastTime = context.millis();
-			}
-			break;
+	public void update()
+	{
+		switch (this.state)
+		{
+			case Toast.STATE_ENTER:
+				this.pos.y -= this.speed;
+				if (this.pos.y < this.context.height - 100)
+				{
+					this.state = Toast.STATE_SHOW;
+					this.lastTime = context.millis();
+				}
+				break;
 
-		case Toast.STATE_SHOW:
-			if (context.millis() - this.lastTime >= this.duration && this.duration > 0)
-				this.state = Toast.STATE_EXIT;
-			break;
+			case Toast.STATE_SHOW:
+				if (context.millis() - this.lastTime >= this.duration && this.duration > 0)
+					this.state = Toast.STATE_EXIT;
+				break;
 
-		case Toast.STATE_EXIT:
-			this.pos.y += this.speed;
-			if (this.pos.y > this.context.height)
-				this.visible = false;
-			break;
+			case Toast.STATE_EXIT:
+				this.pos.y += this.speed;
+				if (this.pos.y > this.context.height)
+					this.visible = false;
+				break;
 		}
 	}
 
-	public void windowResized(int w, int h) {
+	public void windowResized(int w, int h)
+	{
 		this.pos.x = (float) (this.context.width / 2 - Toast.standardWidth / 2);
 		this.pos.y = this.pos.y / h * this.context.height;
 	}
 
 	@Override
-	public void draw() {
-		if (this.visible) {
+	public void draw()
+	{
+		if (this.visible)
+		{
 			if (!this.clicked)
+			{
 				update();
+			}
 			this.context.fill(255);
 			this.context.stroke(100);
+			this.context.strokeWeight(1);
 			this.context.textSize(20);
 			float x = this.pos.x;
 			float y = this.pos.y;
-			if (this.clicked) {
+			if (this.clicked)
+			{
 				x = this.context.mouseX - this.mousePosDiff.x;
 				y = this.context.mouseY - this.mousePosDiff.y;
 			}

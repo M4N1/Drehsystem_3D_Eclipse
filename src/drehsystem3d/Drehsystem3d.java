@@ -19,7 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class Drehsystem3d extends PApplet {
+public class Drehsystem3d extends PApplet
+{
 
 	final static boolean output = true;
 	long startTime;
@@ -98,11 +99,13 @@ public class Drehsystem3d extends PApplet {
 
 	Toast toast;
 
-	public void settings() {
+	public void settings()
+	{
 		size(1500, 800, P3D);
 	}
 
-	public void setup() {
+	public void setup()
+	{
 
 		pos = new PVector(width / 2, height / 2, 0);
 		lastSetPos = new PVector(width / 2, height / 2, 0);
@@ -181,9 +184,11 @@ public class Drehsystem3d extends PApplet {
 		this.bReset.setTextColor(255);
 		this.bReset.setCornerRadius(15);
 		this.bReset.setTextAlignment(15);
-		this.bReset.setOnClickListener(new OnClickListener() {
+		this.bReset.setOnClickListener(new OnClickListener()
+		{
 			@Override
-			public void onClick(int id) {
+			public void onClick(int id)
+			{
 				removePoints = true;
 			}
 		});
@@ -195,9 +200,11 @@ public class Drehsystem3d extends PApplet {
 		this.bStart.setTextColor(255);
 		this.bStart.setCornerRadius(15);
 		this.bStart.setTextAlignment(15);
-		this.bStart.setOnClickListener(new OnClickListener() {
+		this.bStart.setOnClickListener(new OnClickListener()
+		{
 			@Override
-			public void onClick(int id) {
+			public void onClick(int id)
+			{
 				reset = true;
 			}
 		});
@@ -209,9 +216,11 @@ public class Drehsystem3d extends PApplet {
 		this.bClearPath.setTextColor(255);
 		this.bClearPath.setCornerRadius(15);
 		this.bClearPath.setTextAlignment(15);
-		this.bClearPath.setOnClickListener(new OnClickListener() {
+		this.bClearPath.setOnClickListener(new OnClickListener()
+		{
 			@Override
-			public void onClick(int id) {
+			public void onClick(int id)
+			{
 				clearPath = true;
 			}
 		});
@@ -223,9 +232,11 @@ public class Drehsystem3d extends PApplet {
 		this.bAlign.setTextColor(255);
 		this.bAlign.setCornerRadius(15);
 		this.bAlign.setTextAlignment(15);
-		this.bAlign.setOnClickListener(new OnClickListener() {
+		this.bAlign.setOnClickListener(new OnClickListener()
+		{
 			@Override
-			public void onClick(int id) {
+			public void onClick(int id)
+			{
 				angle = new float[] { 0, 0, 0 };
 				lastSetAngle = new float[] { 0, 0, 0 };
 				pos = new PVector(width / 2, height / 2, 0);
@@ -240,7 +251,8 @@ public class Drehsystem3d extends PApplet {
 		// angle = new float[]{0, 0, 0};
 		// lastSetAngle = new float[]{0, 0, 0};
 		println("\n");
-		for (Point p : points) {
+		for (Point p : points)
+		{
 			println(p.name);
 			println(p.pos + "\n");
 		}
@@ -258,16 +270,22 @@ public class Drehsystem3d extends PApplet {
 		// sa.createDataSet("a", 255, 0, 0);
 	}
 
-	public void update() {
-		if (!this.setup) {
+	public void update()
+	{
+		if (!this.setup)
+		{
 			if (this.reset)
 				println("reset update");
-			for (Point p : points) {
+			for (Point p : points)
+			{
 				p.update();
 			}
-			for (GraphApplet sa : applets) {
-				for (Point p : points) {
-					if (p.getName().equals(sa.getName())) {
+			for (GraphApplet sa : applets)
+			{
+				for (Point p : points)
+				{
+					if (p.getName().equals(sa.getName()))
+					{
 						PVector pos = new PVector(p.pos.x, p.pos.y, p.pos.z);
 						float v = pos.sub(p.v).mag();
 						pos = new PVector(p.pos.x, p.pos.y, p.pos.z);
@@ -280,31 +298,38 @@ public class Drehsystem3d extends PApplet {
 		}
 	}
 
-	public void draw() {
+	public void draw()
+	{
 		if (keyPressed && (millis() - lastKeyEvent > 100) && (lastPressedKeyCode == 139 || lastPressedKeyCode == 93
-				|| lastPressedKeyCode == 140 || lastPressedKeyCode == 47)) {
+				|| lastPressedKeyCode == 140 || lastPressedKeyCode == 47))
+		{
 			handleKeyPressedEvent(lastPressedKeyCode, lastPressedKey);
 		}
-		if (this.pointToAdd != null) {
+		if (this.pointToAdd != null)
+		{
 			// Point addNewPoint(Point parent, PVector pos, PVector w, float
 			// alpha)
 			addNewPoint(this.pointToAdd.parent, this.pointToAdd.setPos, this.pointToAdd.setW, this.pointToAdd.setAlpha);
 			this.pointToAdd = null;
 		}
-		if (removePoints) {
+		if (removePoints)
+		{
 			points = new ArrayList<Point>();
 			this.nameCounter = 65;
 			addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
 			removePoints = false;
-		} else if (clearPath) {
-			for (Point p : points) {
+		} else if (clearPath)
+		{
+			for (Point p : points)
+			{
 				p.clearPath();
 			}
 			clearPath = false;
 		}
 		noLights();
 		pushMatrix();
-		if (rotation) {
+		if (rotation)
+		{
 			float maxAngle = PI;
 			angle[0] = map((float) (mouseX - mouseReference.x), -width, width, -maxAngle, maxAngle) * 2
 					+ lastSetAngle[0]; // mouseReference.x
@@ -326,12 +351,14 @@ public class Drehsystem3d extends PApplet {
 			// println("angle y:" + angle[0]);
 			// println("last angle x:" + lastSetAngle[1]);
 			// println("last angle y:" + lastSetAngle[0]);
-		} else if (translation) {
+		} else if (translation)
+		{
 			pos = new PVector(lastSetPos.x + (mouseX - mouseReference.x), lastSetPos.y + (mouseY - mouseReference.y),
 					0);
 		}
 		boolean windowResized = !(this.currWindowWidth == this.width && this.currWindowHeight == this.height);
-		if (windowResized) {
+		if (windowResized)
+		{
 			toast.windowResized(this.currWindowWidth, this.currWindowHeight);
 			this.currWindowWidth = this.width;
 			this.currWindowHeight = this.height;
@@ -344,10 +371,12 @@ public class Drehsystem3d extends PApplet {
 		detectionCanvas.beginDraw();
 		detectionCanvas.background(0);
 		detectionCanvas.endDraw();
-		if (this.reset) {
+		if (this.reset)
+		{
 			// angle = new float[]{0, 0, 0};
 			// lastSetAngle = new float[]{0, 0, 0};
-			for (Point p : points) {
+			for (Point p : points)
+			{
 				p.moveToStart();
 				// println("\nlastPos:" + p.lastPos);
 				// println("pos:" + p.pos);
@@ -358,8 +387,10 @@ public class Drehsystem3d extends PApplet {
 		// image(canvas, 0, 0);
 		toast.draw();
 
-		for (Button b : buttons) {
-			if (b.id == 1) {
+		for (Button b : buttons)
+		{
+			if (b.id == 1)
+			{
 				boolean visible = !(this.currentAngle[0] == 0 && this.currentAngle[1] == 0 && this.currentAngle[2] == 0
 						&& this.pos.x == width / 2 && this.pos.y == height / 2 && this.zoom == 1);
 				b.setVisibility(visible);
@@ -408,7 +439,8 @@ public class Drehsystem3d extends PApplet {
 		// rotate(angle[2], 0, 0, cos(currentAngle[2]));
 		currentAngle[2] = angle[2];
 
-		if (!this.stopped) {
+		if (!this.stopped)
+		{
 			update();
 			// this.stopped = true;
 		}
@@ -433,7 +465,8 @@ public class Drehsystem3d extends PApplet {
 		rotateZ(HALF_PI);
 		image(xzSurface, -50, -50);
 		popMatrix();
-		for (Point p : points) {
+		for (Point p : points)
+		{
 			p.setVisibilityL(cLines.isChecked());
 			p.setVisibilityV(cVelocity.isChecked());
 			p.setVisibilityA(cAcceleration.isChecked());
@@ -458,17 +491,23 @@ public class Drehsystem3d extends PApplet {
 			detectionCanvas.endDraw();
 		}
 
-		if (cPath.isChecked() && !windowResized) {
-			if (points.size() > 1) {
-				for (int i = 0; i < points.size(); i++) {
+		if (cPath.isChecked() && !windowResized)
+		{
+			if (points.size() > 1)
+			{
+				for (int i = 0; i < points.size(); i++)
+				{
 					Point p = points.get(i);
 					// if (!(p.lastPos.x == p.pos.x && p.lastPos.y == p.pos.y))
-					if (p.getPathVisibility()) {
+					if (p.getPathVisibility())
+					{
 						int[] c = p.getPathColor();
 						stroke(c[0], c[1], c[2]);
 						ArrayList<PVector> path = p.getPath();
-						if (path != null && path.size() > 1) {
-							for (int j = 0; j < path.size() - 1; j++) {
+						if (path != null && path.size() > 1)
+						{
+							for (int j = 0; j < path.size() - 1; j++)
+							{
 								PVector lastPos = path.get(j);
 								PVector pos = path.get(j + 1);
 								line(lastPos.x * scaleD, lastPos.y * scaleD, lastPos.z * scaleD, pos.x * scaleD,
@@ -502,7 +541,8 @@ public class Drehsystem3d extends PApplet {
 		// "'", -width/2+400, height/2-20);
 
 		textSize(25);
-		if (output) {
+		if (output)
+		{
 			fill(255);
 			stroke(255);
 
@@ -528,19 +568,14 @@ public class Drehsystem3d extends PApplet {
 			 * " m/s", -width/2+10, height/2-100); text("v_ap: " + v2 + " m/s",
 			 * -width/2+10, height/2-60); text("v_op: " + v3 + " m/s",
 			 * -width/2+10, height/2-20);
-			 * 
 			 * String w1 = w[1].z < 10 ? ("  " + String.format("%.02f", w[1].z))
 			 * : String.format("%.02f", w[1].z); String w2 = w[2].z < 10 ? ("  "
 			 * + String.format("%.02f", w[2].z)) : String.format("%.02f",
 			 * w[2].z);
-			 * 
 			 * text("omega_oa: " + w1 + " 1/s", -width/2+275, height/2-100);
 			 * text("omega_ap: " + w2 + " 1/s", -width/2+275, height/2-60);
-			 * 
 			 * float timeS = (float)time/1000; text("Time: " +
 			 * String.format("%.02f", timeS) + " s", -width/2+275, height/2-20);
-			 * 
-			 * 
 			 * text( "alpha_oa: " + a[1] + " 1/s^2", -width/2+700,
 			 * height/2-100); text("alpha_ap: " + a[2] + " 1/s^2", -width/2+700,
 			 * height/2-60); }
@@ -553,7 +588,8 @@ public class Drehsystem3d extends PApplet {
 		hint(ENABLE_DEPTH_TEST);
 	}
 
-	public void mousePressed() {
+	public void mousePressed()
+	{
 		if (!mouseButtons.contains(mouseButton))
 			mouseButtons.add(mouseButton);
 		println("mouse pressed : '" + mouseButton + "'");
@@ -563,54 +599,51 @@ public class Drehsystem3d extends PApplet {
 		if (menuItem != null)
 			if (menuItem.onMousePressed())
 				return;
-		if (mouseButton == LEFT) {
+		if (mouseButton == LEFT)
+		{
 			mouseReference = new PVector(mouseX, mouseY, 0);
 			translation = true;
-		} else if (mouseButton == CENTER) {
+		} else if (mouseButton == CENTER)
+		{
 			centerButtonPressed = true;
-		} else if (mouseButton == RIGHT) {
+		} else if (mouseButton == RIGHT)
+		{
 			rightButtonPressed = true;
 			detectionCanvas.loadPixels();
 			int objectId = -1;
 			Iterator<Map.Entry<Integer, Integer[]>> it = objects.entrySet().iterator();
-			while (it.hasNext()) {
-				// println("Iterator");
+			while (it.hasNext())
+			{
 				Map.Entry<Integer, Integer[]> pair = it.next();
 				Integer[] colorValue = pair.getValue();
 				int c = detectionCanvas.pixels[mouseX + mouseY * width];
-				// println("cV:" + color(colorValue[0], colorValue[1],
-				// colorValue[2]));
-				// println("c:" + c);
-				if (color(colorValue[0], colorValue[1], colorValue[2]) == c) {
+				if (color(colorValue[0], colorValue[1], colorValue[2]) == c)
+				{
 					objectId = (int) pair.getKey();
-					// println("id:" + objectId);
 					break;
 				}
-				// System.out.println(pair.getKey() + " = " + pair.getValue());
-				// it.remove(); // avoids a ConcurrentModificationException
 			}
-			// for (int colorValue : objects) {
-			// if (color(colorValue) ==
-			// detectionCanvas.pixels[mouseX+mouseY*width)) {
-			// }
-			// }
-			if (objectId != -1) {
-				for (Point p : points) {
+			if (objectId != -1)
+			{
+				for (Point p : points)
+				{
 					final Point point = p;
-					// final Point point = objects.get(objectId);
-					if (point.getId() == objectId) {
-						// if (p.mousePressedEvent(mouseX-width/2,
-						// mouseY-height/2)) {
+					if (point.getId() == objectId)
+					{
 						println("point " + p.getName() + " pressed");
 						final String[] possibleValues = new String[] { "Add Point", "Change value", "Graph",
 								"Hide Path", "Draw Path", "Remove", "Change Color" };
+
 						final String[] values;
 						if (point.parent != null)
+						{
 							values = new String[] { possibleValues[0], possibleValues[1], possibleValues[2],
 									(point.visibilityPath ? possibleValues[3] : possibleValues[4]), possibleValues[5],
 									possibleValues[6] };
-						else
+						} else
+						{
 							values = new String[] { possibleValues[0] };
+						}
 						PVector scaledPos = new PVector(point.pos.x, point.pos.y, point.pos.z);
 						scaledPos = scaledPos.mult(scaleD);
 						pushMatrix();
@@ -626,41 +659,31 @@ public class Drehsystem3d extends PApplet {
 						popMatrix();
 						println("MenuX:" + x);
 						println("MenuY:" + y);
-						menuItem = new MenuItem(this, this, x, y, "Title", values); // ,
-																					// "Change
-																					// value",
-																					// "Graph",
-																					// (point.visibilityPath
-																					// ?
-																					// "Hide
-																					// Path"
-																					// :
-																					// "Draw
-																					// Path")
-						menuItem.setOnItemClickListener(new OnItemClickListener() {
+						menuItem = new MenuItem(this, x, y, "Title", values);
+						menuItem.setOnItemClickListener(new OnItemClickListener()
+						{
 							@Override
-							public void onItemClick(int itemIdx, String item) {
+							public void onItemClick(int itemIdx, String item)
+							{
 								InputBox ib;
-								// switch (itemIdx) {
-								// case 1:
 
-								// add point
-								if (item.equals(possibleValues[0])) {
-									ib = new InputBox(Drehsystem3d.this, "Input",
+								// Add point.
+								if (item.equals(possibleValues[0]))
+								{
+									ib = new InputBox("Input",
 											new String[] { "x", "y", "z", "wx", "wy", "wz", "alpha" },
 											new String[] { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0" });
-									ib.setMaxLimits(new float[] { 15, // (width/2-getLastPoint().absSetPos.x*scaleD)/scaleD,
-											15, // (height/2-getLastPoint().absSetPos.y*scaleD)/scaleD,
-											100, 400, 400, 400, 200 });
-									// println("width/2:"+width/2);
-									// println("lastPointPos:"+getLastPoint().absSetPos.mult(scaleD));
+									ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
 									ib.setMinLimits(
 											new float[] { -width / 2, -height / 2, -100, -400, -400, -400, -200 });
-									ib.setOnEditingFinishedListener(new InputBoxListener() {
+									ib.setOnEditingFinishedListener(new InputBoxListener()
+									{
 										@Override
-										public void finishedEditing(String... data) {
+										public void finishedEditing(String... data)
+										{
 											inputWindowOpened = false;
-											if (data.length == 7) {
+											if (data.length == 7)
+											{
 												float x = data[0] == "" ? 0.0f : Float.parseFloat(data[0]);
 												float y = data[1] == "" ? 0.0f : Float.parseFloat(data[1]);
 												float z = data[2] == "" ? 0.0f : Float.parseFloat(data[2]);
@@ -676,8 +699,10 @@ public class Drehsystem3d extends PApplet {
 												println("wz:" + wz);
 												println("alpha:" + alpha);
 												reset = true;
-												if (!(x == 0 && y == 0 && z == 0)) {
-													for (Point p : points) {
+												if (!(x == 0 && y == 0 && z == 0))
+												{
+													for (Point p : points)
+													{
 														p.reset();
 													}
 													pointToAdd = new Point(Drehsystem3d.this, idCount, point,
@@ -688,36 +713,33 @@ public class Drehsystem3d extends PApplet {
 										}
 
 										@Override
-										public void onExit() {
+										public void onExit()
+										{
 											inputWindowOpened = false;
 										}
 									});
 									inputWindowOpened = true;
-								}
-								// break;
-
-								// case 2:
-								else if (item.equals(possibleValues[1])) {
-									if (!inputWindowOpened) {
+								} else if (item.equals(possibleValues[1]))
+								{
+									if (!inputWindowOpened)
+									{
 										String[] values = new String[] { "x", "y", "z", "wx", "wy", "wz", "alpha" };
 										String[] standardValues = new String[] { Float.toString(point.setPos.x),
 												Float.toString(point.setPos.y), Float.toString(point.setPos.z),
 												Float.toString(point.setW.x), Float.toString(point.setW.y),
 												Float.toString(point.setW.z), Float.toString(point.setAlpha) };
-										ib = new InputBox(Drehsystem3d.this, "Change " + point.getName(), values,
-												standardValues);
-										ib.setMaxLimits(new float[] { 15, // (width/2-getLastPoint().absSetPos.x*scaleD)/scaleD,
-												15, // (height/2-getLastPoint().absSetPos.y*scaleD)/scaleD,
-												100, 400, 400, 400, 200 });
-										// println("width/2:"+width/2);
-										// println("lastPointPos:"+getLastPoint().absSetPos.mult(scaleD));
+										ib = new InputBox("Change " + point.getName(), values, standardValues);
+										ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
 										ib.setMinLimits(
 												new float[] { -width / 2, -height / 2, -100, -400, -400, -400, -200 });
-										ib.setOnEditingFinishedListener(new InputBoxListener() {
+										ib.setOnEditingFinishedListener(new InputBoxListener()
+										{
 											@Override
-											public void finishedEditing(String... data) {
+											public void finishedEditing(String... data)
+											{
 												inputWindowOpened = false;
-												if (data.length == 7) {
+												if (data.length == 7)
+												{
 													float x = data[0] == "" ? 0.0f : Float.parseFloat(data[0]);
 													float y = data[1] == "" ? 0.0f : Float.parseFloat(data[1]);
 													float z = data[2] == "" ? 0.0f : Float.parseFloat(data[2]);
@@ -732,11 +754,13 @@ public class Drehsystem3d extends PApplet {
 													println("wy:" + wy);
 													println("wz:" + wz);
 													println("alpha:" + alpha);
-													if (!(x == 0 && y == 0 && z == 0)) {
+													if (!(x == 0 && y == 0 && z == 0))
+													{
 														point.setPos(new PVector(x, y, z));
 														point.setW(new PVector(wx, wy, wz));
 														point.setAlpha(alpha);
-														for (Point p : points) {
+														for (Point p : points)
+														{
 															p.reset();
 														}
 														reset = true;
@@ -745,26 +769,27 @@ public class Drehsystem3d extends PApplet {
 											}
 
 											@Override
-											public void onExit() {
+											public void onExit()
+											{
 												inputWindowOpened = false;
 											}
 										});
 										inputWindowOpened = true;
 									}
-									// break;
-								}
-
-								// case 3:
-								else if (item.equals(possibleValues[2])) {
+								} else if (item.equals(possibleValues[2]))
+								{
 									String name = point.getName();
 									boolean exists = false;
-									for (GraphApplet a : applets) {
-										if (a.getName().equals(name)) {
+									for (GraphApplet a : applets)
+									{
+										if (a.getName().equals(name))
+										{
 											exists = true;
 											break;
 										}
 									}
-									if (!exists) {
+									if (!exists)
+									{
 										GraphApplet sa = new GraphApplet(Drehsystem3d.this, name);
 										sa.resume();
 										sa.createDataSet("v", 0, 0, 255);
@@ -772,43 +797,43 @@ public class Drehsystem3d extends PApplet {
 										cOutput.setChecked(true);
 										applets.add(sa);
 									}
-									// break;
-								}
-
-								// case 4:
-								else if (item.equals(possibleValues[3]) || item.equals(possibleValues[4])) {
+								} else if (item.equals(possibleValues[3]) || item.equals(possibleValues[4]))
+								{
 									boolean newVisiblityPath = !point.visibilityPath;
 									point.drawPath(newVisiblityPath);
 									if (!newVisiblityPath)
+									{
 										erasePath();
-									// break;
-								}
-
-								// case 5:
-								else if (item.equals(possibleValues[5])) {
+									}
+								} else if (item.equals(possibleValues[5]))
+								{
 									points.remove(point);
 								}
 
-								else if (item.equals(possibleValues[6])) {
-									if (!inputWindowOpened) {
+								else if (item.equals(possibleValues[6]))
+								{
+									if (!inputWindowOpened)
+									{
 										String[] values = new String[] { "r", "g", "b" };
 										String[] standardValues = new String[3];
 										int[] c = point.getPathColor();
 										for (int i = 0; i < standardValues.length; i++)
+										{
 											standardValues[i] = Integer.toString(c[i]);
-										ib = new InputBox(Drehsystem3d.this, "Pathcolor " + point.getName(), values,
-												standardValues);
+										}
+										ib = new InputBox("Pathcolor " + point.getName(), values, standardValues);
 										ib.setInputType(InputTypes.INTEGER);
 										ib.setMaxLimits(new float[] { 255, 255, 255 });
-										// println("width/2:"+width/2);
-										// println("lastPointPos:"+getLastPoint().absSetPos.mult(scaleD));
 										ib.setMinLimits(new float[] { 0, 0, 0 });
-										ib.setOnEditingFinishedListener(new InputBoxListener() {
+										ib.setOnEditingFinishedListener(new InputBoxListener()
+										{
 											@Override
-											public void finishedEditing(String... data) {
+											public void finishedEditing(String... data)
+											{
 												int necessaryDataLength = 3;
 												inputWindowOpened = false;
-												if (data.length == necessaryDataLength) {
+												if (data.length == necessaryDataLength)
+												{
 													int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
 													int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
 													int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
@@ -821,14 +846,14 @@ public class Drehsystem3d extends PApplet {
 											}
 
 											@Override
-											public void onExit() {
+											public void onExit()
+											{
 												inputWindowOpened = false;
 											}
 										});
 										inputWindowOpened = true;
 									}
 								}
-								// }
 							}
 						});
 					}
@@ -836,80 +861,102 @@ public class Drehsystem3d extends PApplet {
 			}
 		}
 
-		for (Checkbox c : checkboxes) {
-			if (c.mousePressedEvent()) {
+		for (Checkbox c : checkboxes)
+		{
+			if (c.mousePressedEvent())
+			{
 				println("pressed " + c.text);
 			}
 		}
 
-		for (TextBox tb : textboxes) {
+		for (TextBox tb : textboxes)
+		{
 			tb.mousePressedEvent();
 		}
 
-		for (GraphApplet sa : applets) {
-			if (sa.waitingForExit()) {
+		for (GraphApplet sa : applets)
+		{
+			if (sa.waitingForExit())
+			{
 				cOutput.setChecked(false);
 				sa.exited();
 			}
-			if (cOutput.isChecked() && !sa.isVisible() && !sa.exited) {
+			if (cOutput.isChecked() && !sa.isVisible() && !sa.exited)
+			{
 				sa.resume();
-			} else if (!cOutput.isChecked() && sa.isVisible()) {
+			} else if (!cOutput.isChecked() && sa.isVisible())
+			{
 				sa.pause();
 			}
 		}
 
-		if (centerButtonPressed && rightButtonPressed && !rotation) {
+		if (centerButtonPressed && rightButtonPressed && !rotation)
+		{
 			mouseReference = new PVector(mouseX, mouseY, 0);
 			rotation = true;
 			setZoom = zoom;
 			zooming = false;
-		} else if (centerButtonPressed && !zooming) {
+		} else if (centerButtonPressed && !zooming)
+		{
 			mouseReference = new PVector(mouseX, mouseY, 0);
 			zooming = true;
 		}
 	}
 
-	public void mouseReleased() {
+	public void mouseReleased()
+	{
 		println("mouse released:" + mouseButton);
-		if (rotation) {
+		if (rotation)
+		{
 			lastSetAngle = new float[] { angle[0], angle[1], angle[2] };
 			println("last angle x:" + lastSetAngle[1]);
 			println("last angle y:" + lastSetAngle[0]);
 			rotation = false;
-			if (mouseButton != CENTER) {
+			if (mouseButton != CENTER)
+			{
 				mouseReference = new PVector(mouseX, mouseY, 0);
 				zooming = true;
 			}
-		} else if (zooming) {
+		} else if (zooming)
+		{
 			setZoom = zoom;
 			zooming = false;
-		} else if (translation) {
+		} else if (translation)
+		{
 			lastSetPos = new PVector(pos.x, pos.y, 0);
 			translation = false;
 		}
-		if (mouseButton == CENTER) {
+
+		if (mouseButton == CENTER)
+		{
 			centerButtonPressed = false;
-		} else if (mouseButton == RIGHT) {
+		} else if (mouseButton == RIGHT)
+		{
 			rightButtonPressed = false;
 		}
 		toast.onMouseReleased();
-		for (TextBox tb : textboxes) {
+		for (TextBox tb : textboxes)
+		{
 			tb.mouseReleasedEvent();
 		}
 	}
 
-	public void mouseDragged() {
-		for (TextBox tb : textboxes) {
+	public void mouseDragged()
+	{
+		for (TextBox tb : textboxes)
+		{
 			tb.mouseDraggedEvent();
 		}
 	}
 
-	public void keyPressed() {
+	public void keyPressed()
+	{
 		println("key pressed");
 		lastPressedKey = key;
 		lastPressedKeyCode = keyCode;
 		boolean tbClicked = false;
-		for (TextBox tb : textboxes) {
+		for (TextBox tb : textboxes)
+		{
 			tb.handleKeyPressedEvent(keyCode, key);
 			if (tb.isClicked())
 				tbClicked = true;
@@ -918,93 +965,107 @@ public class Drehsystem3d extends PApplet {
 			handleKeyPressedEvent(keyCode, key);
 	}
 
-	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey) {
+	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey)
+	{
 		lastKeyEvent = millis();
-		if (!keyCodes.contains(pressedKeyCode)) {
+		if (!keyCodes.contains(pressedKeyCode))
+		{
 			keys.add(pressedKey);
 			keyCodes.add(pressedKeyCode);
 			println("keyCode:" + pressedKeyCode);
 			println("key:'" + pressedKey + "'");
 		}
-		switch (pressedKeyCode) {
-		case 139:
-		case 93:
-			if (isKeyPressed(16) && isKeyPressed(17)) {
-				this.scale += 0.2f;
-				updateDrawScale();
-			} else if (isKeyPressed(17)) {
-				this.scaleD++;
-				updateDrawScaleD();
-			} else {
-				if ((speed >= 0 && speed < 1) || (speed < -0.5f && speed >= -1))
-					speed = speed + 0.5f;
-				else
-					speed++;
-				updateDrawSpeed();
-			}
-			break;
-
-		case 140:
-		case 47:
-			if (isKeyPressed(16) && isKeyPressed(17)) {
-				if (this.scale > 0) {
-					if (this.scale <= 0.2f)
-						this.scale -= 0.1f;
-					else
-						this.scale -= 0.2f;
+		switch (pressedKeyCode)
+		{
+			case 139:
+			case 93:
+				if (isKeyPressed(16) && isKeyPressed(17))
+				{
+					this.scale += 0.2f;
 					updateDrawScale();
-				}
-			} else if (isKeyPressed(17)) {
-				if (this.scaleD > 0) {
-					this.scaleD--;
+				} else if (isKeyPressed(17))
+				{
+					this.scaleD++;
 					updateDrawScaleD();
+				} else
+				{
+					if ((speed >= 0 && speed < 1) || (speed < -0.5f && speed >= -1))
+						speed = speed + 0.5f;
+					else
+						speed++;
+					updateDrawSpeed();
 				}
-			} else {
-				if ((speed > 0.5f && speed <= 1) || (speed <= -0.5f && speed > -1))
-					speed = speed - 0.5f;
-				else
-					speed--;
-				updateDrawSpeed();
-			}
-			break;
+				break;
+
+			case 140:
+			case 47:
+				if (isKeyPressed(16) && isKeyPressed(17))
+				{
+					if (this.scale > 0)
+					{
+						if (this.scale <= 0.2f)
+							this.scale -= 0.1f;
+						else
+							this.scale -= 0.2f;
+						updateDrawScale();
+					}
+				} else if (isKeyPressed(17))
+				{
+					if (this.scaleD > 0)
+					{
+						this.scaleD--;
+						updateDrawScaleD();
+					}
+				} else
+				{
+					if ((speed > 0.5f && speed <= 1) || (speed <= -0.5f && speed > -1))
+						speed = speed - 0.5f;
+					else
+						speed--;
+					updateDrawSpeed();
+				}
+				break;
 		}
-		switch (pressedKey) {
-		case '1':
-			speed = 1;
-			updateDrawSpeed();
-			break;
+		switch (pressedKey)
+		{
+			case '1':
+				speed = 1;
+				updateDrawSpeed();
+				break;
 
-		case '0':
-			speed = 1;
-			updateDrawSpeed();
-			break;
+			case '0':
+				speed = 1;
+				updateDrawSpeed();
+				break;
 
-		case 'p':
-			cPath.setChecked(!cPath.isChecked());
-			break;
+			case 'p':
+				cPath.setChecked(!cPath.isChecked());
+				break;
 
-		case 'o':
-			cOutput.setChecked(!cOutput.isChecked());
-			break;
+			case 'o':
+				cOutput.setChecked(!cOutput.isChecked());
+				break;
 
-		case 'v':
-			cVelocity.setChecked(!cVelocity.isChecked());
-			break;
+			case 'v':
+				cVelocity.setChecked(!cVelocity.isChecked());
+				break;
 
-		case 'a':
-			cAcceleration.setChecked(!cAcceleration.isChecked());
-			break;
+			case 'a':
+				cAcceleration.setChecked(!cAcceleration.isChecked());
+				break;
 
-		case ' ':
-			stop();
-			pressed = true;
-			break;
+			case ' ':
+				stop();
+				pressed = true;
+				break;
 		}
 	}
 
-	public void keyReleased() {
+	public void keyReleased()
+	{
 		boolean tbClicked = false;
-		for (TextBox tb : textboxes) {
+		for (TextBox tb : textboxes)
+		{
 			tb.handleKeyReleasedEvent(keyCode, key);
 			if (tb.isClicked())
 				tbClicked = true;
@@ -1013,18 +1074,24 @@ public class Drehsystem3d extends PApplet {
 			handleKeyReleasedEvent(keyCode, key);
 	}
 
-	public void handleKeyReleasedEvent(int pressedKeyCode, char pressedKey) {
-		for (int i = 0; i < keyCodes.size(); i++) {
+	public void handleKeyReleasedEvent(int pressedKeyCode, char pressedKey)
+	{
+		for (int i = 0; i < keyCodes.size(); i++)
+		{
 			int maxId = keyCodes.size() - 1;
-			if (pressedKeyCode == keyCodes.get(i)) {
+			if (pressedKeyCode == keyCodes.get(i))
+			{
 				println("Removed:" + keyCodes.get(i) + "\t'" + keys.get(i) + "'");
 				keyCodes.remove(i);
 				keys.remove(i);
-				if (i == maxId) {
-					if (keyCodes.size() > 0) {
+				if (i == maxId)
+				{
+					if (keyCodes.size() > 0)
+					{
 						lastPressedKeyCode = keyCodes.get(keyCodes.size() - 1);
 						lastPressedKey = keys.get(keyCodes.size() - 1);
-					} else {
+					} else
+					{
 						lastPressedKeyCode = -1;
 						lastPressedKey = ' ';
 					}
@@ -1033,115 +1100,128 @@ public class Drehsystem3d extends PApplet {
 		}
 	}
 
-	public boolean isKeyPressed(int pressedKeyCode) {
-		for (int i = 0; i < keyCodes.size(); i++) {
-			if (keyCodes.get(i) == pressedKeyCode) {
+	public boolean isKeyPressed(int pressedKeyCode)
+	{
+		for (int i = 0; i < keyCodes.size(); i++)
+		{
+			if (keyCodes.get(i) == pressedKeyCode)
+			{
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public void updateDrawSpeed() {
-		for (Point p : points) {
+	public void updateDrawSpeed()
+	{
+		for (Point p : points)
+		{
 			p.setDrawSpeed(this.speed);
 		}
 	}
 
-	public void updateDrawScale() {
-		for (Point p : points) {
+	public void updateDrawScale()
+	{
+		for (Point p : points)
+		{
 			p.setScale(this.scale);
 		}
 	}
 
-	public void updateDrawScaleD() {
-		// this.canvas.beginDraw();
-		// this.canvas.background(0);
-		// this.canvas.endDraw();
-		for (Point p : points) {
+	public void updateDrawScaleD()
+	{
+		for (Point p : points)
+		{
 			p.setScaleD(this.scaleD);
 		}
 	}
 
-	public void stop() {
+	public void stop()
+	{
 		stop(!stopped);
 	}
 
-	public void stop(boolean state) {
+	public void stop(boolean state)
+	{
 		stopped = state;
 		lastTime = millis();
 		startTime = millis();
-		for (Point p : points) {
+		for (Point p : points)
+		{
 			p.resetTime();
 		}
 	}
 
-	public void erasePath() {
-		// canvas.beginDraw();
-		// canvas.background(0);
-		// canvas.endDraw();
+	public void erasePath()
+	{
 	}
 
-	public Point getPoint(int idx) {
+	public Point getPoint(int idx)
+	{
 		if (idx < 0 || idx > points.size())
 			return null;
 		return points.get(idx);
 	}
 
-	public Point getLastPoint() {
+	public Point getLastPoint()
+	{
 		if (points.size() == 0)
 			return null;
 		return points.get(points.size() - 1);
 	}
 
-	public Point getPreviousPoint(Point p) {
+	public Point getPreviousPoint(Point p)
+	{
 		if (points.size() == 0)
 			return null;
-		for (int i = 0; i < points.size(); i++) {
+		for (int i = 0; i < points.size(); i++)
+		{
 			if (points.get(i) == p)
 				return getPoint(i - 1);
 		}
 		return null;
 	}
 
-	public Point getNextPoint(Point p) {
+	public Point getNextPoint(Point p)
+	{
 		if (points.size() == 0)
 			return null;
-		for (int i = 0; i < points.size(); i++) {
+		for (int i = 0; i < points.size(); i++)
+		{
 			if (points.get(i) == p)
 				return getPoint(i + 1);
 		}
 		return null;
 	}
 
-	public Point addNewPoint(Point parent, float a, float[] angle, PVector w, float alpha) {
+	public Point addNewPoint(Point parent, float a, float[] angle, PVector w, float alpha)
+	{
 		points.add(new Point(this, idCount, "" + PApplet.parseChar(this.nameCounter++), parent, a, angle, w, alpha));
 		Point point = points.get(points.size() - 1);
 		point.setScale(this.scale);
 		point.setScaleD(this.scaleD);
 		point.setDrawSpeed(this.speed);
 		objects.put(idCount++, colorCount);
-		// println("r:" + colorCount[0] + " g:" + colorCount[1] + " b:" +
-		// colorCount[2]);
-		// println("c:" + color(colorCount[0], colorCount[1], colorCount[2]));
 		colorCount = new Integer[] { colorCount[0], colorCount[1], colorCount[2] };
 		colorCount[0] += 1;
-		if (colorCount[0] > 255) {
+		if (colorCount[0] > 255)
+		{
 			colorCount[0] = 0;
 			colorCount[1] += 1;
 		}
-		if (colorCount[1] > 255) {
+		if (colorCount[1] > 255)
+		{
 			colorCount[1] = 0;
 			colorCount[2] += 1;
 		}
-		// point.setPathColor(new int[]{255, 0, 0});
 		if (nameCounter > 91)
 			nameCounter = 65;
 		println("Added Point " + point.getName());
 		return point;
 	}
 
-	public Point addNewPoint(Point parent, PVector pos, PVector w, float alpha) {
+	public Point addNewPoint(Point parent, PVector pos, PVector w, float alpha)
+	{
 		points.add(new Point(this, idCount, "" + PApplet.parseChar(this.nameCounter++), parent, pos, w, alpha));
 		Point point = points.get(points.size() - 1);
 		point.setScale(this.scale);
@@ -1149,52 +1229,60 @@ public class Drehsystem3d extends PApplet {
 		point.setDrawSpeed(this.speed);
 		objects.put(idCount++, colorCount);
 		if (parent != null)
+		{
 			parent.addChild(point);
-		// println("r:" + colorCount[0] + " g:" + colorCount[1] + " b:" +
-		// colorCount[2]);
-		// println("c:" + color(colorCount[0], colorCount[1], colorCount[2]));
+		}
 		colorCount = new Integer[] { colorCount[0], colorCount[1], colorCount[2] };
 		colorCount[0] += 1;
-		if (colorCount[0] > 255) {
+		if (colorCount[0] > 255)
+		{
 			colorCount[0] = 0;
 			colorCount[1] += 1;
 		}
-		if (colorCount[1] > 255) {
+		if (colorCount[1] > 255)
+		{
 			colorCount[1] = 0;
 			colorCount[2] += 1;
 		}
-		// points.get(points.size()-1).setPathColor(new int[]{255, 0, 0});
 		if (nameCounter >= 91)
+		{
 			nameCounter = 65;
+		}
 		println("Added Point " + point.getName());
 		return point;
 	}
 
-	public Checkbox addCheckBox(String title) {
+	public Checkbox addCheckBox(String title)
+	{
 		return addCheckBox(title, false, (ArrayList<Checkbox>) null);
 	}
 
-	public Checkbox addCheckBox(String title, boolean checked) {
+	public Checkbox addCheckBox(String title, boolean checked)
+	{
 		return addCheckBox(title, checked, (ArrayList<Checkbox>) null);
 	}
 
-	public Checkbox addCheckBox(String title, Checkbox member) {
+	public Checkbox addCheckBox(String title, Checkbox member)
+	{
 		ArrayList<Checkbox> group = new ArrayList<Checkbox>();
 		group.add(member);
 		return addCheckBox(title, false, group);
 	}
 
-	public Checkbox addCheckBox(String title, ArrayList<Checkbox> group) {
+	public Checkbox addCheckBox(String title, ArrayList<Checkbox> group)
+	{
 		return addCheckBox(title, false, group);
 	}
 
-	public Checkbox addCheckBox(String title, boolean checked, Checkbox member) {
+	public Checkbox addCheckBox(String title, boolean checked, Checkbox member)
+	{
 		ArrayList<Checkbox> group = new ArrayList<Checkbox>();
 		group.add(member);
 		return addCheckBox(title, checked, group);
 	}
 
-	public Checkbox addCheckBox(String title, boolean checked, ArrayList<Checkbox> group) {
+	public Checkbox addCheckBox(String title, boolean checked, ArrayList<Checkbox> group)
+	{
 		Checkbox c = new Checkbox(this, 20, this.checkBoxY, 20, title, group);
 		c.setChecked(checked);
 		checkboxes.add(c);
@@ -1202,16 +1290,14 @@ public class Drehsystem3d extends PApplet {
 		return c;
 	}
 
-	// public interface ButtonListener implements OnClickListener,
-	// OnAnimationFinishedListener {
-
-	// }
-
-	static public void main(String[] passedArgs) {
+	static public void main(String[] passedArgs)
+	{
 		String[] appletArgs = new String[] { "drehsystem3d.Drehsystem3d" };
-		if (passedArgs != null) {
+		if (passedArgs != null)
+		{
 			PApplet.main(concat(appletArgs, passedArgs));
-		} else {
+		} else
+		{
 			PApplet.main(appletArgs);
 		}
 	}

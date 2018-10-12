@@ -531,7 +531,10 @@ public class Drehsystem3d extends PApplet
 			this.mouseButtons.add(this.mouseButton);
 		}
 		println("mouse pressed : '" + this.mouseButton + "'");
-		this.toast.onMousePressed();
+		if (this.toast.onMousePressed())
+		{
+			return;
+		}
 		for (Button b : this.buttons)
 		{
 			b.mousePressedEvent();
@@ -555,255 +558,7 @@ public class Drehsystem3d extends PApplet
 		else if (this.mouseButton == RIGHT)
 		{
 			this.rightButtonPressed = true;
-			this.detectionCanvas.loadPixels();
-			int objectId = GetPressedObjectId();
-			if (objectId != -1)
-			{
-				for (Point p : this.points)
-				{
-					final Point point = p;
-					if (point.getId() == objectId)
-					{
-						println("point " + p.getName() + " pressed");
-						final String[] possibleValues = new String[] { "Add Point", "Change value", "Graph",
-								"Hide Path", "Draw Path", "Remove", "Change Color" };
-
-						final String[] values;
-						if (point.parent != null)
-						{
-							values = new String[] { possibleValues[0], possibleValues[1], possibleValues[2],
-									(point.visibilityPath ? possibleValues[3] : possibleValues[4]), possibleValues[5],
-									possibleValues[6] };
-						}
-						else
-						{
-							values = new String[] { possibleValues[0] };
-						}
-						PVector scaledPos = new PVector(point.pos.x, point.pos.y, point.pos.z);
-						scaledPos = scaledPos.mult(this.scaleD).div(Point.internalScale);
-						pushMatrix();
-						translate(this.pos.x, this.pos.y);
-						scale(this.zoom);
-						rotateY(this.angle[0]);
-						rotateX(this.angle[1]);
-						// rotate(this.angle[0], 0, cos(this.currentAngle[0]) +
-						// 1, 0);
-						// rotate((this.currentAngle[0] > HALF_PI ||
-						// this.currentAngle[0] < -HALF_PI ? -1 : 1)
-						// * this.angle[1], cos(this.currentAngle[1]) + 1, 0,
-						// 0);
-						// rotate(this.angle[2], 0, 0, cos(this.currentAngle[2])
-						// + 1);
-						translate(scaledPos.x, scaledPos.y, scaledPos.z);
-						float x = screenX(0, 0, 0);
-						float y = screenY(0, 0, 0);
-						popMatrix();
-						println("MenuX:" + x);
-						println("MenuY:" + y);
-						this.menuItem = new MenuItem(this, x, y, "Title", values);
-						this.menuItem.setOnItemClickListener(new OnItemClickListener()
-						{
-							@Override
-							public void onItemClick(int itemIdx, String item)
-							{
-								InputBox ib;
-
-								// Add point.
-								if (item.equals(possibleValues[0]))
-								{
-									ib = new InputBox("Input", new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" },
-											new String[] { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0" });
-									ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
-									ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2,
-											-Drehsystem3d.this.height / 2, -100, -400, -400, -400, -200 });
-									ib.setOnEditingFinishedListener(new InputBoxListener()
-									{
-										@Override
-										public void finishedEditing(String... data)
-										{
-											Drehsystem3d.this.inputWindowOpened = false;
-											if (data.length == 7)
-											{
-												float x = data[0] == "" ? 0.0f : Float.parseFloat(data[0]);
-												float y = data[1] == "" ? 0.0f : Float.parseFloat(data[1]);
-												float z = data[2] == "" ? 0.0f : Float.parseFloat(data[2]);
-												float wx = data[3] == "" ? 0.0f : Float.parseFloat(data[3]);
-												float wy = data[4] == "" ? 0.0f : Float.parseFloat(data[4]);
-												float wz = data[5] == "" ? 0.0f : Float.parseFloat(data[5]);
-												float alpha = data[6] == "" ? 0.0f : Float.parseFloat(data[6]);
-												println("x:" + x);
-												println("y:" + y);
-												println("z:" + z);
-												println("wx:" + wx);
-												println("wy:" + wy);
-												println("wz:" + wz);
-												println("alpha:" + alpha);
-												Drehsystem3d.this.reset = true;
-												if (!(x == 0 && y == 0 && z == 0))
-												{
-													for (Point p : Drehsystem3d.this.points)
-													{
-														p.reset();
-													}
-													Drehsystem3d.this.pointToAdd = new Point(Drehsystem3d.this,
-															Drehsystem3d.this.idCount, point, new PVector(x, y, z),
-															new PVector(wx, wy, wz), alpha);
-													Drehsystem3d.this.reset = true;
-												}
-											}
-										}
-
-										@Override
-										public void onExit()
-										{
-											Drehsystem3d.this.inputWindowOpened = false;
-										}
-									});
-									Drehsystem3d.this.inputWindowOpened = true;
-								}
-								else if (item.equals(possibleValues[1]))
-								{
-									if (!Drehsystem3d.this.inputWindowOpened)
-									{
-										String[] values = new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" };
-										String[] standardValues = new String[] { Float.toString(point.setPos.x),
-												Float.toString(point.setPos.y), Float.toString(point.setPos.z),
-												Float.toString(point.setW.x), Float.toString(point.setW.y),
-												Float.toString(point.setW.z), Float.toString(point.setAlpha) };
-										ib = new InputBox("Change " + point.getName(), values, standardValues);
-										ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
-										ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2,
-												-Drehsystem3d.this.height / 2, -100, -400, -400, -400, -200 });
-										ib.setOnEditingFinishedListener(new InputBoxListener()
-										{
-											@Override
-											public void finishedEditing(String... data)
-											{
-												Drehsystem3d.this.inputWindowOpened = false;
-												if (data.length == 7)
-												{
-													float x = data[0] == "" ? 0.0f : Float.parseFloat(data[0]);
-													float y = data[1] == "" ? 0.0f : Float.parseFloat(data[1]);
-													float z = data[2] == "" ? 0.0f : Float.parseFloat(data[2]);
-													float wx = data[3] == "" ? 0.0f : Float.parseFloat(data[3]);
-													float wy = data[4] == "" ? 0.0f : Float.parseFloat(data[4]);
-													float wz = data[5] == "" ? 0.0f : Float.parseFloat(data[5]);
-													float alpha = data[6] == "" ? 0.0f : Float.parseFloat(data[6]);
-													println("x:" + x);
-													println("y:" + y);
-													println("z:" + z);
-													println("wx:" + wx);
-													println("wy:" + wy);
-													println("wz:" + wz);
-													println("alpha:" + alpha);
-													if (!(x == 0 && y == 0 && z == 0))
-													{
-														point.setPos(new PVector(x, y, z));
-														point.setW(new PVector(wx, wy, wz));
-														point.setAlpha(alpha);
-														for (Point p : Drehsystem3d.this.points)
-														{
-															p.reset();
-														}
-														Drehsystem3d.this.reset = true;
-													}
-												}
-											}
-
-											@Override
-											public void onExit()
-											{
-												Drehsystem3d.this.inputWindowOpened = false;
-											}
-										});
-										Drehsystem3d.this.inputWindowOpened = true;
-									}
-								}
-								else if (item.equals(possibleValues[2]))
-								{
-									String name = point.getName();
-									boolean exists = false;
-									for (GraphApplet a : Drehsystem3d.this.applets)
-									{
-										if (a.getName().equals(name))
-										{
-											exists = true;
-											break;
-										}
-									}
-									if (!exists)
-									{
-										GraphApplet sa = new GraphApplet(Drehsystem3d.this, name);
-										sa.resume();
-										sa.createDataSet("v", 0, 0, 255);
-										sa.createDataSet("a", 255, 0, 0);
-										Drehsystem3d.this.cOutput.setChecked(true);
-										Drehsystem3d.this.applets.add(sa);
-									}
-								}
-								else if (item.equals(possibleValues[3]) || item.equals(possibleValues[4]))
-								{
-									boolean newVisiblityPath = !point.visibilityPath;
-									point.drawPath(newVisiblityPath);
-									if (!newVisiblityPath)
-									{
-										erasePath();
-									}
-								}
-								else if (item.equals(possibleValues[5]))
-								{
-									Drehsystem3d.this.points.remove(point);
-								}
-
-								else if (item.equals(possibleValues[6]))
-								{
-									if (!Drehsystem3d.this.inputWindowOpened)
-									{
-										String[] values = new String[] { "r", "g", "b" };
-										String[] standardValues = new String[3];
-										int[] c = point.getPathColor();
-										for (int i = 0; i < standardValues.length; i++)
-										{
-											standardValues[i] = Integer.toString(c[i]);
-										}
-										ib = new InputBox("Pathcolor " + point.getName(), values, standardValues);
-										ib.setInputType(InputTypes.INTEGER);
-										ib.setMaxLimits(new float[] { 255, 255, 255 });
-										ib.setMinLimits(new float[] { 0, 0, 0 });
-										ib.setOnEditingFinishedListener(new InputBoxListener()
-										{
-											@Override
-											public void finishedEditing(String... data)
-											{
-												int necessaryDataLength = 3;
-												Drehsystem3d.this.inputWindowOpened = false;
-												if (data.length == necessaryDataLength)
-												{
-													int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
-													int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
-													int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
-													println("\nr:" + r);
-													println("g:" + g);
-													println("b:" + b);
-													point.setPathColor(new int[] { r, g, b });
-													point.drawPath();
-												}
-											}
-
-											@Override
-											public void onExit()
-											{
-												Drehsystem3d.this.inputWindowOpened = false;
-											}
-										});
-										Drehsystem3d.this.inputWindowOpened = true;
-									}
-								}
-							}
-						});
-					}
-				}
-			}
+			OpenMenuContextIfObjectIsClicked();
 		}
 
 		for (Checkbox c : this.checkboxes)
@@ -850,8 +605,249 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
+	private void OpenMenuContextIfObjectIsClicked()
+	{
+		int objectId = GetPressedObjectId();
+		if (objectId != -1)
+		{
+			for (Point p : this.points)
+			{
+				if (p.getId() == objectId)
+				{
+					println("point " + p.getName() + " pressed");
+					OpenMenuContext(p);
+				}
+			}
+		}
+	}
+
+	private void OpenMenuContext(Point point)
+	{
+		final String[] possibleValues = new String[] { "Add Point", "Change value", "Graph", "Hide Path", "Draw Path",
+				"Remove", "Change Color" };
+
+		final String[] values;
+		if (point.parent != null)
+		{
+			values = new String[] { possibleValues[0], possibleValues[1], possibleValues[2],
+					(point.visibilityPath ? possibleValues[3] : possibleValues[4]), possibleValues[5],
+					possibleValues[6] };
+		}
+		else
+		{
+			values = new String[] { possibleValues[0] };
+		}
+		PVector scaledPos = new PVector(point.pos.x, point.pos.y, point.pos.z);
+		scaledPos = scaledPos.mult(this.scaleD).div(Point.internalScale);
+		pushMatrix();
+		translate(this.pos.x, this.pos.y);
+		scale(this.zoom);
+		rotateY(this.angle[0]);
+		rotateX(this.angle[1]);
+		translate(scaledPos.x, scaledPos.y, scaledPos.z);
+		float x = screenX(0, 0, 0);
+		float y = screenY(0, 0, 0);
+		popMatrix();
+		println("MenuX:" + x);
+		println("MenuY:" + y);
+		this.menuItem = new MenuItem(this, x, y, "Title", values);
+		this.menuItem.setOnItemClickListener(new OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(int itemIdx, String item)
+			{
+				InputBox ib;
+
+				// Add point.
+				if (item.equals(possibleValues[0]))
+				{
+					if (!Drehsystem3d.this.inputWindowOpened)
+					{
+						ib = new InputBox("Input", new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" },
+								new String[] { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0" });
+						ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
+						ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2, -Drehsystem3d.this.height / 2, -100,
+								-400, -400, -400, -200 });
+						ib.setOnEditingFinishedListener(new InputBoxListener()
+						{
+							@Override
+							public void finishedEditing(String... data)
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+								AddPoint(point, data);
+							}
+
+							@Override
+							public void onExit()
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+							}
+						});
+						Drehsystem3d.this.inputWindowOpened = true;
+					}
+				}
+				else if (item.equals(possibleValues[1]))
+				{
+					if (!Drehsystem3d.this.inputWindowOpened)
+					{
+						String[] values = new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" };
+						String[] standardValues = new String[] { Float.toString(point.setPos.x),
+								Float.toString(point.setPos.y), Float.toString(point.setPos.z),
+								Float.toString(point.setW.x), Float.toString(point.setW.y),
+								Float.toString(point.setW.z), Float.toString(point.setAlpha) };
+						ib = new InputBox("Change " + point.getName(), values, standardValues);
+						ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
+						ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2, -Drehsystem3d.this.height / 2, -100,
+								-400, -400, -400, -200 });
+						ib.setOnEditingFinishedListener(new InputBoxListener()
+						{
+							@Override
+							public void finishedEditing(String... data)
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+								ChangePoint(point, data);
+							}
+
+							@Override
+							public void onExit()
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+							}
+						});
+						Drehsystem3d.this.inputWindowOpened = true;
+					}
+				}
+				else if (item.equals(possibleValues[2]))
+				{
+					String name = point.getName();
+					boolean exists = false;
+					for (GraphApplet a : Drehsystem3d.this.applets)
+					{
+						if (a.getName().equals(name))
+						{
+							exists = true;
+							break;
+						}
+					}
+					if (!exists)
+					{
+						GraphApplet sa = new GraphApplet(Drehsystem3d.this, name);
+						sa.resume();
+						sa.createDataSet("v", 0, 0, 255);
+						sa.createDataSet("a", 255, 0, 0);
+						Drehsystem3d.this.cOutput.setChecked(true);
+						Drehsystem3d.this.applets.add(sa);
+					}
+				}
+				else if (item.equals(possibleValues[3]) || item.equals(possibleValues[4]))
+				{
+					boolean newVisiblityPath = !point.visibilityPath;
+					point.drawPath(newVisiblityPath);
+					if (!newVisiblityPath)
+					{
+						erasePath();
+					}
+				}
+				else if (item.equals(possibleValues[5]))
+				{
+					Drehsystem3d.this.points.remove(point);
+				}
+
+				else if (item.equals(possibleValues[6]))
+				{
+					if (!Drehsystem3d.this.inputWindowOpened)
+					{
+						String[] values = new String[] { "r", "g", "b" };
+						String[] standardValues = new String[3];
+						int[] c = point.getPathColor();
+						for (int i = 0; i < standardValues.length; i++)
+						{
+							standardValues[i] = Integer.toString(c[i]);
+						}
+						ib = new InputBox("Pathcolor " + point.getName(), values, standardValues);
+						ib.setInputType(InputTypes.INTEGER);
+						ib.setMaxLimits(new float[] { 255, 255, 255 });
+						ib.setMinLimits(new float[] { 0, 0, 0 });
+						ib.setOnEditingFinishedListener(new InputBoxListener()
+						{
+							@Override
+							public void finishedEditing(String... data)
+							{
+								int necessaryDataLength = 3;
+								Drehsystem3d.this.inputWindowOpened = false;
+								if (data.length == necessaryDataLength)
+								{
+									int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
+									int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
+									int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
+									println("\nr:" + r);
+									println("g:" + g);
+									println("b:" + b);
+									point.setPathColor(new int[] { r, g, b });
+									point.drawPath();
+								}
+							}
+
+							@Override
+							public void onExit()
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+							}
+						});
+						Drehsystem3d.this.inputWindowOpened = true;
+					}
+				}
+			}
+		});
+	}
+
+	private boolean AddPoint(Point parent, String... data)
+	{
+		Drehsystem3d.this.pointToAdd = new Point(Drehsystem3d.this, Drehsystem3d.this.idCount, parent,
+				new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
+		return ChangePoint(Drehsystem3d.this.pointToAdd, data);
+	}
+
+	private boolean ChangePoint(Point point, String... data)
+	{
+		if (data.length == 7)
+		{
+			float x = data[0] == "" ? 0.0f : Float.parseFloat(data[0]);
+			float y = data[1] == "" ? 0.0f : Float.parseFloat(data[1]);
+			float z = data[2] == "" ? 0.0f : Float.parseFloat(data[2]);
+			float wx = data[3] == "" ? 0.0f : Float.parseFloat(data[3]);
+			float wy = data[4] == "" ? 0.0f : Float.parseFloat(data[4]);
+			float wz = data[5] == "" ? 0.0f : Float.parseFloat(data[5]);
+			float alpha = data[6] == "" ? 0.0f : Float.parseFloat(data[6]);
+			println("x:" + x);
+			println("y:" + y);
+			println("z:" + z);
+			println("wx:" + wx);
+			println("wy:" + wy);
+			println("wz:" + wz);
+			println("alpha:" + alpha);
+
+			if (x == 0 && y == 0 && z == 0)
+			{
+				Drehsystem3d.this.pointToAdd = null;
+				return false;
+			}
+			Drehsystem3d.this.reset = true;
+			for (Point p : Drehsystem3d.this.points)
+			{
+				p.reset();
+			}
+			point.setPos(new PVector(x, y, z));
+			point.setW(new PVector(wx, wy, wz));
+			point.setAlpha(alpha);
+			return true;
+		}
+		return false;
+	}
+
 	private int GetPressedObjectId()
 	{
+		this.detectionCanvas.loadPixels();
 		int objectId = -1;
 		Iterator<Map.Entry<Integer, Integer[]>> it = this.objects.entrySet().iterator();
 		while (it.hasNext())

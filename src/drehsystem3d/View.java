@@ -204,7 +204,7 @@ public abstract class View
 		return this.viewWidth;
 	}
 
-	public int getheight()
+	public int getHeight()
 	{
 		return this.viewHeight;
 	}

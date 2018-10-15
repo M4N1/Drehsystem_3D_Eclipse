@@ -2,8 +2,8 @@ package drehsystem3d;
 
 import java.util.ArrayList;
 
-import drehsystem3d.Listener.*;
-
+import drehsystem3d.Listener.OnClickListener;
+import drehsystem3d.Listener.OnItemClickListener;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -39,13 +39,18 @@ public class MenuItem extends View
 		init(title, values);
 	}
 
-	public boolean onMousePressed()
+	@Override
+	public boolean onMousePressed(int mouseButton)
 	{
-		super.onMousePressed();
+		super.onMousePressed(mouseButton);
 		for (TextView tv : this.textviews)
-			tv.onMousePressed();
+		{
+			tv.onMousePressed(mouseButton);
+		}
 		if (!this.clicked)
+		{
 			this.visible = false;
+		}
 		return this.clicked;
 	}
 
@@ -54,7 +59,7 @@ public class MenuItem extends View
 		this.padding = 10;
 		this.startPosX = (int) this.pos.x + this.padding;
 		this.startPosY = (int) this.pos.y + this.padding;
-		textviews = new ArrayList<TextView>();
+		this.textviews = new ArrayList<>();
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
 		{
@@ -75,13 +80,15 @@ public class MenuItem extends View
 				public void onClick(int id)
 				{
 					Drehsystem3d.println("clicked on menu item " + id);
-					if (context.mouseButton == Drehsystem3d.LEFT)
+					if (MenuItem.this.context.mouseButton == Drehsystem3d.LEFT)
 					{
-						if (visible)
+						if (MenuItem.this.visible)
 						{
-							visible = false;
-							if (onItemClickListener != null)
-								onItemClickListener.onItemClick(id, tv.getText());
+							MenuItem.this.visible = false;
+							if (MenuItem.this.onItemClickListener != null)
+							{
+								MenuItem.this.onItemClickListener.onItemClick(id, tv.getText());
+							}
 						}
 					}
 				}
@@ -104,7 +111,7 @@ public class MenuItem extends View
 			// }
 			// );
 			this.startPosY += this.tvHeight + 1;
-			textviews.add(tv);
+			this.textviews.add(tv);
 		}
 		this.title = title;
 		calcWidth();
@@ -116,14 +123,16 @@ public class MenuItem extends View
 	{
 		int nWidth = 2 * this.padding;
 		int maxTvWidth = 0;
-		for (TextView tv : textviews)
+		for (TextView tv : this.textviews)
 		{
 			// println("tv.viewWidth:"+tv.viewWidth);
 			if (tv.viewWidth > maxTvWidth)
+			{
 				maxTvWidth = tv.viewWidth;
+			}
 		}
 		// println("maxTvWidth:"+maxTvWidth);
-		for (TextView tv : textviews)
+		for (TextView tv : this.textviews)
 		{
 			tv.setWidth(maxTvWidth);
 			// println("tv.viewWidth:"+tv.viewWidth);
@@ -135,7 +144,7 @@ public class MenuItem extends View
 	public void calcHeight()
 	{
 		int nHeight = this.padding;
-		for (TextView tv : textviews)
+		for (TextView tv : this.textviews)
 		{
 			nHeight += tv.viewHeight + 1;
 			Drehsystem3d.println("viewHeight:" + tv.viewHeight);
@@ -163,7 +172,7 @@ public class MenuItem extends View
 
 	public void updatePos(float offsetX, float offsetY)
 	{
-		for (TextView tv : textviews)
+		for (TextView tv : this.textviews)
 		{
 			Drehsystem3d.println("\nprevious pos:" + tv.pos);
 			tv.setPos(new PVector(tv.pos.x + offsetX, tv.pos.y + offsetY, 0));
@@ -187,13 +196,14 @@ public class MenuItem extends View
 			this.context.strokeWeight(1);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
 			// println("this.viewHeight:" + this.viewHeight);
-			for (int i = 0; i < textviews.size(); i++)
+			for (int i = 0; i < this.textviews.size(); i++)
 			{
-				TextView tv = textviews.get(i);
+				TextView tv = this.textviews.get(i);
 				if (tv.hovered && tv.backgroundColor == 150)
 				{
 					tv.setBackground(255 - tv.backgroundColor);
-				} else if (!tv.hovered)
+				}
+				else if (!tv.hovered)
 				{
 					tv.setBackground(150);
 				}
@@ -213,8 +223,10 @@ public class MenuItem extends View
 	@Override
 	public boolean isClicked()
 	{
-		if (!visible)
+		if (!this.visible)
+		{
 			return false;
+		}
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
 		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y

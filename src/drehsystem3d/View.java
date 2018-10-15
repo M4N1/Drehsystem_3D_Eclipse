@@ -1,10 +1,13 @@
 package drehsystem3d;
 
-import drehsystem3d.Listener.*;
+import drehsystem3d.Listener.KeyListener;
+import drehsystem3d.Listener.OnClickListener;
+import drehsystem3d.Listener.OnHoverListener;
+import drehsystem3d.Listener.UserInputListener;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public abstract class View
+public abstract class View implements UserInputListener, KeyListener
 {
 	final static int ALIGNMENT_MANUALL = 0;
 	final static int ALIGNMENT_CENTER = 1;
@@ -180,23 +183,38 @@ public abstract class View
 
 	public abstract boolean isHovered();
 
-	public boolean onMousePressed()
+	@Override
+	public boolean onMousePressed(int mouseButton)
 	{
 		if (isClicked())
 		{
 			this.clicked = true;
 			if (this.onClickListener != null)
+			{
 				this.onClickListener.onClick(this.id);
-		} else if (this.clicked)
+			}
+		}
+		else if (this.clicked)
 		{
 			this.clicked = false;
 		}
 		return this.clicked;
 	}
 
-	public void onMouseReleased()
+	@Override
+	public void onMouseReleased(int mouseButton)
 	{
 		this.clicked = false;
+	}
+
+	@Override
+	public void onKeyPressed(int keyCode, char key)
+	{
+	}
+
+	@Override
+	public void onKeyReleased(int keyCode, char key)
+	{
 	}
 
 	public int getWidth()

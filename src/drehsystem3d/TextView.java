@@ -140,6 +140,7 @@ class TextView extends View
 		this.strokeWeight = weight;
 	}
 
+	@Override
 	public void calcPosX()
 	{
 		switch (this.horizontalAlignment)
@@ -161,6 +162,7 @@ class TextView extends View
 		}
 	}
 
+	@Override
 	public void calcPosY()
 	{
 		switch (this.verticalAlignment)
@@ -197,12 +199,14 @@ class TextView extends View
 		this.viewHeight = newHeight;
 	}
 
+	@Override
 	public void setHorizontalAlignment(int alignment)
 	{
 		this.horizontalAlignment = alignment;
 		calcPosX();
 	}
 
+	@Override
 	public void setVerticalAlignment(int alignment)
 	{
 		this.verticalAlignment = alignment;
@@ -212,7 +216,9 @@ class TextView extends View
 	public void setTextAlignment(int alignment)
 	{
 		if (alignment >= 0 && alignment < 3)
+		{
 			this.textAlignment = alignment;
+		}
 	}
 
 	public void setMargin(int margin)
@@ -220,6 +226,7 @@ class TextView extends View
 		this.margin = margin;
 	}
 
+	@Override
 	public void setPadding(int padding)
 	{
 		this.padding = padding;
@@ -244,14 +251,18 @@ class TextView extends View
 			case TEXTALIGNMENT_RIGHT:
 				offset = this.viewWidth - this.context.textWidth(this.text) - this.margin;
 				if (offset < this.margin)
+				{
 					offset = this.margin;
+				}
 				posX += offset;
 				break;
 
 			case TEXTALIGNMENT_CENTER:
 				offset = (this.viewWidth - this.context.textWidth(this.text)) / 2;
 				if (offset < this.margin)
+				{
 					offset = this.margin;
+				}
 				posX += offset;
 				break;
 		}
@@ -276,6 +287,7 @@ class TextView extends View
 				&& mY <= this.pos.y + this.viewHeight);
 	}
 
+	@Override
 	public void draw()
 	{
 		super.draw();
@@ -283,9 +295,13 @@ class TextView extends View
 		{
 			this.context.stroke(this.strokeColor);
 			if (this.strokeWeight > 0)
+			{
 				this.context.strokeWeight(this.strokeWeight);
+			}
 			else
+			{
 				this.context.noStroke();
+			}
 			this.context.fill(this.backgroundColor, this.backgroundColor, this.backgroundColor, this.backgroundAlpha);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
 			this.context.fill(this.textColor);

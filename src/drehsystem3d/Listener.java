@@ -2,13 +2,6 @@ package drehsystem3d;
 
 public class Listener
 {
-	public interface KeyListener
-	{
-		public void onKeyPressed(int pressedKeyCode, char pressedKey);
-
-		public void onKeyReleased(int pressedKeyCode, char pressedKey);
-	}
-
 	public interface OnClickListener
 	{
 		public void onClick(int id);
@@ -40,7 +33,7 @@ public class Listener
 
 	public interface OnAnimationFinishedListener
 	{
-		void onAnimationFinished();
+		public void onAnimationFinished();
 	}
 
 	public interface InputBoxListener
@@ -48,5 +41,23 @@ public class Listener
 		public void finishedEditing(String... data);
 
 		public void onExit();
+	}
+
+	public interface UserInputListener
+	{
+		public void onKeyPressed(int keyCode, char key);
+
+		public void onKeyReleased(int keyCode, char key);
+
+		public boolean onMousePressed(int mouseButton);
+
+		public void onMouseReleased(int mouseButton);
+	}
+
+	public interface KeyListener
+	{
+		public void onKeyPressed(int keyCode, char key);
+
+		public void onKeyReleased(int keyCode, char key);
 	}
 }

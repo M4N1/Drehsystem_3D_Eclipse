@@ -6,7 +6,7 @@ import processing.core.PApplet;
 
 public class Checkbox extends View
 {
-	ArrayList<Checkbox> group = new ArrayList<Checkbox>();;
+	ArrayList<Checkbox> group = new ArrayList<>();;
 	private int posX = 0;
 	private int posY = 0;
 	private int size = 0;
@@ -44,7 +44,9 @@ public class Checkbox extends View
 		this.size = size;
 		this.text = text;
 		if (group != null)
+		{
 			addGroupMembers(group);
+		}
 	}
 
 	public void addGroupMember(Checkbox newMember)
@@ -78,7 +80,9 @@ public class Checkbox extends View
 		for (Checkbox c : this.group)
 		{
 			if (c.equals(member))
+			{
 				return true;
+			}
 		}
 		return false;
 	}
@@ -105,15 +109,16 @@ public class Checkbox extends View
 		return false;
 	}
 
-	public boolean mousePressedEvent()
+	@Override
+	public boolean onMousePressed(int mouseButton)
 	{
-		if (context.mouseX >= this.posX && context.mouseX <= this.posX + size && context.mouseY >= this.posY
-				&& context.mouseY <= this.posY + size)
+		if (this.context.mouseX >= this.posX && this.context.mouseX <= this.posX + this.size
+				&& this.context.mouseY >= this.posY && this.context.mouseY <= this.posY + this.size)
 		{
 			this.checked = !this.checked;
 			if (this.group != null)
 			{
-				for (Checkbox c : group)
+				for (Checkbox c : this.group)
 				{
 					c.setChecked(false);
 				}
@@ -123,21 +128,22 @@ public class Checkbox extends View
 		return false;
 	}
 
+	@Override
 	public void draw()
 	{
-		context.noFill();
-		context.stroke(255);
-		context.textSize(size);
-		context.rect(this.posX, this.posY, size, size);
+		this.context.noFill();
+		this.context.stroke(255);
+		this.context.textSize(this.size);
+		this.context.rect(this.posX, this.posY, this.size, this.size);
 		if (this.checked)
 		{
-			context.line(this.posX, this.posY, this.posX + this.size, this.posY + this.size);
-			context.line(this.posX, this.posY + this.size, this.posX + this.size, this.posY);
+			this.context.line(this.posX, this.posY, this.posX + this.size, this.posY + this.size);
+			this.context.line(this.posX, this.posY + this.size, this.posX + this.size, this.posY);
 		}
-		if (!text.equals(""))
+		if (!this.text.equals(""))
 		{
-			context.fill(255);
-			context.text(this.text, this.posX + this.size + 10, this.posY + this.size);
+			this.context.fill(255);
+			this.context.text(this.text, this.posX + this.size + 10, this.posY + this.size);
 		}
 	}
 }

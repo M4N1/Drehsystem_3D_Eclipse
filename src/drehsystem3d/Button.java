@@ -1,10 +1,19 @@
 package drehsystem3d;
 
+import static processing.core.PApplet.abs;
+import static processing.core.PApplet.cos;
+import static processing.core.PApplet.println;
+import static processing.core.PApplet.sin;
+import static processing.core.PApplet.sqrt;
+import static processing.core.PApplet.tan;
+import static processing.core.PConstants.PI;
+import static processing.core.PConstants.TWO_PI;
+
 import java.util.ArrayList;
 
-import drehsystem3d.Listener.*;
+import drehsystem3d.Listener.OnAnimationFinishedListener;
+import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
-import static processing.core.PApplet.*;
 import processing.core.PVector;
 
 public class Button extends TextView
@@ -70,7 +79,7 @@ public class Button extends TextView
 		this.textAlignment = TextView.TEXTALIGNMENT_CENTER;
 	}
 
-	ArrayList<PVector> points = new ArrayList<PVector>();
+	ArrayList<PVector> points = new ArrayList<>();
 
 	public @Override void draw()
 	{
@@ -80,7 +89,7 @@ public class Button extends TextView
 			this.context.fill(255 - this.backgroundColor, 255 - this.backgroundColor, 255 - this.backgroundColor, 100);
 			this.context.noStroke();
 			boolean finished = true;
-			if (visible)
+			if (this.visible)
 			{
 				this.context.beginShape();
 				float x = 0, y = 0;
@@ -92,21 +101,21 @@ public class Button extends TextView
 				// }
 				// println("pos:"+this.pos);
 				// println("y(r):"+(this.pos.y+r-sqrt(r*r-(r-r)*(r-r))));
-				if (points.size() == 0)
+				if (this.points.size() == 0)
 				{
 					this.clickAnimationSize = 1;
 					for (float angle = 0; angle < TWO_PI; angle += PI / 32)
 					{
 						x = this.clickAnimationPos.x + this.clickAnimationSize * cos(angle);
 						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
-						points.add(new PVector(x, y, 0));
+						this.points.add(new PVector(x, y, 0));
 					}
 					println("pos:" + this.pos);
 				}
 				int counter = 0;
 				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
 				{
-					PVector point = points.get(counter);
+					PVector point = this.points.get(counter);
 					PVector shapeDimPos = checkShapeDim(point.x, point.y);
 					if (shapeDimPos == null)
 					{
@@ -122,9 +131,10 @@ public class Button extends TextView
 						size++;
 						x = this.clickAnimationPos.x + size * cos(angle);
 						y = this.clickAnimationPos.y + size * sin(angle);
-						points.set(counter, new PVector(x, y, 0));
+						this.points.set(counter, new PVector(x, y, 0));
 						finished = false;
-					} else
+					}
+					else
 					{
 						x = shapeDimPos.x;
 						y = shapeDimPos.y;
@@ -174,19 +184,21 @@ public class Button extends TextView
 			// this.context.ellipse(this.clickAnimationPos.x,
 			// this.clickAnimationPos.y, this.clickAnimationSize,
 			// this.clickAnimationSize);
-			if (context.millis() - this.clickAnimationLastTime > 1)
+			if (this.context.millis() - this.clickAnimationLastTime > 1)
 			{
 				this.clickAnimationSize += 9;
-				this.clickAnimationLastTime = context.millis();
+				this.clickAnimationLastTime = this.context.millis();
 			}
 
 			if (finished)
 			{
 				this.clickAnimationVisible = false;
 				this.clickAnimationSize = 0;
-				points = new ArrayList<PVector>();
+				this.points = new ArrayList<>();
 				if (this.onAnimationFinishedListener != null)
+				{
 					this.onAnimationFinishedListener.onAnimationFinished();
+				}
 			}
 		}
 	}
@@ -203,22 +215,30 @@ public class Button extends TextView
 		{
 			xMin = this.pos.x;
 			if (x < xMin)
+			{
 				return new PVector(xMin, y);
+			}
 			xOff = this.cornerRadius - (x - this.pos.x);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
 			yMin = this.pos.y + f;
 			yMax = this.pos.y + this.viewHeight - f;
 			if (y < yMin)
+			{
 				return new PVector(x, yMin);
+			}
 			if (y > yMax)
+			{
 				return new PVector(x, yMax);
+			}
 			return null;
 		}
 		if (x >= this.pos.x + this.viewWidth - this.cornerRadius)
 		{
 			xMax = this.pos.x + this.viewWidth;
 			if (x > xMax)
+			{
 				return new PVector(xMax, y);
+			}
 			xOff = x - (xMax - this.cornerRadius);
 			// println("xOff:"+xOff);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
@@ -228,9 +248,13 @@ public class Button extends TextView
 			// println("yMin:"+yMin);
 			// println("yMax:"+yMax);
 			if (y < yMin)
+			{
 				return new PVector(x, yMin);
+			}
 			if (y > yMax)
+			{
 				return new PVector(x, yMax);
+			}
 			return null;
 		}
 		xMin = this.pos.x;
@@ -238,13 +262,21 @@ public class Button extends TextView
 		yMin = this.pos.y;
 		yMax = this.pos.y + this.viewHeight;
 		if (x < xMin)
+		{
 			return new PVector(xMin, y);
+		}
 		if (x > xMax)
+		{
 			return new PVector(xMax, y);
+		}
 		if (y < yMin)
+		{
 			return new PVector(x, yMin);
+		}
 		if (y > yMax)
+		{
 			return new PVector(x, yMax);
+		}
 		return null;
 	}
 
@@ -259,6 +291,7 @@ public class Button extends TextView
 		return new PVector(this.pos.x + distX, this.pos.y + distY, 0);
 	}
 
+	@Override
 	public void setOnClickListener(OnClickListener listener)
 	{
 		this.onClickListener = listener;
@@ -269,7 +302,8 @@ public class Button extends TextView
 		this.onAnimationFinishedListener = listener;
 	}
 
-	public void mousePressedEvent()
+	@Override
+	public boolean onMousePressed(int mouseButton)
 	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
@@ -278,10 +312,13 @@ public class Button extends TextView
 		{
 			this.clickAnimationVisible = true;
 			this.clickAnimationPos = new PVector(mX, mY, 0);
-			this.clickAnimationStartTime = context.millis();
-			this.clickAnimationLastTime = context.millis();
+			this.clickAnimationStartTime = this.context.millis();
+			this.clickAnimationLastTime = this.context.millis();
 			if (this.onClickListener != null)
+			{
 				this.onClickListener.onClick(this.id);
+			}
 		}
+		return this.clicked;
 	}
 }

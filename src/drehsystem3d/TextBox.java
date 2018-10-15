@@ -2,8 +2,8 @@ package drehsystem3d;
 
 import java.util.ArrayList;
 
-import drehsystem3d.Listener.*;
-
+import drehsystem3d.Listener.KeyListener;
+import drehsystem3d.Listener.TextBoxListener;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -12,12 +12,11 @@ class TextBox extends TextView
 	/**
 	 * 
 	 */
-	ArrayList<Integer> keysPressed = new ArrayList<Integer>();
+	ArrayList<Integer> keysPressed = new ArrayList<>();
 	boolean mouseDrag = false;
 	int markedAreaStart = 0;
 	int markedAreaLength = 0;
 	int inputType = InputTypes.ALL;
-	// int textAlignment = 0;
 	TextBoxListener mListener;
 	KeyListener keyListener;
 	int id = -1;
@@ -27,8 +26,6 @@ class TextBox extends TextView
 	float cursorPosX;
 	float dragCursorPosX;
 	PVector pos;
-	// int setWidth = 0, setHeight = 0;
-	// int viewWidth = 0, viewHeight = 0;
 	String hint = "";
 	String standardText = "";
 	String outputText = "";
@@ -45,18 +42,22 @@ class TextBox extends TextView
 	{
 		super(context, posX, posY);
 		if (context == null)
+		{
 			return;
+		}
 		this.context = context;
-		pos = new PVector(posX, posY, 0);
+		this.pos = new PVector(posX, posY, 0);
 	}
 
 	TextBox(PApplet context, int posX, int posY, int w, int h)
 	{
 		super(context, posX, posY, w, h);
 		if (context == null)
+		{
 			return;
+		}
 		this.context = context;
-		pos = new PVector(posX, posY, 0);
+		this.pos = new PVector(posX, posY, 0);
 		this.setWidth = w;
 		this.setHeight = h;
 		calcWidth();
@@ -66,7 +67,9 @@ class TextBox extends TextView
 	{
 		super(context, pos);
 		if (context == null)
+		{
 			return;
+		}
 		this.context = context;
 		pos = new PVector(pos.x, pos.y, 0);
 	}
@@ -75,7 +78,9 @@ class TextBox extends TextView
 	{
 		super(context, pos, w, h);
 		if (context == null)
+		{
 			return;
+		}
 		this.context = context;
 		pos = new PVector(pos.x, pos.y, 0);
 		this.setWidth = w;
@@ -105,6 +110,7 @@ class TextBox extends TextView
 		updateText();
 	}
 
+	@Override
 	public void setText(String text)
 	{
 		this.text = text;
@@ -112,32 +118,41 @@ class TextBox extends TextView
 		updateText();
 	}
 
+	@Override
 	public String getText()
 	{
 		String text = this.clicked ? this.input : this.text;
 		if (text.equals("") && !this.standardText.equals(""))
+		{
 			text = this.standardText;
+		}
 		return text;
 	}
 
+	@Override
 	public void setTextSize(int size)
 	{
 		this.textSize = size;
 		updateText();
 	}
 
+	@Override
 	public void setTextAlignment(int alignment)
 	{
 		if (alignment >= 0 && alignment < 3)
+		{
 			this.textAlignment = alignment;
+		}
 	}
 
+	@Override
 	public void setMargin(int margin)
 	{
 		this.margin = margin;
 	}
 
-	public void mousePressedEvent()
+	@Override
+	public boolean onMousePressed(int mouseButton)
 	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
@@ -149,27 +164,24 @@ class TextBox extends TextView
 			updateText();
 			this.cursorPos = calcClosestCharPos(mX);
 			this.dragCursorPos = this.cursorPos;
-			this.cursorPosX = calcCharPos(this.cursorPos); // (int)(posX+textWidth(outputText.substring(0,
-															// this.cursorPos)))
+			this.cursorPosX = calcCharPos(this.cursorPos);
 			this.dragCursorPosX = this.cursorPosX;
 			resetCursor();
-		} else if (this.clicked)
+		}
+		else if (this.clicked)
 		{
 			this.clicked = false;
 			this.mouseDrag = false;
 			textEdited();
 		}
+		return super.onMousePressed(mouseButton);
 	}
 
-	public void mouseReleasedEvent()
+	@Override
+	public void onMouseReleased(int mouseButton)
 	{
 		this.markedAreaStart = this.dragCursorPos < this.cursorPos ? this.dragCursorPos : this.cursorPos;
 		this.markedAreaLength = Drehsystem3d.abs(this.dragCursorPos - this.cursorPos);
-		// if (this.markedAreaLength > 0 && this.input.length() > 0) {
-		// String marked = this.input.substring(this.markedAreaStart,
-		// this.markedAreaLength+this.markedAreaStart);
-		// println(marked);
-		// }
 		this.mouseDrag = false;
 	}
 
@@ -178,12 +190,11 @@ class TextBox extends TextView
 		if (this.mouseDrag)
 		{
 			float posX = calcAlignment();
-			// String outputText = clicked ? this.input : this.text;
 			float min = this.viewWidth;
-			for (int i = 0; i < outputText.length() + 1; i++)
+			for (int i = 0; i < this.outputText.length() + 1; i++)
 			{
 				float mX = this.context.mouseX - posX;
-				String subString = outputText.substring(0, i);
+				String subString = this.outputText.substring(0, i);
 				float dist = Drehsystem3d.abs(this.context.textWidth(subString) - mX);
 				if (dist < min)
 				{
@@ -207,9 +218,13 @@ class TextBox extends TextView
 			{
 				case 8:
 					if (this.markedAreaLength > 0)
+					{
 						deleteMarkedInputChars();
+					}
 					else
+					{
 						deleteInputChar(this.cursorPos, -1);
+					}
 					break;
 
 				case 10:
@@ -229,20 +244,25 @@ class TextBox extends TextView
 						if (this.markedAreaLength == 0)
 						{
 							if (this.cursorPos > 0)
+							{
 								this.markedAreaStart = this.cursorPos - 1;
+							}
 							this.markedAreaLength = 1;
-						} else if (this.markedAreaStart == this.cursorPos)
+						}
+						else if (this.markedAreaStart == this.cursorPos)
 						{
 							if (this.markedAreaStart > 0)
 							{
 								this.markedAreaStart--;
 								this.markedAreaLength++;
 							}
-						} else
+						}
+						else
 						{
 							this.markedAreaLength--;
 						}
-					} else
+					}
+					else
 					{
 						this.markedAreaStart = 0;
 						this.markedAreaLength = 0;
@@ -253,7 +273,9 @@ class TextBox extends TextView
 				case 38:
 					textEdited();
 					if (this.mListener != null)
+					{
 						this.mListener.previousTextBox(this.id, calcCharPos(this.cursorPos));
+					}
 					break;
 
 				case 39:
@@ -263,16 +285,21 @@ class TextBox extends TextView
 						{
 							this.markedAreaStart = this.cursorPos;
 							this.markedAreaLength = 1;
-						} else if (this.markedAreaStart == this.cursorPos)
+						}
+						else if (this.markedAreaStart == this.cursorPos)
 						{
 							this.markedAreaStart++;
 							this.markedAreaLength--;
-						} else
+						}
+						else
 						{
 							if (this.cursorPos < this.input.length())
+							{
 								this.markedAreaLength++;
+							}
 						}
-					} else
+					}
+					else
 					{
 						this.markedAreaStart = 0;
 						this.markedAreaLength = 0;
@@ -283,14 +310,20 @@ class TextBox extends TextView
 				case 40:
 					textEdited();
 					if (this.mListener != null)
+					{
 						this.mListener.nextTextBox(this.id, calcCharPos(this.cursorPos));
+					}
 					break;
 
 				case 127:
 					if (this.markedAreaLength > 0)
+					{
 						deleteMarkedInputChars();
+					}
 					else
+					{
 						deleteInputChar(this.cursorPos, 0);
+					}
 					break;
 
 				default:
@@ -302,14 +335,19 @@ class TextBox extends TextView
 								try
 								{
 									Integer.parseInt("" + pressedKey);
-								} catch (NumberFormatException e)
+								}
+								catch (NumberFormatException e)
 								{
 									Drehsystem3d.println(e);
 									if (!(this.cursorPos == 0 && pressedKey == '-' && !this.input.contains("-")))
+									{
 										return;
+									}
 								}
 								if (this.cursorPos == 0 && this.input.contains("-"))
+								{
 									return;
+								}
 								addInputChar(this.cursorPos, pressedKey);
 								break;
 
@@ -317,25 +355,32 @@ class TextBox extends TextView
 								try
 								{
 									Float.parseFloat("" + pressedKey);
-								} catch (NumberFormatException e)
+								}
+								catch (NumberFormatException e)
 								{
 									Drehsystem3d.println(e);
 									if (!(!this.input.contains(".") && pressedKey == '.') && pressedKey != '-')
+									{
 										return;
+									}
 								}
 								if (pressedKey == '-')
 								{
 									if (this.input.contains("-"))
 									{
 										deleteInputChar(1, -1);
-									} else
+									}
+									else
 									{
 										addInputChar(0, pressedKey);
 									}
-								} else
+								}
+								else
 								{
 									if (this.cursorPos == 0 && this.input.contains("-"))
+									{
 										return;
+									}
 									addInputChar(this.cursorPos, pressedKey);
 								}
 								break;
@@ -343,10 +388,11 @@ class TextBox extends TextView
 							default:
 								addInputChar(this.cursorPos, pressedKey);
 						}
-					} else
+					}
+					else
 					{
 						boolean keyExists = false;
-						for (int kc : keysPressed)
+						for (int kc : this.keysPressed)
 						{
 							if (kc == pressedKeyCode)
 							{
@@ -355,7 +401,9 @@ class TextBox extends TextView
 							}
 						}
 						if (!keyExists)
-							keysPressed.add(pressedKeyCode);
+						{
+							this.keysPressed.add(pressedKeyCode);
+						}
 					}
 			}
 			if (this.keyListener != null)
@@ -369,7 +417,7 @@ class TextBox extends TextView
 	public boolean keyIsPressed(int keyCode)
 	{
 		boolean keyPressed = false;
-		for (int kc : keysPressed)
+		for (int kc : this.keysPressed)
 		{
 			if (kc == keyCode)
 			{
@@ -382,11 +430,11 @@ class TextBox extends TextView
 
 	public void handleKeyReleasedEvent(int releasedKeyCode, char releasedKey)
 	{
-		for (int i = 0; i < keysPressed.size(); i++)
+		for (int i = 0; i < this.keysPressed.size(); i++)
 		{
-			if (keysPressed.get(i) == releasedKeyCode)
+			if (this.keysPressed.get(i) == releasedKeyCode)
 			{
-				keysPressed.remove(i);
+				this.keysPressed.remove(i);
 				return;
 			}
 		}
@@ -412,7 +460,9 @@ class TextBox extends TextView
 	public void deleteInputChar(int pos, int dir)
 	{
 		if (dir != -1 && dir != 0)
+		{
 			return;
+		}
 		pos += dir;
 		if (this.input.length() > 0)
 		{
@@ -420,7 +470,9 @@ class TextBox extends TextView
 			{
 				String buffer = "";
 				if (pos > 0)
+				{
 					buffer += this.input.substring(0, pos);
+				}
 				buffer += this.input.substring(pos + 1, this.input.length());
 				this.input = buffer;
 			}
@@ -452,23 +504,31 @@ class TextBox extends TextView
 	{
 		this.text = this.input;
 		this.clicked = false;
-		// updateText();
 		if (this.inputType == InputTypes.FLOAT)
 		{
 			if (this.input.length() > 0)
 			{
 				if (this.input.equals("."))
+				{
 					this.text = "0.0";
+				}
 				else if (this.input.charAt(this.input.length() - 1) == '.')
+				{
 					this.text += "0";
+				}
 
 				if (!this.text.contains("."))
 				{
 					if (this.input.equals("-"))
+					{
 						this.text = "0.0";
+					}
 					else
+					{
 						this.text += ".0";
-				} else
+					}
+				}
+				else
 				{
 					if (this.input.charAt(0) == '.')
 					{
@@ -478,12 +538,15 @@ class TextBox extends TextView
 				}
 			}
 			this.input = this.text;
-		} else if (this.inputType == InputTypes.INTEGER)
+		}
+		else if (this.inputType == InputTypes.INTEGER)
 		{
 			if (this.input.length() > 0)
 			{
 				if (this.input.equals("-"))
+				{
 					this.text = "0";
+				}
 			}
 			this.input = this.text;
 		}
@@ -506,7 +569,8 @@ class TextBox extends TextView
 				// println("std text");
 				this.outputText = this.standardText;
 				this.input = this.outputText;
-			} else if (!this.hint.equals(""))
+			}
+			else if (!this.hint.equals(""))
 			{
 				this.outputText = this.hint;
 			}
@@ -518,20 +582,9 @@ class TextBox extends TextView
 	public @Override void calcWidth()
 	{
 		this.context.textSize(this.textSize);
-		// String shownText = clicked ? this.input : this.text;
-		// if (shownText.equals("")) {
-		// if (!this.standardText.equals("")) {
-		// shownText = this.standardText;
-		// } else if (!this.hint.equals("")) {
-		// shownText = this.hint;
-		// }
-		// }
 		int nWidth = (int) this.context.textWidth(this.outputText) + this.margin * 2;
 		int newWidth = this.setWidth > nWidth ? this.setWidth : nWidth;
 		this.viewWidth = newWidth;
-		// if (this.width > this.setWidth) {
-		// this.setWidth = this.width;
-		// }
 	}
 
 	public @Override void calcHeight()
@@ -539,17 +592,18 @@ class TextBox extends TextView
 		int nHeight = this.textSize + 10;
 		int newHeight = this.setWidth > nHeight ? this.setHeight : nHeight;
 		this.viewHeight = newHeight;
-		// if (this.height > this.setHeight) {
-		// this.setHeight = this.height;
-		// }
 	}
 
 	public void updateCursor(int change)
 	{
 		if (change == -1 && this.cursorPos > 0)
+		{
 			this.cursorPos--;
+		}
 		else if (change == 1 && this.cursorPos < this.input.length())
+		{
 			this.cursorPos++;
+		}
 		this.cursorPosX = calcCharPos(this.cursorPos);
 		resetCursor();
 	}
@@ -562,7 +616,7 @@ class TextBox extends TextView
 	public void resetCursor()
 	{
 		this.cursorVisible = true;
-		this.cursorTimer = context.millis();
+		this.cursorTimer = this.context.millis();
 	}
 
 	public void setClicked(boolean clicked)
@@ -580,10 +634,6 @@ class TextBox extends TextView
 		}
 	}
 
-	// boolean isClicked() {
-	// return this.clicked;
-	// }
-
 	public void showCursor()
 	{
 		if (this.setClicked)
@@ -593,15 +643,15 @@ class TextBox extends TextView
 		}
 		if (this.clicked)
 		{
-			if (context.millis() - cursorTimer >= 500)
+			if (this.context.millis() - this.cursorTimer >= 500)
 			{
-				cursorVisible = !cursorVisible;
-				cursorTimer = context.millis();
+				this.cursorVisible = !this.cursorVisible;
+				this.cursorTimer = this.context.millis();
 			}
 			float offset = (this.viewHeight - this.textSize) / 2;
 			float y1 = this.pos.y + offset - 1;
 			float y2 = this.pos.y + this.viewHeight - offset + 1;
-			if (cursorVisible)
+			if (this.cursorVisible)
 			{
 				this.context.line(this.cursorPosX, y1, this.cursorPosX, y2);
 			}
@@ -610,7 +660,8 @@ class TextBox extends TextView
 				this.context.fill(255, 255, 255, 100);
 				this.context.noStroke();
 				this.context.rect(this.cursorPosX, y1, this.dragCursorPosX - this.cursorPosX, y2 - y1);
-			} else if (this.markedAreaLength > 0)
+			}
+			else if (this.markedAreaLength > 0)
 			{
 				this.context.fill(255, 255, 255, 100);
 				this.context.noStroke();
@@ -627,7 +678,9 @@ class TextBox extends TextView
 		// String outputText = this.clicked ? this.input : this.text;
 		String displayedText = getEditableText();
 		if (displayedText.length() == 0 || idx < 0 || idx > displayedText.length())
+		{
 			return (int) calcAlignment(displayedText);
+		}
 		return (int) (calcAlignment() + this.context.textWidth(displayedText.substring(0, idx)));
 	}
 
@@ -656,6 +709,7 @@ class TextBox extends TextView
 		return idx;
 	}
 
+	@Override
 	public float calcAlignment()
 	{
 		return calcAlignment(this.outputText);
@@ -680,25 +734,31 @@ class TextBox extends TextView
 			case TextView.TEXTALIGNMENT_RIGHT:
 				offset = this.viewWidth - this.context.textWidth(displayedText) - this.margin;
 				if (offset < this.margin)
+				{
 					offset = this.margin;
+				}
 				posX += offset;
 				break;
 
 			case TextView.TEXTALIGNMENT_CENTER:
 				offset = (this.viewWidth - this.context.textWidth(displayedText)) / 2;
 				if (offset < this.margin)
+				{
 					offset = this.margin;
+				}
 				posX += offset;
 				break;
 		}
 		return posX;
 	}
 
+	@Override
 	public void setId(int id)
 	{
 		this.id = id;
 	}
 
+	@Override
 	public int getId()
 	{
 		return this.id;
@@ -715,6 +775,7 @@ class TextBox extends TextView
 		return (!Character.isISOControl(c)) && block != null && block != Character.UnicodeBlock.SPECIALS;
 	}
 
+	@Override
 	public void draw()
 	{
 		super.draw();
@@ -727,23 +788,18 @@ class TextBox extends TextView
 		float offset = (this.viewHeight - this.textSize) / 2 + 2;
 		float posX = calcAlignment();
 		if (offset < 0)
+		{
 			offset = 0;
-		// if (!this.clicked && outputText.equals("")) {
-		// if (!this.hint.equals("")) {
-		// outputText = this.hint;
-		// this.context.fill(100);
-		// } else if (!this.standardText.equals("")) {
-		// outputText = this.standardText;
-		// this.context.fill(255);
-		// }
-		// } else {
-		// this.context.fill(255);
-		// }
+		}
 		if (this.outputText.equals(this.hint))
+		{
 			this.context.fill(100);
+		}
 		else
+		{
 			this.context.fill(255);
-		this.context.text(outputText, posX, this.pos.y + this.viewHeight - offset);
+		}
+		this.context.text(this.outputText, posX, this.pos.y + this.viewHeight - offset);
 		showCursor();
 	}
 }

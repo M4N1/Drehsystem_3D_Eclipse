@@ -9,6 +9,7 @@ import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
 import drehsystem3d.Listener.TextBoxListener;
+import drehsystem3d.Listener.UserInputListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -21,8 +22,6 @@ public class Drehsystem3d extends PApplet
 	long time = 0;
 	boolean pressed = false;
 	int min = 0;
-	char lastPressedKey = ' ';
-	int lastPressedKeyCode = -1;
 	long lastKeyEvent = 0;
 	int currWindowWidth;
 	int currWindowHeight;
@@ -33,12 +32,11 @@ public class Drehsystem3d extends PApplet
 	ArrayList<TextView> textviews;
 	ArrayList<TextBox> textboxes;
 	ArrayList<Button> buttons;
+	UIHandler uiHandler;
 	int tbStartX;
 	int tbStartY;
 	int tbWidth;
-	ArrayList<Character> keys;
-	ArrayList<Integer> keyCodes;
-	ArrayList<Integer> mouseButtons;
+	InputHandler inputHandler;
 	ArrayList<Point> points = new ArrayList<>();
 	Point pointToAdd;
 	int nameCounter = 65;
@@ -82,6 +80,7 @@ public class Drehsystem3d extends PApplet
 	PVector pos;
 	PVector lastSetPos;
 	boolean removePoints = false;
+	ArrayList<UserInputListener> userInputListeners;
 
 	HashMap<Integer, Integer[]> objects = new HashMap<>();
 	int idCount = 0;
@@ -118,9 +117,12 @@ public class Drehsystem3d extends PApplet
 		this.textviews = new ArrayList<>();
 		this.textboxes = new ArrayList<>();
 		this.checkboxes = new ArrayList<>();
-		this.keys = new ArrayList<>();
-		this.keyCodes = new ArrayList<>();
-		this.mouseButtons = new ArrayList<>();
+
+		this.userInputListeners = new ArrayList<>();
+		this.inputHandler = new InputHandler(this);
+		this.uiHandler = new UIHandler(this);
+		this.userInputListeners.add(this.inputHandler);
+		this.userInputListeners.add(this.uiHandler);
 
 		if (!output)
 		{
@@ -160,6 +162,7 @@ public class Drehsystem3d extends PApplet
 		this.bReset.setTextColor(255);
 		this.bReset.setCornerRadius(15);
 		this.bReset.setTextAlignment(15);
+		this.bReset.setStrokeWeight(2);
 		this.bReset.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -168,7 +171,8 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.removePoints = true;
 			}
 		});
-		this.buttons.add(this.bReset);
+		// this.buttons.add(this.bReset);
+		this.uiHandler.addUiElement("bReset", this.bReset);
 		yOff += 70;
 
 		this.bStart = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Start Pos");
@@ -176,6 +180,7 @@ public class Drehsystem3d extends PApplet
 		this.bStart.setTextColor(255);
 		this.bStart.setCornerRadius(15);
 		this.bStart.setTextAlignment(15);
+		this.bStart.setStrokeWeight(2);
 		this.bStart.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -184,7 +189,8 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.reset = true;
 			}
 		});
-		this.buttons.add(this.bStart);
+		// this.buttons.add(this.bStart);
+		this.uiHandler.addUiElement("bStart", this.bStart);
 		yOff += 70;
 
 		this.bClearPath = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Clear Path");
@@ -192,6 +198,7 @@ public class Drehsystem3d extends PApplet
 		this.bClearPath.setTextColor(255);
 		this.bClearPath.setCornerRadius(15);
 		this.bClearPath.setTextAlignment(15);
+		this.bClearPath.setStrokeWeight(2);
 		this.bClearPath.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -200,7 +207,8 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.clearPath = true;
 			}
 		});
-		this.buttons.add(this.bClearPath);
+		// this.buttons.add(this.bClearPath);
+		this.uiHandler.addUiElement("bClearPath", this.bClearPath);
 		yOff += 70;
 
 		this.bAlign = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Align");
@@ -208,6 +216,7 @@ public class Drehsystem3d extends PApplet
 		this.bAlign.setTextColor(255);
 		this.bAlign.setCornerRadius(15);
 		this.bAlign.setTextAlignment(15);
+		this.bAlign.setStrokeWeight(2);
 		this.bAlign.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -217,7 +226,8 @@ public class Drehsystem3d extends PApplet
 			}
 		});
 		this.bAlign.setId(1);
-		this.buttons.add(this.bAlign);
+		// this.buttons.add(this.bAlign);
+		this.uiHandler.addUiElement("bAlign", this.bAlign);
 
 		println("\n");
 		for (Point p : this.points)
@@ -267,10 +277,11 @@ public class Drehsystem3d extends PApplet
 
 	private void handleKeyPressedPermanent()
 	{
-		if (this.keyPressed && (millis() - this.lastKeyEvent > 100) && (this.lastPressedKeyCode == 139
-				|| this.lastPressedKeyCode == 93 || this.lastPressedKeyCode == 140 || this.lastPressedKeyCode == 47))
+		if (this.keyPressed && (millis() - this.lastKeyEvent > 100)
+				&& (this.inputHandler.getLastKeyCode() == 139 || this.inputHandler.getLastKeyCode() == 93
+						|| this.inputHandler.getLastKeyCode() == 140 || this.inputHandler.getLastKeyCode() == 47))
 		{
-			handleKeyPressedEvent(this.lastPressedKeyCode, this.lastPressedKey);
+			handleKeyPressedEvent(this.inputHandler.getLastKeyCode(), this.inputHandler.getLastKey());
 		}
 	}
 
@@ -314,17 +325,20 @@ public class Drehsystem3d extends PApplet
 			resetToStartPosition();
 		}
 
-		for (Button b : this.buttons)
-		{
-			if (b.id == 1)
-			{
-				boolean visible = !(this.currentAngle[0] == 0 && this.currentAngle[1] == 0 && this.currentAngle[2] == 0
-						&& this.pos.x == this.width / 2 && this.pos.y == this.height / 2 && this.zoom == 1);
-				b.setVisibility(visible);
-			}
-			b.draw();
-		}
+		// for (Button b : this.buttons)
+		// {
+		// if (b.id == 1)
+		// {
+		// boolean visible = !(this.currentAngle[0] == 0 && this.currentAngle[1]
+		// == 0 && this.currentAngle[2] == 0
+		// && this.pos.x == this.width / 2 && this.pos.y == this.height / 2 &&
+		// this.zoom == 1);
+		// b.setVisibility(visible);
+		// }
+		// b.draw();
+		// }
 
+		this.uiHandler.draw();
 		drawViewList(this.checkboxes);
 		drawViewList(this.textviews);
 		drawViewList(this.textboxes);
@@ -597,22 +611,22 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mousePressed()
 	{
-		if (!this.mouseButtons.contains(this.mouseButton))
+		for (UserInputListener l : this.userInputListeners)
 		{
-			this.mouseButtons.add(this.mouseButton);
+			l.onMousePressed(this.mouseButton);
 		}
 		println("mouse pressed : '" + this.mouseButton + "'");
-		if (this.toast.onMousePressed())
+		if (this.toast.onMousePressed(this.mouseButton))
 		{
 			return;
 		}
 		for (Button b : this.buttons)
 		{
-			b.mousePressedEvent();
+			b.onMousePressed(this.mouseButton);
 		}
 		if (this.menuItem != null)
 		{
-			if (this.menuItem.onMousePressed())
+			if (this.menuItem.onMousePressed(this.mouseButton))
 			{
 				return;
 			}
@@ -633,7 +647,7 @@ public class Drehsystem3d extends PApplet
 
 		for (Checkbox c : this.checkboxes)
 		{
-			if (c.mousePressedEvent())
+			if (c.onMousePressed(this.mouseButton))
 			{
 				println("pressed " + c.text);
 			}
@@ -641,7 +655,7 @@ public class Drehsystem3d extends PApplet
 
 		for (TextBox tb : this.textboxes)
 		{
-			tb.mousePressedEvent();
+			tb.onMousePressed(this.mouseButton);
 		}
 
 		for (GraphApplet sa : this.applets)
@@ -1008,6 +1022,10 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mouseReleased()
 	{
+		for (UserInputListener l : this.userInputListeners)
+		{
+			l.onMouseReleased(this.mouseButton);
+		}
 		if (this.mouseButton == LEFT)
 		{
 			this.leftButtonPressed = false;
@@ -1045,10 +1063,10 @@ public class Drehsystem3d extends PApplet
 			this.translation = false;
 		}
 
-		this.toast.onMouseReleased();
+		this.toast.onMouseReleased(this.mouseButton);
 		for (TextBox tb : this.textboxes)
 		{
-			tb.mouseReleasedEvent();
+			tb.onMouseReleased(this.mouseButton);
 		}
 	}
 
@@ -1065,8 +1083,6 @@ public class Drehsystem3d extends PApplet
 	public void keyPressed()
 	{
 		println("key pressed");
-		this.lastPressedKey = this.key;
-		this.lastPressedKeyCode = this.keyCode;
 		boolean tbClicked = false;
 		for (TextBox tb : this.textboxes)
 		{
@@ -1084,24 +1100,21 @@ public class Drehsystem3d extends PApplet
 
 	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey)
 	{
-		this.lastKeyEvent = millis();
-		if (!this.keyCodes.contains(pressedKeyCode))
+		for (UserInputListener l : this.userInputListeners)
 		{
-			this.keys.add(pressedKey);
-			this.keyCodes.add(pressedKeyCode);
-			println("keyCode:" + pressedKeyCode);
-			println("key:'" + pressedKey + "'");
+			l.onKeyPressed(this.keyCode, this.key);
 		}
+		this.lastKeyEvent = millis();
 		switch (pressedKeyCode)
 		{
 			case 139:
 			case 93:
-				if (isKeyPressed(16) && isKeyPressed(17))
+				if (this.inputHandler.isKeyPressed(16) && this.inputHandler.isKeyPressed(17))
 				{
 					this.scale += 0.2f;
 					updateDrawScale();
 				}
-				else if (isKeyPressed(17))
+				else if (this.inputHandler.isKeyPressed(17))
 				{
 					this.scaleD++;
 					updateDrawScaleD();
@@ -1122,7 +1135,7 @@ public class Drehsystem3d extends PApplet
 
 			case 140:
 			case 47:
-				if (isKeyPressed(16) && isKeyPressed(17))
+				if (this.inputHandler.isKeyPressed(16) && this.inputHandler.isKeyPressed(17))
 				{
 					if (this.scale > 0)
 					{
@@ -1137,7 +1150,7 @@ public class Drehsystem3d extends PApplet
 						updateDrawScale();
 					}
 				}
-				else if (isKeyPressed(17))
+				else if (this.inputHandler.isKeyPressed(17))
 				{
 					if (this.scaleD > 0)
 					{
@@ -1214,41 +1227,10 @@ public class Drehsystem3d extends PApplet
 
 	public void handleKeyReleasedEvent(int pressedKeyCode, char pressedKey)
 	{
-		for (int i = 0; i < this.keyCodes.size(); i++)
+		for (UserInputListener l : this.userInputListeners)
 		{
-			int maxId = this.keyCodes.size() - 1;
-			if (pressedKeyCode == this.keyCodes.get(i))
-			{
-				println("Removed:" + this.keyCodes.get(i) + "\t'" + this.keys.get(i) + "'");
-				this.keyCodes.remove(i);
-				this.keys.remove(i);
-				if (i == maxId)
-				{
-					if (this.keyCodes.size() > 0)
-					{
-						this.lastPressedKeyCode = this.keyCodes.get(this.keyCodes.size() - 1);
-						this.lastPressedKey = this.keys.get(this.keyCodes.size() - 1);
-					}
-					else
-					{
-						this.lastPressedKeyCode = -1;
-						this.lastPressedKey = ' ';
-					}
-				}
-			}
+			l.onKeyReleased(this.keyCode, this.key);
 		}
-	}
-
-	public boolean isKeyPressed(int pressedKeyCode)
-	{
-		for (int i = 0; i < this.keyCodes.size(); i++)
-		{
-			if (this.keyCodes.get(i) == pressedKeyCode)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public void updateDrawSpeed()

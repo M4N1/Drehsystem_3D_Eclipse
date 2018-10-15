@@ -377,10 +377,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void mousePressed()
 	{
-		this.bSubmit.mousePressedEvent();
+		this.bSubmit.onMousePressed(this.mouseButton);
 		for (TextBox tb : this.textboxes)
 		{
-			tb.mousePressedEvent();
+			tb.onMousePressed(this.mouseButton);
 		}
 	}
 
@@ -389,7 +389,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	{
 		for (TextBox tb : this.textboxes)
 		{
-			tb.mouseReleasedEvent();
+			tb.onMouseReleased(this.mouseButton);
 		}
 	}
 

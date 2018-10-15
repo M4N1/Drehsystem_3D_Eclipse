@@ -68,6 +68,7 @@ public class Drehsystem3d extends PApplet
 	boolean setup = true;
 	boolean inputWindowOpened = false;
 	PVector mouseReference = new PVector(0, 0, 0);
+	boolean leftButtonPressed = false;
 	boolean centerButtonPressed = false;
 	boolean rightButtonPressed = false;
 	boolean rotation = false;
@@ -149,10 +150,10 @@ public class Drehsystem3d extends PApplet
 		this.xzSurface.endDraw();
 
 		float yOff = 0;
-		Point point;
+		// Point point;
 		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 50), 0);
-		point = addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
 
 		this.bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
 		this.bReset.setBackground(0);
@@ -212,13 +213,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(int id)
 			{
-				Drehsystem3d.this.angle = new float[] { 0, 0, 0 };
-				Drehsystem3d.this.lastSetAngle = new float[] { 0, 0, 0 };
-				Drehsystem3d.this.pos = new PVector(Drehsystem3d.this.width / 2, Drehsystem3d.this.height / 2, 0);
-				Drehsystem3d.this.lastSetPos = new PVector(Drehsystem3d.this.width / 2, Drehsystem3d.this.height / 2,
-						0);
-				Drehsystem3d.this.zoom = 1;
-				Drehsystem3d.this.setZoom = 1;
+				resetCamera();
 			}
 		});
 		this.bAlign.setId(1);
@@ -239,8 +234,19 @@ public class Drehsystem3d extends PApplet
 		this.toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
 	}
 
+	private void resetCamera()
+	{
+		this.angle = new float[] { 0, 0, 0 };
+		this.lastSetAngle = new float[] { 0, 0, 0 };
+		this.pos = new PVector(this.width / 2, this.height / 2, 0);
+		this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
+		this.zoom = 1;
+		this.setZoom = 1;
+	}
+
 	public void update()
 	{
+		handleKeyPressedPermanent();
 		if (!this.setup)
 		{
 			if (this.reset)
@@ -255,19 +261,33 @@ public class Drehsystem3d extends PApplet
 			{
 				p.update();
 			}
-			for (GraphApplet sa : this.applets)
+			updateGraphApplets();
+		}
+	}
+
+	private void handleKeyPressedPermanent()
+	{
+		if (this.keyPressed && (millis() - this.lastKeyEvent > 100) && (this.lastPressedKeyCode == 139
+				|| this.lastPressedKeyCode == 93 || this.lastPressedKeyCode == 140 || this.lastPressedKeyCode == 47))
+		{
+			handleKeyPressedEvent(this.lastPressedKeyCode, this.lastPressedKey);
+		}
+	}
+
+	private void updateGraphApplets()
+	{
+		for (GraphApplet sa : this.applets)
+		{
+			for (Point p : this.points)
 			{
-				for (Point p : this.points)
+				if (p.getName().equals(sa.getName()))
 				{
-					if (p.getName().equals(sa.getName()))
-					{
-						PVector pos = new PVector(p.pos.x, p.pos.y, p.pos.z);
-						float v = pos.sub(p.v).mag();
-						pos = new PVector(p.pos.x, p.pos.y, p.pos.z);
-						float a = pos.sub(p.a).mag();
-						sa.addPoint("v", v);
-						sa.addPoint("a", a);
-					}
+					PVector pos = new PVector(p.pos.x, p.pos.y, p.pos.z);
+					float v = pos.sub(p.v).mag();
+					pos = new PVector(p.pos.x, p.pos.y, p.pos.z);
+					float a = pos.sub(p.a).mag();
+					sa.addPoint("v", v);
+					sa.addPoint("a", a);
 				}
 			}
 		}
@@ -276,33 +296,99 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void draw()
 	{
-		if (this.keyPressed && (millis() - this.lastKeyEvent > 100) && (this.lastPressedKeyCode == 139
-				|| this.lastPressedKeyCode == 93 || this.lastPressedKeyCode == 140 || this.lastPressedKeyCode == 47))
-		{
-			handleKeyPressedEvent(this.lastPressedKeyCode, this.lastPressedKey);
-		}
-		if (this.pointToAdd != null)
-		{
-			addNewPoint(this.pointToAdd.parent, this.pointToAdd.setPos, this.pointToAdd.setW, this.pointToAdd.setAlpha);
-			this.pointToAdd = null;
-		}
-		if (this.removePoints)
-		{
-			this.points = new ArrayList<>();
-			this.nameCounter = 65;
-			addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
-			this.removePoints = false;
-		}
-		else if (this.clearPath)
-		{
-			for (Point p : this.points)
-			{
-				p.clearPath();
-			}
-			this.clearPath = false;
-		}
+		addBufferedPoint();
+		handlePathLengthRestriction();
 		noLights();
 		pushMatrix();
+		calcCameraAdjustment();
+
+		if (!(this.currWindowWidth == this.width && this.currWindowHeight == this.height))
+		{
+			handleWindowResizeEvent();
+		}
+
+		background(0);
+
+		if (this.reset)
+		{
+			resetToStartPosition();
+		}
+
+		for (Button b : this.buttons)
+		{
+			if (b.id == 1)
+			{
+				boolean visible = !(this.currentAngle[0] == 0 && this.currentAngle[1] == 0 && this.currentAngle[2] == 0
+						&& this.pos.x == this.width / 2 && this.pos.y == this.height / 2 && this.zoom == 1);
+				b.setVisibility(visible);
+			}
+			b.draw();
+		}
+
+		drawViewList(this.checkboxes);
+		drawViewList(this.textviews);
+		drawViewList(this.textboxes);
+
+		this.toast.draw();
+
+		drawSimulation();
+
+		popMatrix();
+
+		drawTextElements();
+		drawMenuItems();
+		// if (this.mousePressed)
+		// {
+		// background(0);
+		// translate(0, 0, 0);
+		// image(this.detectionCanvas, 0, 0);
+		// }
+	}
+
+	private void drawViewList(ArrayList<? extends View> viewList)
+	{
+		for (View v : viewList)
+		{
+			v.draw();
+		}
+	}
+
+	private void drawSimulation()
+	{
+		pushMatrix();
+		adjustCamera();
+
+		if (!this.stopped)
+		{
+			update();
+		}
+
+		drawCoordinateSufaces();
+
+		resetDetectionCanvas();
+		for (Point p : this.points)
+		{
+			drawPoint(p);
+			updateDetectionCanvas(p);
+		}
+
+		drawPointPaths();
+
+		popMatrix();
+	}
+
+	private void resetToStartPosition()
+	{
+		for (Point p : this.points)
+		{
+			p.moveToStart();
+		}
+		this.stopped = true;
+		this.reset = false;
+	}
+
+	private void calcCameraAdjustment()
+	{
 		if (this.rotation)
 		{
 			float maxAngle = PI;
@@ -334,61 +420,11 @@ public class Drehsystem3d extends PApplet
 			this.pos = new PVector(this.lastSetPos.x + (this.mouseX - this.mouseReference.x),
 					this.lastSetPos.y + (this.mouseY - this.mouseReference.y), 0);
 		}
-		boolean windowResized = !(this.currWindowWidth == this.width && this.currWindowHeight == this.height);
-		if (windowResized)
-		{
-			this.toast.windowResized(this.currWindowWidth, this.currWindowHeight);
-			this.currWindowWidth = this.width;
-			this.currWindowHeight = this.height;
-			this.pos = new PVector(this.width / 2, this.height / 2, 0);
-			this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
-			this.detectionCanvas = createGraphics(this.width, this.height, P3D);
-			erasePath();
-		}
-		background(0);
-		this.detectionCanvas.beginDraw();
-		this.detectionCanvas.background(0);
-		this.detectionCanvas.endDraw();
-		if (this.reset)
-		{
-			for (Point p : this.points)
-			{
-				p.moveToStart();
-			}
-			this.stopped = true;
-			this.reset = false;
-		}
-		this.toast.draw();
+	}
 
-		for (Button b : this.buttons)
-		{
-			if (b.id == 1)
-			{
-				boolean visible = !(this.currentAngle[0] == 0 && this.currentAngle[1] == 0 && this.currentAngle[2] == 0
-						&& this.pos.x == this.width / 2 && this.pos.y == this.height / 2 && this.zoom == 1);
-				b.setVisibility(visible);
-			}
-			b.draw();
-		}
-
-		for (Checkbox c : this.checkboxes)
-		{
-			c.draw();
-		}
-
-		for (TextView tv : this.textviews)
-		{
-			tv.draw();
-		}
-
-		for (TextBox tb : this.textboxes)
-		{
-			tb.draw();
-		}
-
+	private void adjustCamera()
+	{
 		translate(this.pos.x, this.pos.y, 0);
-
-		pushMatrix();
 		this.zoom = this.zooming ? this.setZoom - (this.mouseY - this.mouseReference.y) / 50 : this.setZoom;
 		scale(this.zoom);
 		rotateY(this.angle[0]);
@@ -398,98 +434,134 @@ public class Drehsystem3d extends PApplet
 		this.currentAngle[1] = this.angle[1];
 
 		this.currentAngle[2] = this.angle[2];
+	}
 
-		if (!this.stopped)
+	private void addBufferedPoint()
+	{
+		if (this.pointToAdd != null)
 		{
-			update();
+			addNewPoint(this.pointToAdd.parent, this.pointToAdd.setPos, this.pointToAdd.setW, this.pointToAdd.setAlpha);
+			this.pointToAdd = null;
 		}
+	}
 
+	private void handlePathLengthRestriction()
+	{
+		if (this.removePoints)
+		{
+			this.points = new ArrayList<>();
+			this.nameCounter = 65;
+			addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
+			this.removePoints = false;
+		}
+		else if (this.clearPath)
+		{
+			for (Point p : this.points)
+			{
+				p.clearPath();
+			}
+			this.clearPath = false;
+		}
+	}
+
+	private void handleWindowResizeEvent()
+	{
+		this.toast.windowResized(this.currWindowWidth, this.currWindowHeight);
+		this.currWindowWidth = this.width;
+		this.currWindowHeight = this.height;
+		this.pos = new PVector(this.width / 2, this.height / 2, 0);
+		this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
+		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
+		erasePath();
+	}
+
+	private void drawCoordinateSufaces()
+	{
 		stroke(255, 0, 0);
 		image(this.xySurface, -50, -50);
 		pushMatrix();
 		rotateY(HALF_PI);
 		image(this.yzSurface, -50, -50);
 		popMatrix();
+
 		pushMatrix();
 		rotateX(HALF_PI);
 		rotateZ(HALF_PI);
 		image(this.xzSurface, -50, -50);
 		popMatrix();
+	}
+
+	private void resetDetectionCanvas()
+	{
+		this.detectionCanvas.beginDraw();
+		this.detectionCanvas.background(0);
+		this.detectionCanvas.endDraw();
+	}
+
+	private void drawPoint(Point p)
+	{
+		p.setVisibilityL(this.cLines.isChecked());
+		p.setVisibilityV(this.cVelocity.isChecked());
+		p.setVisibilityA(this.cAcceleration.isChecked());
+		p.draw();
+	}
+
+	private void updateDetectionCanvas(Point p)
+	{
+		Integer[] colorValue = this.objects.get(p.getId());
+		this.detectionCanvas.fill(colorValue[0], colorValue[1], colorValue[2]);
+		this.detectionCanvas.beginDraw();
+		this.detectionCanvas.translate(this.pos.x, this.pos.y);
+		this.detectionCanvas.scale(this.zoom);
+		this.detectionCanvas.rotateY(this.angle[0]);
+		this.detectionCanvas.rotateX(this.angle[1]);
+		this.detectionCanvas.noStroke();
+		this.detectionCanvas.pushMatrix();
+		this.detectionCanvas.translate(p.pos.x * this.scaleD, p.pos.y * this.scaleD, p.pos.z * this.scaleD);
+		this.detectionCanvas.sphere(10);
+		this.detectionCanvas.popMatrix();
+		this.detectionCanvas.endDraw();
+	}
+
+	private void drawPointPaths()
+	{
+		if (!this.cPath.isChecked() || this.points.size() <= 1)
+		{
+			return;
+		}
 
 		for (Point p : this.points)
 		{
-			p.setVisibilityL(this.cLines.isChecked());
-			p.setVisibilityV(this.cVelocity.isChecked());
-			p.setVisibilityA(this.cAcceleration.isChecked());
-			p.draw();
-			int id = p.getId();
-			Integer[] colorValue = this.objects.get(id);
-			this.detectionCanvas.fill(colorValue[0], colorValue[1], colorValue[2]);
-			this.detectionCanvas.beginDraw();
-			this.detectionCanvas.translate(this.pos.x, this.pos.y);
-			this.detectionCanvas.scale(this.zoom);
-			this.detectionCanvas.rotateY(this.angle[0]);
-			this.detectionCanvas.rotateX(this.angle[1]);
-			// this.detectionCanvas.rotate(this.angle[0], 0,
-			// cos(this.currentAngle[0]), 0);
-			// this.detectionCanvas.rotate(
-			// (this.currentAngle[0] > HALF_PI || this.currentAngle[0] <
-			// -HALF_PI ? -1 : 1) * this.angle[1],
-			// cos(this.currentAngle[1]), 0, 0);
-			// this.detectionCanvas.rotate(this.angle[2], 0, 0,
-			// cos(this.currentAngle[2]));
-			this.detectionCanvas.noStroke();
-			this.detectionCanvas.pushMatrix();
-			this.detectionCanvas.translate(p.pos.x * this.scaleD / Point.internalScale,
-					p.pos.y * this.scaleD / Point.internalScale, p.pos.z * this.scaleD / Point.internalScale);
-			this.detectionCanvas.sphere(10);
-			this.detectionCanvas.popMatrix();
-			this.detectionCanvas.endDraw();
-		}
-
-		if (this.cPath.isChecked() && !windowResized)
-		{
-			if (this.points.size() > 1)
+			if (p.getPathVisibility())
 			{
-				for (int i = 0; i < this.points.size(); i++)
+				int[] c = p.getPathColor();
+				stroke(c[0], c[1], c[2]);
+				ArrayList<PVector> path = p.getPath();
+				if (path != null && path.size() > 1)
 				{
-					Point p = this.points.get(i);
-					if (p.getPathVisibility())
+					for (int i = 0; i < path.size() - 1; i++)
 					{
-						int[] c = p.getPathColor();
-						stroke(c[0], c[1], c[2]);
-						ArrayList<PVector> path = p.getPath();
-						if (path != null && path.size() > 1)
-						{
-							for (int j = 0; j < path.size() - 1; j++)
-							{
-								PVector lastPos = path.get(j);
-								PVector pos = path.get(j + 1);
-								line(lastPos.x * this.scaleD / Point.internalScale,
-										lastPos.y * this.scaleD / Point.internalScale,
-										lastPos.z * this.scaleD / Point.internalScale,
-										pos.x * this.scaleD / Point.internalScale,
-										pos.y * this.scaleD / Point.internalScale,
-										pos.z * this.scaleD / Point.internalScale);
-							}
-						}
+						PVector lastPos = path.get(i);
+						PVector pos = path.get(i + 1);
+						line(lastPos.x * this.scaleD, lastPos.y * this.scaleD, lastPos.z * this.scaleD,
+								pos.x * this.scaleD, pos.y * this.scaleD, pos.z * this.scaleD);
 					}
 				}
 			}
 		}
+	}
 
-		popMatrix();
-		popMatrix();
+	private void drawTextElements()
+	{
 		hint(DISABLE_DEPTH_TEST);
 		pushMatrix();
-		translate(this.width / 2, this.height / 2);
 		noLights();
 		fill(255);
 		stroke(255);
 		textSize(20);
-		text("X:" + this.mouseX, -this.width / 2 + 40, this.height / 2 - 60);
-		text("Y:" + this.mouseY, -this.width / 2 + 40, this.height / 2 - 40);
-		text("Elapsed time:" + (millis() - this.startTime), -this.width / 2 + 40, this.height / 2 - 20);
+		text("X:" + this.mouseX, 40, this.height - 60);
+		text("Y:" + this.mouseY, 40, this.height - 40);
+		text("Elapsed time:" + (millis() - this.startTime), 40, this.height - 20);
 
 		textSize(25);
 		if (output)
@@ -497,30 +569,29 @@ public class Drehsystem3d extends PApplet
 			fill(255);
 			stroke(255);
 
-			text("Scale:", -this.width / 2 + 20, -this.height / 2 + 40);
-			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", -this.width / 2 + 120,
-					-this.height / 2 + 40);
+			text("Scale:", 20, 40);
+			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", 120, 40);
 
 			if (this.stopped)
 			{
-				text("paused", -this.width / 2 + 10, this.height / 2 - 100);
+				text("paused", 10, this.height - 100);
 			}
 
 			String speedOutput = "Speed: " + "x" + this.speed;
-			text(speedOutput, -textWidth(speedOutput) / 2, this.height / 2 - 20);
+			text(speedOutput, this.width / 2 - textWidth(speedOutput) / 2, this.height - 20);
 		}
 		popMatrix();
+		hint(ENABLE_DEPTH_TEST);
+	}
+
+	private void drawMenuItems()
+	{
+		hint(DISABLE_DEPTH_TEST);
 		if (this.menuItem != null)
 		{
 			this.menuItem.draw();
 		}
 		hint(ENABLE_DEPTH_TEST);
-		// if (this.mousePressed)
-		// {
-		// background(0);
-		// translate(0, 0, 0);
-		// image(this.detectionCanvas, 0, 0);
-		// }
 	}
 
 	@Override
@@ -548,8 +619,7 @@ public class Drehsystem3d extends PApplet
 		}
 		if (this.mouseButton == LEFT)
 		{
-			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
-			this.translation = true;
+			this.leftButtonPressed = true;
 		}
 		else if (this.mouseButton == CENTER)
 		{
@@ -591,23 +661,43 @@ public class Drehsystem3d extends PApplet
 			}
 		}
 
-		if (this.centerButtonPressed && this.rightButtonPressed && !this.rotation)
+		if (tranlationConditionsFullfilled() && !this.translation)
+		{
+			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
+			this.translation = true;
+		}
+		else if (rotationConditionsFullfilled() && !this.rotation)
 		{
 			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
 			this.rotation = true;
 			this.setZoom = this.zoom;
 			this.zooming = false;
 		}
-		else if (this.centerButtonPressed && !this.zooming)
+		else if (zoomingConditionFillfilled() && !this.zooming)
 		{
 			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
 			this.zooming = true;
 		}
 	}
 
+	private boolean tranlationConditionsFullfilled()
+	{
+		return this.leftButtonPressed;
+	}
+
+	private boolean rotationConditionsFullfilled()
+	{
+		return (this.centerButtonPressed && this.rightButtonPressed && !this.translation);
+	}
+
+	private boolean zoomingConditionFillfilled()
+	{
+		return (this.centerButtonPressed && !this.translation && !this.rotation);
+	}
+
 	private void OpenMenuContextIfObjectIsClicked()
 	{
-		int objectId = GetPressedObjectId();
+		int objectId = getPressedObjectId();
 		if (objectId != -1)
 		{
 			for (Point p : this.points)
@@ -637,215 +727,266 @@ public class Drehsystem3d extends PApplet
 		{
 			values = new String[] { possibleValues[0] };
 		}
+
+		PVector screenPos = getScreenPos(point);
+
+		println("MenuX:" + screenPos.x);
+		println("MenuY:" + screenPos.y);
+		this.menuItem = new MenuItem(this, screenPos.x, screenPos.y, "Title", values);
+		this.menuItem.setOnItemClickListener(new PointMenuItemClickListener(point, possibleValues));
+	}
+
+	private PVector getScreenPos(Point point)
+	{
+		PVector pos = new PVector(0, 0, 0);
 		PVector scaledPos = new PVector(point.pos.x, point.pos.y, point.pos.z);
-		scaledPos = scaledPos.mult(this.scaleD).div(Point.internalScale);
+		scaledPos = scaledPos.mult(this.scaleD);
+
 		pushMatrix();
 		translate(this.pos.x, this.pos.y);
 		scale(this.zoom);
 		rotateY(this.angle[0]);
 		rotateX(this.angle[1]);
 		translate(scaledPos.x, scaledPos.y, scaledPos.z);
-		float x = screenX(0, 0, 0);
-		float y = screenY(0, 0, 0);
+		pos.x = screenX(0, 0, 0);
+		pos.y = screenY(0, 0, 0);
 		popMatrix();
-		println("MenuX:" + x);
-		println("MenuY:" + y);
-		this.menuItem = new MenuItem(this, x, y, "Title", values);
-		this.menuItem.setOnItemClickListener(new OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(int itemIdx, String item)
-			{
-				InputBox ib;
-
-				// Add point.
-				if (item.equals(possibleValues[0]))
-				{
-					if (!Drehsystem3d.this.inputWindowOpened)
-					{
-						ib = new InputBox("Input", new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" },
-								new String[] { "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0" });
-						ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
-						ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2, -Drehsystem3d.this.height / 2, -100,
-								-400, -400, -400, -200 });
-						ib.setOnEditingFinishedListener(new InputBoxListener()
-						{
-							@Override
-							public void finishedEditing(String... data)
-							{
-								Drehsystem3d.this.inputWindowOpened = false;
-								AddPoint(point, data);
-							}
-
-							@Override
-							public void onExit()
-							{
-								Drehsystem3d.this.inputWindowOpened = false;
-							}
-						});
-						Drehsystem3d.this.inputWindowOpened = true;
-					}
-				}
-				else if (item.equals(possibleValues[1]))
-				{
-					if (!Drehsystem3d.this.inputWindowOpened)
-					{
-						String[] values = new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" };
-						String[] standardValues = new String[] { Float.toString(point.setPos.x),
-								Float.toString(point.setPos.y), Float.toString(point.setPos.z),
-								Float.toString(point.setW.x), Float.toString(point.setW.y),
-								Float.toString(point.setW.z), Float.toString(point.setAlpha) };
-						ib = new InputBox("Change " + point.getName(), values, standardValues);
-						ib.setMaxLimits(new float[] { 15, 15, 100, 400, 400, 400, 200 });
-						ib.setMinLimits(new float[] { -Drehsystem3d.this.width / 2, -Drehsystem3d.this.height / 2, -100,
-								-400, -400, -400, -200 });
-						ib.setOnEditingFinishedListener(new InputBoxListener()
-						{
-							@Override
-							public void finishedEditing(String... data)
-							{
-								Drehsystem3d.this.inputWindowOpened = false;
-								ChangePoint(point, data);
-							}
-
-							@Override
-							public void onExit()
-							{
-								Drehsystem3d.this.inputWindowOpened = false;
-							}
-						});
-						Drehsystem3d.this.inputWindowOpened = true;
-					}
-				}
-				else if (item.equals(possibleValues[2]))
-				{
-					String name = point.getName();
-					boolean exists = false;
-					for (GraphApplet a : Drehsystem3d.this.applets)
-					{
-						if (a.getName().equals(name))
-						{
-							exists = true;
-							break;
-						}
-					}
-					if (!exists)
-					{
-						GraphApplet sa = new GraphApplet(Drehsystem3d.this, name);
-						sa.resume();
-						sa.createDataSet("v", 0, 0, 255);
-						sa.createDataSet("a", 255, 0, 0);
-						Drehsystem3d.this.cOutput.setChecked(true);
-						Drehsystem3d.this.applets.add(sa);
-					}
-				}
-				else if (item.equals(possibleValues[3]) || item.equals(possibleValues[4]))
-				{
-					boolean newVisiblityPath = !point.visibilityPath;
-					point.drawPath(newVisiblityPath);
-					if (!newVisiblityPath)
-					{
-						erasePath();
-					}
-				}
-				else if (item.equals(possibleValues[5]))
-				{
-					Drehsystem3d.this.points.remove(point);
-				}
-
-				else if (item.equals(possibleValues[6]))
-				{
-					if (!Drehsystem3d.this.inputWindowOpened)
-					{
-						String[] values = new String[] { "r", "g", "b" };
-						String[] standardValues = new String[3];
-						int[] c = point.getPathColor();
-						for (int i = 0; i < standardValues.length; i++)
-						{
-							standardValues[i] = Integer.toString(c[i]);
-						}
-						ib = new InputBox("Pathcolor " + point.getName(), values, standardValues);
-						ib.setInputType(InputTypes.INTEGER);
-						ib.setMaxLimits(new float[] { 255, 255, 255 });
-						ib.setMinLimits(new float[] { 0, 0, 0 });
-						ib.setOnEditingFinishedListener(new InputBoxListener()
-						{
-							@Override
-							public void finishedEditing(String... data)
-							{
-								int necessaryDataLength = 3;
-								Drehsystem3d.this.inputWindowOpened = false;
-								if (data.length == necessaryDataLength)
-								{
-									int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
-									int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
-									int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
-									println("\nr:" + r);
-									println("g:" + g);
-									println("b:" + b);
-									point.setPathColor(new int[] { r, g, b });
-									point.drawPath();
-								}
-							}
-
-							@Override
-							public void onExit()
-							{
-								Drehsystem3d.this.inputWindowOpened = false;
-							}
-						});
-						Drehsystem3d.this.inputWindowOpened = true;
-					}
-				}
-			}
-		});
+		return pos;
 	}
 
-	private boolean AddPoint(Point parent, String... data)
+	public class PointMenuItemClickListener implements OnItemClickListener
+	{
+		private Point point;
+		private String[] possibleValues;
+
+		public PointMenuItemClickListener(Point point, String[] possibleValues)
+		{
+			this.point = point;
+			this.possibleValues = possibleValues;
+		}
+
+		@Override
+		public void onItemClick(int itemIdx, String item)
+		{
+			final String[] inputBoxValues = new String[] { "x", "y", "z", "ωx", "ωy", "ωz", "α" };
+			final float[] maxLimits = new float[] { 15, 15, 100, 400, 400, 400, 200 };
+			final float[] minLimits = new float[] { -Drehsystem3d.this.width / 2, -Drehsystem3d.this.height / 2, -100,
+					-400, -400, -400, -200 };
+
+			// Add point.
+			if (item.equals(this.possibleValues[0]))
+			{
+				openInputWindow("Input", inputBoxValues, getPointValuesAsString(), InputTypes.FLOAT, maxLimits,
+						minLimits, new InputBoxListener()
+						{
+							@Override
+							public void finishedEditing(String... data)
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+								addPoint(PointMenuItemClickListener.this.point, data);
+							}
+
+							@Override
+							public void onExit()
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+							}
+						});
+			}
+			else if (item.equals(this.possibleValues[1]))
+			{
+				openInputWindow("Change " + this.point.getName(), inputBoxValues, getPointValuesAsString(this.point),
+						InputTypes.FLOAT, maxLimits, minLimits, new InputBoxListener()
+						{
+							@Override
+							public void finishedEditing(String... data)
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+								changePoint(PointMenuItemClickListener.this.point, data);
+							}
+
+							@Override
+							public void onExit()
+							{
+								Drehsystem3d.this.inputWindowOpened = false;
+							}
+						});
+			}
+			else if (item.equals(this.possibleValues[2]))
+			{
+				openGraphContext(this.point);
+			}
+			else if (item.equals(this.possibleValues[3]) || item.equals(this.possibleValues[4]))
+			{
+				changePathVisibility(this.point);
+			}
+			else if (item.equals(this.possibleValues[5]))
+			{
+				Drehsystem3d.this.points.remove(this.point);
+			}
+
+			else if (item.equals(this.possibleValues[6]))
+			{
+				openColorSelectionInput();
+			}
+		}
+
+		private void changePathVisibility(Point point)
+		{
+			boolean newVisiblityPath = !point.visibilityPath;
+			point.drawPath(newVisiblityPath);
+		}
+
+		private void openColorSelectionInput()
+		{
+			String[] values = new String[] { "r", "g", "b" };
+			String[] standardValues = new String[3];
+			int[] c = this.point.getPathColor();
+			for (int i = 0; i < standardValues.length; i++)
+			{
+				standardValues[i] = Integer.toString(c[i]);
+			}
+			openInputWindow("Pathcolor " + this.point.getName(), values, standardValues, InputTypes.INTEGER,
+					new float[] { 255, 255, 255 }, new float[] { 0, 0, 0 }, new InputBoxListener()
+					{
+						@Override
+						public void finishedEditing(String... data)
+						{
+							int necessaryDataLength = 3;
+							Drehsystem3d.this.inputWindowOpened = false;
+							if (data.length == necessaryDataLength)
+							{
+								int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
+								int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
+								int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
+								println("\nr:" + r);
+								println("g:" + g);
+								println("b:" + b);
+								PointMenuItemClickListener.this.point.setPathColor(new int[] { r, g, b });
+								PointMenuItemClickListener.this.point.drawPath();
+							}
+						}
+
+						@Override
+						public void onExit()
+						{
+							Drehsystem3d.this.inputWindowOpened = false;
+						}
+					});
+		}
+
+		private void openGraphContext(Point point)
+		{
+			String name = point.getName();
+			boolean graphAlreadyExists = false;
+			for (GraphApplet a : Drehsystem3d.this.applets)
+			{
+				if (a.getName().equals(name))
+				{
+					graphAlreadyExists = true;
+					break;
+				}
+			}
+			if (!graphAlreadyExists)
+			{
+				GraphApplet sa = new GraphApplet(Drehsystem3d.this, name);
+				sa.resume();
+				sa.createDataSet("v", 0, 0, 255);
+				sa.createDataSet("a", 255, 0, 0);
+				Drehsystem3d.this.cOutput.setChecked(true);
+				Drehsystem3d.this.applets.add(sa);
+			}
+		};
+	}
+
+	private void openInputWindow(String name, String[] values, String[] standardValues, int inputType,
+			float[] maxLimits, float[] minLimits, InputBoxListener listener)
+	{
+		if (!this.inputWindowOpened)
+		{
+			InputBox ib = new InputBox(name, values, standardValues);
+			ib.setInputType(inputType);
+			ib.setMaxLimits(maxLimits);
+			ib.setMinLimits(minLimits);
+			ib.setOnEditingFinishedListener(listener);
+			Drehsystem3d.this.inputWindowOpened = true;
+		}
+	}
+
+	private String[] getPointValuesAsString()
+	{
+		String[] values = new String[7];
+		for (int i = 0; i < values.length; i++)
+		{
+			values[i] = "0.0";
+		}
+		return values;
+	}
+
+	private String[] getPointValuesAsString(Point point)
+	{
+		if (point == null)
+		{
+			return null;
+		}
+		return new String[] { Float.toString(point.setPos.x), Float.toString(point.setPos.y),
+				Float.toString(point.setPos.z), Float.toString(point.setW.x), Float.toString(point.setW.y),
+				Float.toString(point.setW.z), Float.toString(point.setAlpha) };
+	}
+
+	private boolean addPoint(Point parent, String... data)
 	{
 		Drehsystem3d.this.pointToAdd = new Point(Drehsystem3d.this, Drehsystem3d.this.idCount, parent,
 				new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
-		return ChangePoint(Drehsystem3d.this.pointToAdd, data);
+		return changePoint(Drehsystem3d.this.pointToAdd, data);
 	}
 
-	private boolean ChangePoint(Point point, String... data)
+	private boolean changePoint(Point point, String... data)
 	{
-		if (data.length == 7)
+		if (data.length != 7)
 		{
-			float x = data[0] == "" ? 0.0f : Float.parseFloat(data[0]);
-			float y = data[1] == "" ? 0.0f : Float.parseFloat(data[1]);
-			float z = data[2] == "" ? 0.0f : Float.parseFloat(data[2]);
-			float wx = data[3] == "" ? 0.0f : Float.parseFloat(data[3]);
-			float wy = data[4] == "" ? 0.0f : Float.parseFloat(data[4]);
-			float wz = data[5] == "" ? 0.0f : Float.parseFloat(data[5]);
-			float alpha = data[6] == "" ? 0.0f : Float.parseFloat(data[6]);
-			println("x:" + x);
-			println("y:" + y);
-			println("z:" + z);
-			println("wx:" + wx);
-			println("wy:" + wy);
-			println("wz:" + wz);
-			println("alpha:" + alpha);
-
-			if (x == 0 && y == 0 && z == 0)
-			{
-				Drehsystem3d.this.pointToAdd = null;
-				return false;
-			}
-			Drehsystem3d.this.reset = true;
-			for (Point p : Drehsystem3d.this.points)
-			{
-				p.reset();
-			}
-			point.setPos(new PVector(x, y, z));
-			point.setW(new PVector(wx, wy, wz));
-			point.setAlpha(alpha);
-			return true;
+			return false;
 		}
-		return false;
+
+		float x = getValueOrZero(data[0]);
+		float y = getValueOrZero(data[1]);
+		float z = getValueOrZero(data[2]);
+		float wx = getValueOrZero(data[3]);
+		float wy = getValueOrZero(data[4]);
+		float wz = getValueOrZero(data[5]);
+		float alpha = getValueOrZero(data[6]);
+		for (String s : data)
+		{
+			println(s + ": " + getValueOrZero(s));
+		}
+
+		if (x == 0 && y == 0 && z == 0)
+		{
+			Drehsystem3d.this.pointToAdd = null;
+			return false;
+		}
+		Drehsystem3d.this.reset = true;
+		resetPoints();
+		point.setPos(new PVector(x, y, z));
+		point.setW(new PVector(wx, wy, wz));
+		point.setAlpha(alpha);
+		return true;
 	}
 
-	private int GetPressedObjectId()
+	private void resetPoints()
+	{
+		for (Point p : Drehsystem3d.this.points)
+		{
+			p.reset();
+		}
+	}
+
+	private float getValueOrZero(String s)
+	{
+		return s == "" ? 0.0f : Float.parseFloat(s);
+	}
+
+	private int getPressedObjectId()
 	{
 		this.detectionCanvas.loadPixels();
 		int objectId = -1;
@@ -867,8 +1008,21 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mouseReleased()
 	{
+		if (this.mouseButton == LEFT)
+		{
+			this.leftButtonPressed = false;
+		}
+		else if (this.mouseButton == CENTER)
+		{
+			this.centerButtonPressed = false;
+		}
+		else if (this.mouseButton == RIGHT)
+		{
+			this.rightButtonPressed = false;
+		}
+
 		println("mouse released:" + this.mouseButton);
-		if (this.rotation)
+		if (this.rotation && !zoomingConditionFillfilled())
 		{
 			this.lastSetAngle = new float[] { this.angle[0], this.angle[1], this.angle[2] };
 			println("last angle x:" + this.lastSetAngle[1]);
@@ -880,25 +1034,17 @@ public class Drehsystem3d extends PApplet
 				this.zooming = true;
 			}
 		}
-		else if (this.zooming)
+		else if (this.zooming && !zoomingConditionFillfilled())
 		{
 			this.setZoom = this.zoom;
 			this.zooming = false;
 		}
-		else if (this.translation)
+		else if (this.translation && !tranlationConditionsFullfilled())
 		{
 			this.lastSetPos = new PVector(this.pos.x, this.pos.y, 0);
 			this.translation = false;
 		}
 
-		if (this.mouseButton == CENTER)
-		{
-			this.centerButtonPressed = false;
-		}
-		else if (this.mouseButton == RIGHT)
-		{
-			this.rightButtonPressed = false;
-		}
 		this.toast.onMouseReleased();
 		for (TextBox tb : this.textboxes)
 		{
@@ -962,7 +1108,7 @@ public class Drehsystem3d extends PApplet
 				}
 				else
 				{
-					if ((this.speed >= 0 && this.speed < 1) || (this.speed < -0.5f && this.speed >= -1))
+					if ((Math.abs(this.speed) >= 0 && Math.abs(this.speed) < 1))
 					{
 						this.speed = this.speed + 0.5f;
 					}
@@ -1001,7 +1147,7 @@ public class Drehsystem3d extends PApplet
 				}
 				else
 				{
-					if ((this.speed > 0.5f && this.speed <= 1) || (this.speed <= -0.5f && this.speed > -1))
+					if ((Math.abs(this.speed) >= 0 && Math.abs(this.speed) < 1))
 					{
 						this.speed = this.speed - 0.5f;
 					}

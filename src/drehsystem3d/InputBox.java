@@ -2,8 +2,11 @@ package drehsystem3d;
 
 import java.util.ArrayList;
 
-import drehsystem3d.Listener.*;
-
+import drehsystem3d.Listener.InputBoxListener;
+import drehsystem3d.Listener.KeyListener;
+import drehsystem3d.Listener.OnAnimationFinishedListener;
+import drehsystem3d.Listener.OnClickListener;
+import drehsystem3d.Listener.TextBoxListener;
 import processing.core.PApplet;
 
 public class InputBox extends PApplet implements TextBoxListener, OnClickListener, OnAnimationFinishedListener
@@ -11,8 +14,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	/**
 	 * 
 	 */
-	ArrayList<TextView> textviews = new ArrayList<TextView>();
-	ArrayList<TextBox> textboxes = new ArrayList<TextBox>();
+	ArrayList<TextView> textviews = new ArrayList<>();
+	ArrayList<TextBox> textboxes = new ArrayList<>();
 	Button bSubmit;
 	String[] values;
 	String[] standardValues;
@@ -62,17 +65,23 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			if (descValues.length == values.length)
 			{
 				if (stdValue)
+				{
 					this.standardValues = descValues;
+				}
 				else
+				{
 					this.hintValues = descValues;
+				}
 			}
 		}
+		// TODO: Create separate method for running the applet
 		String[] args = { "InputBox" };
 		this.title = title;
 		PApplet.runSketch(args, this);
-		surface.setTitle(this.title);
+		this.surface.setTitle(this.title);
 	}
 
+	@Override
 	public void settings()
 	{
 		size(this.tvWidth + this.tbWidth + 20, 200);
@@ -80,31 +89,36 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		this.windowHeight = this.height;
 	}
 
+	@Override
 	public void setup()
 	{
-		surface.setTitle(this.title);
+		this.surface.setTitle(this.title);
 		this.xStart = this.padding;
 		this.yStart = this.padding;
 		// println("width:"+this.width);
 		// println("height:"+this.height);
-		for (int i = 0; i < values.length; i++)
+		for (String value : this.values)
 		{
-			addTextView(values[i]);
+			addTextView(value);
 			addTextBox();
 		}
-		for (TextView tv : textviews)
-			tv.setWidth(tvWidthMax);
-		for (TextBox tb : textboxes)
-			tb.setWidth(tbWidthMax);
-		bSubmit = new Button(this, xStart, yStart, 100, 50, "Submit");
-		bSubmit.setBackground(255);
-		bSubmit.setTextColor(0);
-		bSubmit.setTextSize(25);
-		bSubmit.setPadding(10);
-		bSubmit.setHorizontalAlignment(TextView.ALIGNMENT_CENTER);
-		bSubmit.setVerticalAlignment(TextView.ALIGNMENT_BOTTOM);
-		bSubmit.setOnClickListener(this);
-		bSubmit.setOnAnimationFinishedListener(this);
+		for (TextView tv : this.textviews)
+		{
+			tv.setWidth(this.tvWidthMax);
+		}
+		for (TextBox tb : this.textboxes)
+		{
+			tb.setWidth(this.tbWidthMax);
+		}
+		this.bSubmit = new Button(this, this.xStart, this.yStart, 100, 50, "Submit");
+		this.bSubmit.setBackground(255);
+		this.bSubmit.setTextColor(0);
+		this.bSubmit.setTextSize(25);
+		this.bSubmit.setPadding(10);
+		this.bSubmit.setHorizontalAlignment(TextView.ALIGNMENT_CENTER);
+		this.bSubmit.setVerticalAlignment(TextView.ALIGNMENT_BOTTOM);
+		this.bSubmit.setOnClickListener(this);
+		this.bSubmit.setOnAnimationFinishedListener(this);
 		this.yMax = this.yStart + this.tbHeight + this.padding;
 		this.xMax += this.tvWidth + 2 * this.padding;
 		if (this.xMax > this.windowWidth)
@@ -115,13 +129,13 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			this.windowHeight = this.yMax;
 		}
-		surface.setSize(this.windowWidth, this.windowHeight);
+		this.surface.setSize(this.windowWidth, this.windowHeight);
 	}
 
 	public void setMaxLimits(float limit)
 	{
-		float[] limits = new float[values.length];
-		for (int i = 0; i < values.length; i++)
+		float[] limits = new float[this.values.length];
+		for (int i = 0; i < this.values.length; i++)
 		{
 			limits[i] = limit;
 		}
@@ -130,15 +144,17 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 
 	public void setMaxLimits(float[] limits)
 	{
-		if (limits.length != values.length)
+		if (limits.length != this.values.length)
+		{
 			return;
+		}
 		this.limitsMax = limits;
 	}
 
 	public void setMinLimits(float limit)
 	{
-		float[] limits = new float[values.length];
-		for (int i = 0; i < values.length; i++)
+		float[] limits = new float[this.values.length];
+		for (int i = 0; i < this.values.length; i++)
 		{
 			limits[i] = limit;
 		}
@@ -162,8 +178,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		tv.setText(text);
 		tv.setTextSize(30);
 		tv.setTextAlignment(TextView.TEXTALIGNMENT_CENTER);
-		if (tv.viewWidth > tvWidthMax)
-			tvWidthMax = tv.viewWidth;
+		if (tv.viewWidth > this.tvWidthMax)
+		{
+			this.tvWidthMax = tv.viewWidth;
+		}
 		this.textviews.add(tv);
 	}
 
@@ -176,7 +194,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		if (this.standardValues != null)
 		{
 			tb.setStandardText(this.standardValues[this.counter - 1]);
-		} else if (this.hintValues != null)
+		}
+		else if (this.hintValues != null)
 		{
 			tb.setHint(this.hintValues[this.counter - 1]);
 		}
@@ -199,16 +218,16 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 					try
 					{
 						value = Float.parseFloat(text);
-						if (limitsMax != null && limitsMax.length > id - 1)
+						if (InputBox.this.limitsMax != null && InputBox.this.limitsMax.length > id - 1)
 						{
-							float maxValue = limitsMax[id - 1];
+							float maxValue = InputBox.this.limitsMax[id - 1];
 							// println("maxValue:"+maxValue);
 							if (value > maxValue)
 							{
 								tb.setText(Float.toString(maxValue));
 								return;
 							}
-							float minValue = limitsMin[id - 1];
+							float minValue = InputBox.this.limitsMin[id - 1];
 							// println("minValue:"+minValue);
 							if (value < minValue)
 							{
@@ -216,27 +235,29 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 								return;
 							}
 						}
-					} catch (NumberFormatException e)
+					}
+					catch (NumberFormatException e)
 					{
 						println(e);
-						tb.setText(Float.toString(limitsMax[id - 1]));
+						tb.setText(Float.toString(InputBox.this.limitsMax[id - 1]));
 					}
-				} else if (tb.inputType == InputTypes.INTEGER)
+				}
+				else if (tb.inputType == InputTypes.INTEGER)
 				{
 					int value;
 					try
 					{
 						value = Integer.parseInt(text);
-						if (limitsMax != null && limitsMax.length > id - 1)
+						if (InputBox.this.limitsMax != null && InputBox.this.limitsMax.length > id - 1)
 						{
-							int maxValue = (int) limitsMax[id - 1];
+							int maxValue = (int) InputBox.this.limitsMax[id - 1];
 							// println("maxValue:"+maxValue);
 							if (value > maxValue)
 							{
 								tb.setText(Integer.toString(maxValue));
 								return;
 							}
-							int minValue = (int) limitsMin[id - 1];
+							int minValue = (int) InputBox.this.limitsMin[id - 1];
 							// println("minValue:"+minValue);
 							if (value < minValue)
 							{
@@ -244,10 +265,11 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 								return;
 							}
 						}
-					} catch (NumberFormatException e)
+					}
+					catch (NumberFormatException e)
 					{
 						println(e);
-						tb.setText(Integer.toString((int) limitsMax[id - 1]));
+						tb.setText(Integer.toString((int) InputBox.this.limitsMax[id - 1]));
 					}
 				}
 			}
@@ -260,12 +282,12 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 				// for (TextBox textBox : textboxes) {
 				// println("tb id:" + textBox.getId());
 				// }
-				for (int i = 0; i < textboxes.size(); i++)
+				for (int i = 0; i < InputBox.this.textboxes.size(); i++)
 				{
-					if (textboxes.get(i).getId() == id)
+					if (InputBox.this.textboxes.get(i).getId() == id)
 					{
-						int next = i == 0 ? textboxes.size() - 1 : i - 1;
-						textboxes.get(next).setClicked(true, cursorPosX);
+						int next = i == 0 ? InputBox.this.textboxes.size() - 1 : i - 1;
+						InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
 					}
 				}
 			}
@@ -279,15 +301,15 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 				// println("tb id:" + textBox.getId());
 				// }
 
-				for (int i = 0; i < textboxes.size(); i++)
+				for (int i = 0; i < InputBox.this.textboxes.size(); i++)
 				{
-					if (textboxes.get(i).getId() == id)
+					if (InputBox.this.textboxes.get(i).getId() == id)
 					{
-						int next = (i + 1) % textboxes.size();
-						textboxes.get(next).setClicked(true, cursorPosX);
+						int next = (i + 1) % InputBox.this.textboxes.size();
+						InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
 						println("i:" + i);
 						println("tb id:" + id);
-						println("size:" + textboxes.size());
+						println("size:" + InputBox.this.textboxes.size());
 						println("next:" + next);
 					}
 				}
@@ -308,20 +330,20 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 					// println("tb id:" + textBox.getId());
 					// }
 
-					for (int i = 0; i < textboxes.size(); i++)
+					for (int i = 0; i < InputBox.this.textboxes.size(); i++)
 					{
-						if (textboxes.get(i).getId() == id)
+						if (InputBox.this.textboxes.get(i).getId() == id)
 						{
 							int next = i + 1;
-							if (next > textboxes.size() - 1)
+							if (next > InputBox.this.textboxes.size() - 1)
 							{
 								finish();
 								return;
 							}
-							textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorPos));
+							InputBox.this.textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorPos));
 							println("i:" + i);
 							println("tb id:" + id);
-							println("size:" + textboxes.size());
+							println("size:" + InputBox.this.textboxes.size());
 							println("next:" + next);
 							break;
 						}
@@ -338,8 +360,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			this.xMax = tb.viewWidth;
 		}
-		if (tb.viewWidth > tbWidthMax)
-			tbWidthMax = tb.viewWidth;
+		if (tb.viewWidth > this.tbWidthMax)
+		{
+			this.tbWidthMax = tb.viewWidth;
+		}
 		this.textboxes.add(tb);
 		this.yStart += this.tbHeight + 10;
 		this.counter++;
@@ -350,47 +374,53 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		this.mListener = listener;
 	}
 
+	@Override
 	public void mousePressed()
 	{
-		bSubmit.mousePressedEvent();
-		for (TextBox tb : textboxes)
+		this.bSubmit.mousePressedEvent();
+		for (TextBox tb : this.textboxes)
 		{
 			tb.mousePressedEvent();
 		}
 	}
 
+	@Override
 	public void mouseReleased()
 	{
-		for (TextBox tb : textboxes)
+		for (TextBox tb : this.textboxes)
 		{
 			tb.mouseReleasedEvent();
 		}
 	}
 
+	@Override
 	public void mouseDragged()
 	{
-		for (TextBox tb : textboxes)
+		for (TextBox tb : this.textboxes)
 		{
 			tb.mouseDraggedEvent();
 		}
 	}
 
+	@Override
 	public void keyPressed()
 	{
-		for (TextBox tb : textboxes)
+		for (TextBox tb : this.textboxes)
 		{
-			tb.handleKeyPressedEvent(keyCode, key);
+			tb.handleKeyPressedEvent(this.keyCode, this.key);
 		}
 	}
 
+	@Override
 	public void keyReleased()
 	{
-		for (TextBox tb : textboxes)
+		for (TextBox tb : this.textboxes)
 		{
-			tb.handleKeyReleasedEvent(keyCode, key);
+			tb.handleKeyReleasedEvent(this.keyCode, this.key);
 		}
 	}
 
+	@Override
 	public void draw()
 	{
 		background(0);
@@ -402,7 +432,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			tb.draw();
 		}
-		bSubmit.draw();
+		this.bSubmit.draw();
 
 		// noFill();
 		// stroke(255);
@@ -417,7 +447,9 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		this.visible = false;
 		this.exit = true;
 		if (this.mListener != null)
+		{
 			this.mListener.onExit();
+		}
 		this.noLoop();
 	}
 
@@ -426,6 +458,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		this.exit = false;
 	}
 
+	@Override
 	public void pause()
 	{
 		this.getSurface().setVisible(false);
@@ -433,6 +466,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		this.noLoop();
 	}
 
+	@Override
 	public void resume()
 	{
 		this.getSurface().setVisible(true);
@@ -464,7 +498,9 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			data[i] = this.textboxes.get(i).getText();
 		}
 		if (this.mListener != null)
+		{
 			this.mListener.finishedEditing(data);
+		}
 		exit();
 	}
 

@@ -107,6 +107,18 @@ public class Toast extends View
 	}
 
 	@Override
+	public int getWidth()
+	{
+		return Toast.standardWidth;
+	}
+
+	@Override
+	public int getHeight()
+	{
+		return Toast.standardHeight;
+	}
+
+	@Override
 	public void draw()
 	{
 		if (this.visible)
@@ -122,9 +134,26 @@ public class Toast extends View
 			{
 				x = this.context.mouseX - this.mousePosDiff.x;
 				y = this.context.mouseY - this.mousePosDiff.y;
-				if (x < 0 || x > this.context.width || y < 0 || y > this.context.height)
+				if (x + getWidth() / 2 < 0 || x + getWidth() / 2 > this.context.width || y + getHeight() / 2 < 0
+						|| y + getHeight() / 2 > this.context.height)
 				{
 					this.visible = false;
+				}
+				else if (x - getWidth() < 0)
+				{
+					x -= getWidth() / 2;
+				}
+				else if (x + 2 * getWidth() > this.context.width)
+				{
+					x += getWidth() / 2;
+				}
+				else if (y - getWidth() < 0)
+				{
+					y -= getWidth() / 2;
+				}
+				else if (y + getHeight() + getWidth() > this.context.height)
+				{
+					y += getWidth() / 2;
 				}
 			}
 
@@ -133,10 +162,10 @@ public class Toast extends View
 			this.context.strokeWeight(1);
 			this.context.textSize(20);
 
-			this.context.rect(x, y, Toast.standardWidth, Toast.standardHeight, Toast.standardRadius);
+			this.context.rect(x, y, getWidth(), getHeight(), Toast.standardRadius);
 			this.context.fill(0);
-			float pX = x + (Toast.standardWidth - this.context.textWidth(this.text)) / 2;
-			float pY = y + 18 + (Toast.standardHeight - 20) / 2;
+			float pX = x + (getWidth() - this.context.textWidth(this.text)) / 2;
+			float pY = y + 18 + (getHeight() - 20) / 2;
 			this.context.text(this.text, pX, pY);
 		}
 	}

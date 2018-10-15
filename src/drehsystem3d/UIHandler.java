@@ -45,19 +45,25 @@ public class UIHandler implements UserInputListener
 	}
 
 	@Override
-	public void onKeyPressed(int keyCode, char key)
+	public boolean onKeyPressed(int keyCode, char key)
 	{
-		this.uiContents.forEach((k, v) -> {
-			v.onKeyPressed(keyCode, key);
-		});
+		boolean uiElementClicked = false;
+		for (Map.Entry<String, View> entry : this.uiContents.entrySet())
+		{
+			uiElementClicked = uiElementClicked || entry.getValue().onKeyPressed(keyCode, key);
+		}
+		return uiElementClicked;
 	}
 
 	@Override
-	public void onKeyReleased(int keyCode, char key)
+	public boolean onKeyReleased(int keyCode, char key)
 	{
-		this.uiContents.forEach((k, v) -> {
-			v.onKeyReleased(keyCode, key);
-		});
+		boolean uiElementClicked = false;
+		for (Map.Entry<String, View> entry : this.uiContents.entrySet())
+		{
+			uiElementClicked = uiElementClicked || entry.getValue().onKeyReleased(keyCode, key);
+		}
+		return uiElementClicked;
 	}
 
 	@Override
@@ -69,6 +75,14 @@ public class UIHandler implements UserInputListener
 			uiElementClicked = uiElementClicked || entry.getValue().onMousePressed(mouseButton);
 		}
 		return uiElementClicked;
+	}
+
+	@Override
+	public void onMouseDragged()
+	{
+		this.uiContents.forEach((k, v) -> {
+			v.onMouseDragged();
+		});
 	}
 
 	@Override

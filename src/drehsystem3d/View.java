@@ -202,19 +202,26 @@ public abstract class View implements UserInputListener, KeyListener
 	}
 
 	@Override
+	public void onMouseDragged()
+	{
+	}
+
+	@Override
 	public void onMouseReleased(int mouseButton)
 	{
 		this.clicked = false;
 	}
 
 	@Override
-	public void onKeyPressed(int keyCode, char key)
+	public boolean onKeyPressed(int keyCode, char key)
 	{
+		return this.clicked;
 	}
 
 	@Override
-	public void onKeyReleased(int keyCode, char key)
+	public boolean onKeyReleased(int keyCode, char key)
 	{
+		return this.clicked;
 	}
 
 	public int getWidth()

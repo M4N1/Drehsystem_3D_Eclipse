@@ -185,7 +185,8 @@ class TextBox extends TextView
 		this.mouseDrag = false;
 	}
 
-	public void mouseDraggedEvent()
+	@Override
+	public void onMouseDragged()
 	{
 		if (this.mouseDrag)
 		{

@@ -33,19 +33,21 @@ public class InputHandler implements UserInputListener
 	}
 
 	@Override
-	public void onKeyPressed(int keyCode, char key)
+	public boolean onKeyPressed(int keyCode, char key)
 	{
 		this.lastPressedKey = new Key(keyCode, key);
 		addItem(this.keyCodes, keyCode);
 		addItem(this.keys, key);
+		return false;
 	}
 
 	@Override
-	public void onKeyReleased(int keyCode, char key)
+	public boolean onKeyReleased(int keyCode, char key)
 	{
 		this.lastPressedKey = getPreviousLastKey();
 		removeItem(this.keyCodes, keyCode);
 		removeItem(this.keys, key);
+		return false;
 	}
 
 	@Override
@@ -53,6 +55,11 @@ public class InputHandler implements UserInputListener
 	{
 		addItem(this.mouseButtons, mouseButton);
 		return false;
+	}
+
+	@Override
+	public void onMouseDragged()
+	{
 	}
 
 	@Override

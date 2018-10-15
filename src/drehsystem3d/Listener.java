@@ -45,19 +45,21 @@ public class Listener
 
 	public interface UserInputListener
 	{
-		public void onKeyPressed(int keyCode, char key);
+		public boolean onKeyPressed(int keyCode, char key);
 
-		public void onKeyReleased(int keyCode, char key);
+		public boolean onKeyReleased(int keyCode, char key);
 
 		public boolean onMousePressed(int mouseButton);
+
+		public void onMouseDragged();
 
 		public void onMouseReleased(int mouseButton);
 	}
 
 	public interface KeyListener
 	{
-		public void onKeyPressed(int keyCode, char key);
+		public boolean onKeyPressed(int keyCode, char key);
 
-		public void onKeyReleased(int keyCode, char key);
+		public boolean onKeyReleased(int keyCode, char key);
 	}
 }

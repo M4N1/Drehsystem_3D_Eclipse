@@ -21,7 +21,6 @@ public class Drehsystem3d extends PApplet
 	long startTime;
 	long time = 0;
 	boolean pressed = false;
-	int min = 0;
 	long lastKeyEvent = 0;
 	int currWindowWidth;
 	int currWindowHeight;
@@ -29,9 +28,6 @@ public class Drehsystem3d extends PApplet
 	TextView tvW;
 	MenuItem menuItem;
 	ArrayList<GraphApplet> applets;
-	ArrayList<TextView> textviews;
-	ArrayList<TextBox> textboxes;
-	ArrayList<Button> buttons;
 	UIHandler uiHandler;
 	int tbStartX;
 	int tbStartY;
@@ -41,9 +37,7 @@ public class Drehsystem3d extends PApplet
 	Point pointToAdd;
 	int nameCounter = 65;
 	PGraphics xySurface, yzSurface, xzSurface;
-	ArrayList<Checkbox> checkboxes;
 	TextBox tbW;
-	Button bReset, bStart, bClearPath, bAlign;
 	int checkBoxY = 140;
 	int checkBoxOffset = 30;
 	Checkbox cLines;
@@ -51,17 +45,10 @@ public class Drehsystem3d extends PApplet
 	Checkbox cAcceleration;
 	Checkbox cOutput;
 	Checkbox cPath;
-	PVector[] lastPos;
-	PVector[] v;
 	float size = 20;
 	float scale = 0.2f;
 	float scaleD = 40;
-	PVector[] w = { new PVector(0, 0, 0), new PVector(0, 0, 150), new PVector(0, 0, 100) };
-	float[] phi = { 0, 0, 0 };
-	float[] A = { 0, 2, 5 };
-	float[] a = { 0, 0, 0 };
 	long lastTime = 0;
-	float startPhi = 0;
 	float speed = 1.0f;
 	boolean setup = true;
 	boolean inputWindowOpened = false;
@@ -102,7 +89,6 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void setup()
 	{
-
 		this.pos = new PVector(this.width / 2, this.height / 2, 0);
 		this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
@@ -113,10 +99,6 @@ public class Drehsystem3d extends PApplet
 		this.tbStartY = this.height - 450;
 		this.tbWidth = 120;
 		this.applets = new ArrayList<>();
-		this.buttons = new ArrayList<>();
-		this.textviews = new ArrayList<>();
-		this.textboxes = new ArrayList<>();
-		this.checkboxes = new ArrayList<>();
 
 		this.userInputListeners = new ArrayList<>();
 		this.inputHandler = new InputHandler(this);
@@ -124,10 +106,6 @@ public class Drehsystem3d extends PApplet
 		this.userInputListeners.add(this.inputHandler);
 		this.userInputListeners.add(this.uiHandler);
 
-		if (!output)
-		{
-			this.min = 1;
-		}
 		background(0);
 
 		this.cLines = addCheckBox("lines", true);
@@ -135,6 +113,11 @@ public class Drehsystem3d extends PApplet
 		this.cAcceleration = addCheckBox("acc", false);
 		this.cOutput = addCheckBox("out", false);
 		this.cPath = addCheckBox("path", true);
+		this.uiHandler.addUiElement("cLines", this.cLines);
+		this.uiHandler.addUiElement("cVelocity", this.cVelocity);
+		this.uiHandler.addUiElement("cAcceleration", this.cAcceleration);
+		this.uiHandler.addUiElement("cOutput", this.cOutput);
+		this.uiHandler.addUiElement("cPath", this.cPath);
 
 		this.xySurface = createGraphics(100, 100, P2D);
 		this.xySurface.beginDraw();
@@ -157,13 +140,15 @@ public class Drehsystem3d extends PApplet
 		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 50), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
 
-		this.bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
-		this.bReset.setBackground(0);
-		this.bReset.setTextColor(255);
-		this.bReset.setCornerRadius(15);
-		this.bReset.setTextAlignment(15);
-		this.bReset.setStrokeWeight(2);
-		this.bReset.setOnClickListener(new OnClickListener()
+		Button bReset, bStart, bClearPath, bAlign;
+
+		bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
+		bReset.setBackground(0);
+		bReset.setTextColor(255);
+		bReset.setCornerRadius(15);
+		bReset.setTextAlignment(15);
+		bReset.setStrokeWeight(2);
+		bReset.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -171,17 +156,16 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.removePoints = true;
 			}
 		});
-		// this.buttons.add(this.bReset);
-		this.uiHandler.addUiElement("bReset", this.bReset);
+		this.uiHandler.addUiElement("bReset", bReset);
 		yOff += 70;
 
-		this.bStart = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Start Pos");
-		this.bStart.setBackground(0);
-		this.bStart.setTextColor(255);
-		this.bStart.setCornerRadius(15);
-		this.bStart.setTextAlignment(15);
-		this.bStart.setStrokeWeight(2);
-		this.bStart.setOnClickListener(new OnClickListener()
+		bStart = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Start Pos");
+		bStart.setBackground(0);
+		bStart.setTextColor(255);
+		bStart.setCornerRadius(15);
+		bStart.setTextAlignment(15);
+		bStart.setStrokeWeight(2);
+		bStart.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -189,17 +173,16 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.reset = true;
 			}
 		});
-		// this.buttons.add(this.bStart);
-		this.uiHandler.addUiElement("bStart", this.bStart);
+		this.uiHandler.addUiElement("bStart", bStart);
 		yOff += 70;
 
-		this.bClearPath = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Clear Path");
-		this.bClearPath.setBackground(0);
-		this.bClearPath.setTextColor(255);
-		this.bClearPath.setCornerRadius(15);
-		this.bClearPath.setTextAlignment(15);
-		this.bClearPath.setStrokeWeight(2);
-		this.bClearPath.setOnClickListener(new OnClickListener()
+		bClearPath = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Clear Path");
+		bClearPath.setBackground(0);
+		bClearPath.setTextColor(255);
+		bClearPath.setCornerRadius(15);
+		bClearPath.setTextAlignment(15);
+		bClearPath.setStrokeWeight(2);
+		bClearPath.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -207,17 +190,16 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.clearPath = true;
 			}
 		});
-		// this.buttons.add(this.bClearPath);
-		this.uiHandler.addUiElement("bClearPath", this.bClearPath);
+		this.uiHandler.addUiElement("bClearPath", bClearPath);
 		yOff += 70;
 
-		this.bAlign = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Align");
-		this.bAlign.setBackground(0);
-		this.bAlign.setTextColor(255);
-		this.bAlign.setCornerRadius(15);
-		this.bAlign.setTextAlignment(15);
-		this.bAlign.setStrokeWeight(2);
-		this.bAlign.setOnClickListener(new OnClickListener()
+		bAlign = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Align");
+		bAlign.setBackground(0);
+		bAlign.setTextColor(255);
+		bAlign.setCornerRadius(15);
+		bAlign.setTextAlignment(15);
+		bAlign.setStrokeWeight(2);
+		bAlign.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -225,9 +207,8 @@ public class Drehsystem3d extends PApplet
 				resetCamera();
 			}
 		});
-		this.bAlign.setId(1);
-		// this.buttons.add(this.bAlign);
-		this.uiHandler.addUiElement("bAlign", this.bAlign);
+		bAlign.setId(1);
+		this.uiHandler.addUiElement("bAlign", bAlign);
 
 		println("\n");
 		for (Point p : this.points)
@@ -339,9 +320,6 @@ public class Drehsystem3d extends PApplet
 		// }
 
 		this.uiHandler.draw();
-		drawViewList(this.checkboxes);
-		drawViewList(this.textviews);
-		drawViewList(this.textboxes);
 
 		this.toast.draw();
 
@@ -620,10 +598,6 @@ public class Drehsystem3d extends PApplet
 		{
 			return;
 		}
-		for (Button b : this.buttons)
-		{
-			b.onMousePressed(this.mouseButton);
-		}
 		if (this.menuItem != null)
 		{
 			if (this.menuItem.onMousePressed(this.mouseButton))
@@ -643,19 +617,6 @@ public class Drehsystem3d extends PApplet
 		{
 			this.rightButtonPressed = true;
 			OpenMenuContextIfObjectIsClicked();
-		}
-
-		for (Checkbox c : this.checkboxes)
-		{
-			if (c.onMousePressed(this.mouseButton))
-			{
-				println("pressed " + c.text);
-			}
-		}
-
-		for (TextBox tb : this.textboxes)
-		{
-			tb.onMousePressed(this.mouseButton);
 		}
 
 		for (GraphApplet sa : this.applets)
@@ -1064,35 +1025,21 @@ public class Drehsystem3d extends PApplet
 		}
 
 		this.toast.onMouseReleased(this.mouseButton);
-		for (TextBox tb : this.textboxes)
-		{
-			tb.onMouseReleased(this.mouseButton);
-		}
 	}
 
 	@Override
 	public void mouseDragged()
 	{
-		for (TextBox tb : this.textboxes)
-		{
-			tb.mouseDraggedEvent();
-		}
+		this.inputHandler.onMouseDragged();
+		this.uiHandler.onMouseDragged();
 	}
 
 	@Override
 	public void keyPressed()
 	{
 		println("key pressed");
-		boolean tbClicked = false;
-		for (TextBox tb : this.textboxes)
-		{
-			tb.handleKeyPressedEvent(this.keyCode, this.key);
-			if (tb.isClicked())
-			{
-				tbClicked = true;
-			}
-		}
-		if (!tbClicked)
+		boolean uiElementClicked = this.uiHandler.onKeyPressed(this.keyCode, this.key);
+		if (!uiElementClicked)
 		{
 			handleKeyPressedEvent(this.keyCode, this.key);
 		}
@@ -1210,16 +1157,9 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyReleased()
 	{
-		boolean tbClicked = false;
-		for (TextBox tb : this.textboxes)
-		{
-			tb.handleKeyReleasedEvent(this.keyCode, this.key);
-			if (tb.isClicked())
-			{
-				tbClicked = true;
-			}
-		}
-		if (!tbClicked)
+		boolean uiElementClicked = this.uiHandler.onKeyReleased(this.keyCode, this.key);
+
+		if (!uiElementClicked)
 		{
 			handleKeyReleasedEvent(this.keyCode, this.key);
 		}
@@ -1431,7 +1371,7 @@ public class Drehsystem3d extends PApplet
 	{
 		Checkbox c = new Checkbox(this, 20, this.checkBoxY, 20, title, group);
 		c.setChecked(checked);
-		this.checkboxes.add(c);
+		// this.checkboxes.add(c);
 		this.checkBoxY += this.checkBoxOffset;
 		return c;
 	}

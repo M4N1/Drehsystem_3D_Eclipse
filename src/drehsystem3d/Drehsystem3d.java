@@ -19,6 +19,7 @@ public class Drehsystem3d extends PApplet
 
 	final static boolean output = true;
 	long startTime;
+	long ellapsedTime;
 	long time = 0;
 	boolean pressed = false;
 	long lastKeyEvent = 0;
@@ -105,17 +106,6 @@ public class Drehsystem3d extends PApplet
 
 		background(0);
 
-		this.cLines = addCheckBox("lines", true);
-		this.cVelocity = addCheckBox("v", true);
-		this.cAcceleration = addCheckBox("acc", false);
-		this.cOutput = addCheckBox("out", false);
-		this.cPath = addCheckBox("path", true);
-		this.uiHandler.addUiElement("cLines", this.cLines);
-		this.uiHandler.addUiElement("cVelocity", this.cVelocity);
-		this.uiHandler.addUiElement("cAcceleration", this.cAcceleration);
-		this.uiHandler.addUiElement("cOutput", this.cOutput);
-		this.uiHandler.addUiElement("cPath", this.cPath);
-
 		this.xySurface = createGraphics(100, 100, P2D);
 		this.xySurface.beginDraw();
 		this.xySurface.background(0, 0, 255, 50);
@@ -131,12 +121,44 @@ public class Drehsystem3d extends PApplet
 		this.xzSurface.background(255, 0, 0, 50);
 		this.xzSurface.endDraw();
 
-		float yOff = 0;
 		// Point point;
 		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 50), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
 
+		setupUI();
+
+		println("\n");
+		for (Point p : this.points)
+		{
+			println(p.name);
+			println(p.pos + "\n");
+		}
+
+		this.lastTime = millis();
+		this.startTime = millis();
+		this.ellapsedTime = 0;
+		this.stopped = true;
+		this.setup = false;
+
+		this.toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
+	}
+
+	private void setupUI()
+	{
+		this.cLines = addCheckBox("lines", true);
+		this.cVelocity = addCheckBox("v", true);
+		this.cAcceleration = addCheckBox("acc", false);
+		this.cOutput = addCheckBox("out", false);
+		this.cPath = addCheckBox("path", true);
+
+		this.uiHandler.addUiElement("cLines", this.cLines);
+		this.uiHandler.addUiElement("cVelocity", this.cVelocity);
+		this.uiHandler.addUiElement("cAcceleration", this.cAcceleration);
+		this.uiHandler.addUiElement("cOutput", this.cOutput);
+		this.uiHandler.addUiElement("cPath", this.cPath);
+
+		float yOff = 0;
 		Button bReset, bStart, bClearPath, bAlign;
 
 		bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
@@ -206,20 +228,6 @@ public class Drehsystem3d extends PApplet
 		});
 		bAlign.setId(1);
 		this.uiHandler.addUiElement("bAlign", bAlign);
-
-		println("\n");
-		for (Point p : this.points)
-		{
-			println(p.name);
-			println(p.pos + "\n");
-		}
-
-		this.lastTime = millis();
-		this.startTime = millis();
-		this.stopped = true;
-		this.setup = false;
-
-		this.toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
 	}
 
 	public void update()
@@ -231,6 +239,10 @@ public class Drehsystem3d extends PApplet
 			{
 				println("reset update");
 			}
+			float dTime = (millis() - this.lastTime);
+
+			this.ellapsedTime += dTime * this.speed;
+
 			for (Point p : this.points)
 			{
 				p.initPos(p.setPos);
@@ -240,6 +252,7 @@ public class Drehsystem3d extends PApplet
 				p.update();
 			}
 			updateGraphApplets();
+			this.lastTime = millis();
 		}
 	}
 
@@ -293,19 +306,6 @@ public class Drehsystem3d extends PApplet
 			resetToStartPosition();
 		}
 
-		// for (Button b : this.buttons)
-		// {
-		// if (b.id == 1)
-		// {
-		// boolean visible = !(this.currentAngle[0] == 0 && this.currentAngle[1]
-		// == 0 && this.currentAngle[2] == 0
-		// && this.pos.x == this.width / 2 && this.pos.y == this.height / 2 &&
-		// this.zoom == 1);
-		// b.setVisibility(visible);
-		// }
-		// b.draw();
-		// }
-
 		this.uiHandler.draw();
 
 		this.toast.draw();
@@ -322,14 +322,6 @@ public class Drehsystem3d extends PApplet
 		// translate(0, 0, 0);
 		// image(this.detectionCanvas, 0, 0);
 		// }
-	}
-
-	private void drawViewList(ArrayList<? extends View> viewList)
-	{
-		for (View v : viewList)
-		{
-			v.draw();
-		}
 	}
 
 	private void drawSimulation()
@@ -439,11 +431,8 @@ public class Drehsystem3d extends PApplet
 	{
 		Integer[] colorValue = this.objects.get(p.getId());
 		this.detectionCanvas.fill(colorValue[0], colorValue[1], colorValue[2]);
+
 		this.detectionCanvas.beginDraw();
-		// this.detectionCanvas.translate(this.pos.x, this.pos.y);
-		// this.detectionCanvas.scale(this.zoom);
-		// this.detectionCanvas.rotateY(this.angle[0]);
-		// this.detectionCanvas.rotateX(this.angle[1]);
 		this.cameraController.adjustCamera(this.detectionCanvas);
 		this.detectionCanvas.noStroke();
 		this.detectionCanvas.pushMatrix();
@@ -491,7 +480,7 @@ public class Drehsystem3d extends PApplet
 		textSize(20);
 		text("X:" + this.mouseX, 40, this.height - 60);
 		text("Y:" + this.mouseY, 40, this.height - 40);
-		text("Elapsed time:" + (millis() - this.startTime), 40, this.height - 20);
+		text("Elapsed time:" + (int) (this.ellapsedTime / 1000), 40, this.height - 20);
 
 		textSize(25);
 		if (output)
@@ -516,12 +505,12 @@ public class Drehsystem3d extends PApplet
 
 	private void drawMenuItems()
 	{
-		hint(DISABLE_DEPTH_TEST);
 		if (this.menuItem != null)
 		{
+			hint(DISABLE_DEPTH_TEST);
 			this.menuItem.draw();
+			hint(ENABLE_DEPTH_TEST);
 		}
-		hint(ENABLE_DEPTH_TEST);
 	}
 
 	@Override
@@ -1074,7 +1063,7 @@ public class Drehsystem3d extends PApplet
 				break;
 
 			case ' ':
-				stop();
+				stopOrResume();
 				this.pressed = true;
 				break;
 		}
@@ -1123,20 +1112,18 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	@Override
-	public void stop()
+	public void stopOrResume()
 	{
-		stop(!this.stopped);
-	}
-
-	public void stop(boolean state)
-	{
-		this.stopped = state;
+		this.stopped = !this.stopped;
+		if (this.stopped)
+		{
+			this.ellapsedTime += (millis() - this.lastTime) * this.speed;
+		}
 		this.lastTime = millis();
 		this.startTime = millis();
 		for (Point p : this.points)
 		{
-			if (state)
+			if (this.stopped)
 			{
 				p.stopTime();
 			}

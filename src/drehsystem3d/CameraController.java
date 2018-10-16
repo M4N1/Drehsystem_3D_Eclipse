@@ -109,35 +109,23 @@ public class CameraController implements WindowResizeListener
 	{
 		if (this.adjustment == Adjustment.ROTATION)
 		{
-			PApplet.println("\n\n");
-			PApplet.println("mouse x: " + this.context.mouseX);
-			PApplet.println("mouse y: " + this.context.mouseY);
-
-			PApplet.println("mouse ref x: " + this.mouseReference.x);
-			PApplet.println("mouse ref y: " + this.mouseReference.y);
+			// PApplet.println("\n\n");
+			// PApplet.println("mouse x: " + this.context.mouseX);
+			// PApplet.println("mouse y: " + this.context.mouseY);
+			//
+			// PApplet.println("mouse ref x: " + this.mouseReference.x);
+			// PApplet.println("mouse ref y: " + this.mouseReference.y);
 			float maxAngle = PApplet.PI;
 			this.angle[0] = PApplet.map(this.context.mouseX - this.mouseReference.x, -this.context.width,
 					this.context.width, -maxAngle, maxAngle) * 2 + this.lastSetAngle[0];
 			this.angle[1] = PApplet.map(this.context.mouseY - this.mouseReference.y, -this.context.height,
 					this.context.height, maxAngle, -maxAngle) * 2 + this.lastSetAngle[1];
-			if (this.angle[0] < -PApplet.PI)
-			{
-				this.angle[0] += PApplet.TWO_PI;
-			}
-			else if (this.angle[0] > PApplet.PI)
-			{
-				this.angle[0] -= PApplet.TWO_PI;
-			}
-			if (this.angle[1] < -PApplet.PI)
-			{
-				this.angle[1] += PApplet.TWO_PI;
-			}
-			else if (this.angle[1] > PApplet.PI)
-			{
-				this.angle[1] -= PApplet.TWO_PI;
-			}
-			PApplet.println("angle x: " + this.angle[1]);
-			PApplet.println("angle y: " + this.angle[0]);
+
+			this.angle[0] = trimAngle(this.angle[0]);
+			this.angle[1] = trimAngle(this.angle[1]);
+
+			// PApplet.println("angle x: " + this.angle[1]);
+			// PApplet.println("angle y: " + this.angle[0]);
 		}
 		else if (this.adjustment == Adjustment.TRANSLATION)
 		{
@@ -148,6 +136,11 @@ public class CameraController implements WindowResizeListener
 		{
 			this.zoom = this.setZoom - (this.context.mouseY - this.mouseReference.y) / 50;
 		}
+	}
+
+	private float trimAngle(float angle)
+	{
+		return angle + ((Math.abs(angle) > PApplet.PI) ? (Math.signum(angle) * PApplet.TWO_PI) : 0);
 	}
 
 	public void adjustCamera(PGraphics canvas)

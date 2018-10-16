@@ -52,6 +52,7 @@ public class Drehsystem3d extends PApplet
 	float speed = 1.0f;
 	boolean setup = true;
 	boolean inputWindowOpened = false;
+
 	PVector mouseReference = new PVector(0, 0, 0);
 	boolean leftButtonPressed = false;
 	boolean centerButtonPressed = false;
@@ -59,13 +60,9 @@ public class Drehsystem3d extends PApplet
 	boolean rotation = false;
 	boolean zooming = false;
 	boolean translation = false;
-	float[] currentAngle = new float[] { 0, 0, 0 };
-	float[] angle = new float[] { 0, 0, 0 };
-	float[] lastSetAngle = new float[] { 0, 0, 0 };
-	float zoom = 1;
-	float setZoom = 1;
-	PVector pos;
-	PVector lastSetPos;
+
+	CameraController cameraController;
+
 	boolean removePoints = false;
 	ArrayList<UserInputListener> userInputListeners;
 
@@ -89,8 +86,6 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void setup()
 	{
-		this.pos = new PVector(this.width / 2, this.height / 2, 0);
-		this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
@@ -99,6 +94,8 @@ public class Drehsystem3d extends PApplet
 		this.tbStartY = this.height - 450;
 		this.tbWidth = 120;
 		this.applets = new ArrayList<>();
+		this.cameraController = new CameraController(this, new float[] { 0, 0, 0 }, 1,
+				new PVector(this.width / 2, this.height / 2, 0));
 
 		this.userInputListeners = new ArrayList<>();
 		this.inputHandler = new InputHandler(this);
@@ -204,7 +201,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(int id)
 			{
-				resetCamera();
+				Drehsystem3d.this.cameraController.resetCamera();
 			}
 		});
 		bAlign.setId(1);
@@ -223,16 +220,6 @@ public class Drehsystem3d extends PApplet
 		this.setup = false;
 
 		this.toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
-	}
-
-	private void resetCamera()
-	{
-		this.angle = new float[] { 0, 0, 0 };
-		this.lastSetAngle = new float[] { 0, 0, 0 };
-		this.pos = new PVector(this.width / 2, this.height / 2, 0);
-		this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
-		this.zoom = 1;
-		this.setZoom = 1;
 	}
 
 	public void update()
@@ -292,7 +279,7 @@ public class Drehsystem3d extends PApplet
 		handlePathLengthRestriction();
 		noLights();
 		pushMatrix();
-		calcCameraAdjustment();
+		this.cameraController.calcCameraAdjustment();
 
 		if (!(this.currWindowWidth == this.width && this.currWindowHeight == this.height))
 		{
@@ -348,7 +335,7 @@ public class Drehsystem3d extends PApplet
 	private void drawSimulation()
 	{
 		pushMatrix();
-		adjustCamera();
+		this.cameraController.adjustCamera(this.getGraphics());
 
 		if (!this.stopped)
 		{
@@ -377,55 +364,6 @@ public class Drehsystem3d extends PApplet
 		}
 		this.stopped = true;
 		this.reset = false;
-	}
-
-	private void calcCameraAdjustment()
-	{
-		if (this.rotation)
-		{
-			float maxAngle = PI;
-			this.angle[0] = map(this.mouseX - this.mouseReference.x, -this.width, this.width, -maxAngle, maxAngle) * 2
-					+ this.lastSetAngle[0];
-			this.angle[1] = map(this.mouseY - this.mouseReference.y, -this.height, this.height, maxAngle, -maxAngle) * 2
-					+ this.lastSetAngle[1];
-			if (this.angle[0] < -PI)
-			{
-				this.angle[0] += TWO_PI;
-			}
-			else if (this.angle[0] > PI)
-			{
-				this.angle[0] -= TWO_PI;
-			}
-			if (this.angle[1] < -PI)
-			{
-				this.angle[1] += TWO_PI;
-			}
-			else if (this.angle[1] > PI)
-			{
-				this.angle[1] -= TWO_PI;
-			}
-			println("rotation y:" + this.angle[0]);
-			println("rotation x:" + this.angle[1]);
-		}
-		else if (this.translation)
-		{
-			this.pos = new PVector(this.lastSetPos.x + (this.mouseX - this.mouseReference.x),
-					this.lastSetPos.y + (this.mouseY - this.mouseReference.y), 0);
-		}
-	}
-
-	private void adjustCamera()
-	{
-		translate(this.pos.x, this.pos.y, 0);
-		this.zoom = this.zooming ? this.setZoom - (this.mouseY - this.mouseReference.y) / 50 : this.setZoom;
-		scale(this.zoom);
-		rotateY(this.angle[0]);
-		this.currentAngle[0] = this.angle[0];
-
-		rotateX(this.angle[1]);
-		this.currentAngle[1] = this.angle[1];
-
-		this.currentAngle[2] = this.angle[2];
 	}
 
 	private void addBufferedPoint()
@@ -459,10 +397,9 @@ public class Drehsystem3d extends PApplet
 	private void handleWindowResizeEvent()
 	{
 		this.toast.windowResized(this.currWindowWidth, this.currWindowHeight);
+		this.cameraController.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
-		this.pos = new PVector(this.width / 2, this.height / 2, 0);
-		this.lastSetPos = new PVector(this.width / 2, this.height / 2, 0);
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
 		erasePath();
 	}
@@ -503,10 +440,11 @@ public class Drehsystem3d extends PApplet
 		Integer[] colorValue = this.objects.get(p.getId());
 		this.detectionCanvas.fill(colorValue[0], colorValue[1], colorValue[2]);
 		this.detectionCanvas.beginDraw();
-		this.detectionCanvas.translate(this.pos.x, this.pos.y);
-		this.detectionCanvas.scale(this.zoom);
-		this.detectionCanvas.rotateY(this.angle[0]);
-		this.detectionCanvas.rotateX(this.angle[1]);
+		// this.detectionCanvas.translate(this.pos.x, this.pos.y);
+		// this.detectionCanvas.scale(this.zoom);
+		// this.detectionCanvas.rotateY(this.angle[0]);
+		// this.detectionCanvas.rotateX(this.angle[1]);
+		this.cameraController.adjustCamera(this.detectionCanvas);
 		this.detectionCanvas.noStroke();
 		this.detectionCanvas.pushMatrix();
 		this.detectionCanvas.translate(p.pos.x * this.scaleD, p.pos.y * this.scaleD, p.pos.z * this.scaleD);
@@ -605,6 +543,7 @@ public class Drehsystem3d extends PApplet
 				return;
 			}
 		}
+
 		if (this.mouseButton == LEFT)
 		{
 			this.leftButtonPressed = true;
@@ -638,19 +577,17 @@ public class Drehsystem3d extends PApplet
 
 		if (tranlationConditionsFullfilled() && !this.translation)
 		{
-			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
+			this.cameraController.setNewAdjustment(CameraController.Adjustment.TRANSLATION);
 			this.translation = true;
 		}
 		else if (rotationConditionsFullfilled() && !this.rotation)
 		{
-			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
+			this.cameraController.setNewAdjustment(CameraController.Adjustment.ROTATION);
 			this.rotation = true;
-			this.setZoom = this.zoom;
-			this.zooming = false;
 		}
 		else if (zoomingConditionFillfilled() && !this.zooming)
 		{
-			this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
+			this.cameraController.setNewAdjustment(CameraController.Adjustment.ZOOM);
 			this.zooming = true;
 		}
 	}
@@ -718,10 +655,7 @@ public class Drehsystem3d extends PApplet
 		scaledPos = scaledPos.mult(this.scaleD);
 
 		pushMatrix();
-		translate(this.pos.x, this.pos.y);
-		scale(this.zoom);
-		rotateY(this.angle[0]);
-		rotateX(this.angle[1]);
+		this.cameraController.adjustCamera(this.getGraphics());
 		translate(scaledPos.x, scaledPos.y, scaledPos.z);
 		pos.x = screenX(0, 0, 0);
 		pos.y = screenY(0, 0, 0);
@@ -1001,27 +935,19 @@ public class Drehsystem3d extends PApplet
 		}
 
 		println("mouse released:" + this.mouseButton);
-		if (this.rotation && !zoomingConditionFillfilled())
+
+		if (this.rotation || this.translation || this.zooming)
 		{
-			this.lastSetAngle = new float[] { this.angle[0], this.angle[1], this.angle[2] };
-			println("last angle x:" + this.lastSetAngle[1]);
-			println("last angle y:" + this.lastSetAngle[0]);
+			this.cameraController.removeAdjustment();
 			this.rotation = false;
-			if (this.mouseButton != CENTER)
-			{
-				this.mouseReference = new PVector(this.mouseX, this.mouseY, 0);
-				this.zooming = true;
-			}
-		}
-		else if (this.zooming && !zoomingConditionFillfilled())
-		{
-			this.setZoom = this.zoom;
+			this.translation = false;
 			this.zooming = false;
 		}
-		else if (this.translation && !tranlationConditionsFullfilled())
+
+		if (zoomingConditionFillfilled())
 		{
-			this.lastSetPos = new PVector(this.pos.x, this.pos.y, 0);
-			this.translation = false;
+			this.cameraController.setNewAdjustment(CameraController.Adjustment.ZOOM);
+			this.zooming = true;
 		}
 
 		this.toast.onMouseReleased(this.mouseButton);

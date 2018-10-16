@@ -62,4 +62,9 @@ public class Listener
 
 		public boolean onKeyReleased(int keyCode, char key);
 	}
+
+	public interface WindowResizeListener
+	{
+		public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew);
+	}
 }

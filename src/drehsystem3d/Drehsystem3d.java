@@ -26,7 +26,6 @@ public class Drehsystem3d extends PApplet
 	int currWindowWidth;
 	int currWindowHeight;
 	TextBoxListener textEditedListener;
-	TextView tvW;
 	MenuItem menuItem;
 	ArrayList<GraphApplet> applets;
 	UIHandler uiHandler;
@@ -38,7 +37,6 @@ public class Drehsystem3d extends PApplet
 	Point pointToAdd;
 	int nameCounter = 65;
 	PGraphics xySurface, yzSurface, xzSurface;
-	TextBox tbW;
 	int checkBoxY = 140;
 	int checkBoxOffset = 30;
 	Checkbox cLines;
@@ -292,12 +290,12 @@ public class Drehsystem3d extends PApplet
 		handlePathLengthRestriction();
 		noLights();
 		pushMatrix();
-		this.cameraController.calcCameraAdjustment();
-
 		if (!(this.currWindowWidth == this.width && this.currWindowHeight == this.height))
 		{
 			handleWindowResizeEvent();
 		}
+
+		this.cameraController.calcCameraAdjustment();
 
 		background(0);
 
@@ -544,7 +542,7 @@ public class Drehsystem3d extends PApplet
 		else if (this.mouseButton == RIGHT)
 		{
 			this.rightButtonPressed = true;
-			OpenMenuContextIfObjectIsClicked();
+			openMenuContextIfObjectIsClicked();
 		}
 
 		for (GraphApplet sa : this.applets)
@@ -596,7 +594,7 @@ public class Drehsystem3d extends PApplet
 		return (this.centerButtonPressed && !this.translation && !this.rotation);
 	}
 
-	private void OpenMenuContextIfObjectIsClicked()
+	private void openMenuContextIfObjectIsClicked()
 	{
 		int objectId = getPressedObjectId();
 		if (objectId != -1)
@@ -606,13 +604,13 @@ public class Drehsystem3d extends PApplet
 				if (p.getId() == objectId)
 				{
 					println("point " + p.getName() + " pressed");
-					OpenMenuContext(p);
+					openMenuContext(p);
 				}
 			}
 		}
 	}
 
-	private void OpenMenuContext(Point point)
+	private void openMenuContext(Point point)
 	{
 		final String[] possibleValues = new String[] { "Add Point", "Change value", "Graph", "Hide Path", "Draw Path",
 				"Remove", "Change Color" };

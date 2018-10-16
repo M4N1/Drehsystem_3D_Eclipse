@@ -35,11 +35,11 @@ public class CameraController implements WindowResizeListener
 	{
 		this.context = context;
 
-		this.initialAngle = initialAngle;
+		this.initialAngle = getValues(initialAngle);
 		this.initialZoom = initialZoom;
 		this.initialPos = initialPos;
 
-		this.angle = initialAngle;
+		this.angle = getValues(initialAngle);
 		this.currentAngle = getValues(this.angle);
 		this.lastSetAngle = getValues(this.angle);
 
@@ -52,7 +52,7 @@ public class CameraController implements WindowResizeListener
 
 	public void resetCamera()
 	{
-		this.angle = this.initialAngle;
+		this.angle = getValues(this.initialAngle);
 		this.currentAngle = getValues(this.angle);
 		this.lastSetAngle = getValues(this.angle);
 

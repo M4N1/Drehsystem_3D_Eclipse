@@ -145,9 +145,7 @@ public class CameraController implements WindowResizeListener
 
 	public void adjustCamera(PGraphics canvas)
 	{
-		this.currentAngle[0] = this.angle[0];
-		this.currentAngle[1] = this.angle[1];
-		this.currentAngle[2] = this.angle[2];
+		this.currentAngle = getValues(this.angle);
 
 		canvas.translate(this.pos.x, this.pos.y, 0);
 		canvas.scale(this.zoom);

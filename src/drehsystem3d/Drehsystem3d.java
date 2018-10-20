@@ -313,7 +313,7 @@ public class Drehsystem3d extends PApplet
 		popMatrix();
 
 		drawTextElements();
-		drawMenuItems();
+		drawMenuItem();
 		// if (this.mousePressed)
 		// {
 		// background(0);
@@ -501,7 +501,7 @@ public class Drehsystem3d extends PApplet
 		hint(ENABLE_DEPTH_TEST);
 	}
 
-	private void drawMenuItems()
+	private void drawMenuItem()
 	{
 		if (this.menuItem != null)
 		{
@@ -825,7 +825,7 @@ public class Drehsystem3d extends PApplet
 		{
 			return null;
 		}
-		return new String[] { Float.toString(point.setPos.x), Float.toString(point.setPos.y),
+		return new String[] { Float.toString(point.setPos.x), Float.toString(point.setPos.y * -1),
 				Float.toString(point.setPos.z), Float.toString(point.setW.x), Float.toString(point.setW.y),
 				Float.toString(point.setW.z), Float.toString(point.setAlpha) };
 	}
@@ -845,7 +845,7 @@ public class Drehsystem3d extends PApplet
 		}
 
 		float x = getValueOrZero(data[0]);
-		float y = getValueOrZero(data[1]);
+		float y = getValueOrZero(data[1]) * -1;
 		float z = getValueOrZero(data[2]);
 		float wx = getValueOrZero(data[3]);
 		float wy = getValueOrZero(data[4]);

@@ -8,10 +8,7 @@ import processing.core.PApplet;
 
 public class GraphApplet extends PApplet
 {
-
-	/**
-	 * 
-	 */
+	
 	ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
 	float graphAddBuffer;
 	boolean bufferLoaded = false;

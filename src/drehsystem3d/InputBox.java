@@ -11,9 +11,7 @@ import processing.core.PApplet;
 
 public class InputBox extends PApplet implements TextBoxListener, OnClickListener, OnAnimationFinishedListener
 {
-	/**
-	 * 
-	 */
+	
 	ArrayList<TextView> textviews = new ArrayList<>();
 	ArrayList<TextBox> textboxes = new ArrayList<>();
 	Button bSubmit;

@@ -163,7 +163,6 @@ public class Drehsystem3d extends PApplet
 		bReset.setBackground(0);
 		bReset.setTextColor(255);
 		bReset.setCornerRadius(15);
-		bReset.setTextAlignment(15);
 		bReset.setStrokeWeight(2);
 		bReset.setOnClickListener(new OnClickListener()
 		{
@@ -180,7 +179,6 @@ public class Drehsystem3d extends PApplet
 		bStart.setBackground(0);
 		bStart.setTextColor(255);
 		bStart.setCornerRadius(15);
-		bStart.setTextAlignment(15);
 		bStart.setStrokeWeight(2);
 		bStart.setOnClickListener(new OnClickListener()
 		{
@@ -197,7 +195,6 @@ public class Drehsystem3d extends PApplet
 		bClearPath.setBackground(0);
 		bClearPath.setTextColor(255);
 		bClearPath.setCornerRadius(15);
-		bClearPath.setTextAlignment(15);
 		bClearPath.setStrokeWeight(2);
 		bClearPath.setOnClickListener(new OnClickListener()
 		{
@@ -214,7 +211,6 @@ public class Drehsystem3d extends PApplet
 		bAlign.setBackground(0);
 		bAlign.setTextColor(255);
 		bAlign.setCornerRadius(15);
-		bAlign.setTextAlignment(15);
 		bAlign.setStrokeWeight(2);
 		bAlign.setOnClickListener(new OnClickListener()
 		{
@@ -226,6 +222,56 @@ public class Drehsystem3d extends PApplet
 		});
 		bAlign.setId(1);
 		this.uiHandler.addUiElement("bAlign", bAlign);
+		
+		TextView testView = new TextView(this, width/2, height/2);
+		testView.setBackground(255);
+		testView.setTextColor(0);
+		testView.setText("Hello World!");
+		testView.setPaddingY(20);
+		testView.setMargin(20);
+		testView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(int id) {
+				println("Hello World clicked!");				
+			}
+		});
+		this.uiHandler.addUiElement("testView", testView);
+		
+		View view = getDummy("Left");
+		view.alignLeft(testView);
+		view.setVerticalAlignment(View.AlignmentVertical.BOTTOM);
+		
+		view = getDummy("Right");
+		view.alignRight(testView);
+		view.setVerticalAlignment(View.AlignmentVertical.TOP);
+		
+		view = getDummy("Top");
+		view.alignTop(testView);
+		view.setHorizontalAlignment(View.AlignmentHorizontal.LEFT);
+		
+		view = getDummy("Bottom");
+		view.alignBottom(testView);
+		view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);
+	}
+	
+	private TextView getDummy(String text)
+	{
+		TextView textView = new TextView(this, width/2, 10);
+		textView.setBackground(255);
+		textView.setTextColor(0);
+		textView.setText(text);
+		textView.setPadding(5);
+		textView.setMargin(20);
+		textView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(int id) {
+				println("'" + text + "' clicked");		
+			}
+		});
+		this.uiHandler.addUiElement(text + "View", textView);
+		return textView;
 	}
 
 	public void update()
@@ -735,32 +781,27 @@ public class Drehsystem3d extends PApplet
 
 		private void openColorSelectionInput()
 		{
-			String[] values = new String[] { "r", "g", "b" };
 			String[] standardValues = new String[3];
 			int[] c = this.point.getPathColor();
 			for (int i = 0; i < standardValues.length; i++)
 			{
 				standardValues[i] = Integer.toString(c[i]);
 			}
-			openInputWindow("Pathcolor " + this.point.getName(), values, standardValues, InputTypes.INTEGER,
-					new float[] { 255, 255, 255 }, new float[] { 0, 0, 0 }, new InputBoxListener()
+			openColorInputWindow("Pathcolor " + this.point.getName(), standardValues,
+					new InputBoxListener()
 					{
 						@Override
 						public void finishedEditing(String... data)
 						{
-							int necessaryDataLength = 3;
 							Drehsystem3d.this.inputWindowOpened = false;
-							if (data.length == necessaryDataLength)
-							{
-								int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
-								int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
-								int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
-								println("\nr:" + r);
-								println("g:" + g);
-								println("b:" + b);
-								PointMenuItemClickListener.this.point.setPathColor(new int[] { r, g, b });
-								PointMenuItemClickListener.this.point.drawPath();
-							}
+							int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
+							int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
+							int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
+							println("\nr:" + r);
+							println("g:" + g);
+							println("b:" + b);
+							PointMenuItemClickListener.this.point.setPathColor(new int[] { r, g, b });
+							PointMenuItemClickListener.this.point.drawPath();
 						}
 
 						@Override
@@ -805,6 +846,24 @@ public class Drehsystem3d extends PApplet
 			ib.setMaxLimits(maxLimits);
 			ib.setMinLimits(minLimits);
 			ib.setOnEditingFinishedListener(listener);
+			ib.run();
+			Drehsystem3d.this.inputWindowOpened = true;
+		}
+	}
+	
+	private void openColorInputWindow(String name, String[] standardValues, InputBoxListener listener)
+	{
+		if (!this.inputWindowOpened)
+		{
+			String[] values = new String[] { "r", "g", "b" };
+			float[] maxLimits = new float[] { 255, 255, 255 };
+			float[] minLimits = new float[] { 0, 0, 0 };
+			ColorInputBox ib = new ColorInputBox(name, values, standardValues);
+			ib.setInputType(InputTypes.INTEGER);
+			ib.setMaxLimits(maxLimits);
+			ib.setMinLimits(minLimits);
+			ib.setOnEditingFinishedListener(listener);
+			ib.run();
 			Drehsystem3d.this.inputWindowOpened = true;
 		}
 	}

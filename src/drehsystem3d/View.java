@@ -1,5 +1,8 @@
 package drehsystem3d;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnHoverListener;
@@ -9,13 +12,23 @@ import processing.core.PVector;
 
 public abstract class View implements UserInputListener, KeyListener
 {
-	final static int ALIGNMENT_MANUALL = 0;
-	final static int ALIGNMENT_CENTER = 1;
-	final static int ALIGNMENT_LEFT = 2;
-	final static int ALIGNMENT_RIGHT = 3;
-	final static int ALIGNMENT_TOP = 4;
-	final static int ALIGNMENT_BOTTOM = 5;
-
+	
+	public enum AlignmentHorizontal
+	{
+		MANUALL,
+		CENTER,
+		LEFT,
+		RIGHT
+	}
+		
+	public enum AlignmentVertical
+	{
+		MANUALL,
+		CENTER,
+		TOP,
+		BOTTOM
+	}
+	
 	protected int id = -1;
 	protected OnClickListener onClickListener;
 	protected OnHoverListener onHoverListener;
@@ -25,13 +38,20 @@ public abstract class View implements UserInputListener, KeyListener
 	protected boolean visible = true;
 	protected boolean hovered = false;
 	protected int viewWidth = 0, viewHeight = 0;
-	protected int padding = 0;
+	protected final Spacing margin = new Spacing();
 	protected int backgroundColor = 0;
 	protected int backgroundAlpha = 255;
-	protected int horizontalAlignment = TextView.ALIGNMENT_MANUALL;
-	protected int verticalAlignment = TextView.ALIGNMENT_MANUALL;
+	protected AlignmentHorizontal horizontalAlignment = AlignmentHorizontal.MANUALL;
+	protected AlignmentVertical verticalAlignment = AlignmentVertical.MANUALL;
 	protected PApplet context = null;
+	protected Neighbor neighbor = new Neighbor();
 
+	View(PApplet context)
+	{
+		this.context = context;
+		this.pos = new PVector(0, 0, 0);
+	}
+	
 	View(PApplet context, float x, float y)
 	{
 		this.context = context;
@@ -58,6 +78,102 @@ public abstract class View implements UserInputListener, KeyListener
 		this.pos = new PVector(pos.x, pos.y, pos.z);
 		this.viewWidth = w;
 		this.viewHeight = h;
+	}
+	
+	protected class Spacing
+	{
+		private int x = 0;
+		private int y = 0;
+		
+		public void setSpacing(int spacing)
+		{
+			this.x = spacing;
+			this.y = spacing;
+		}
+		
+		public void setSpacing(int x, int y)
+		{
+			this.x = x;
+			this.y = y;
+		}
+		
+		public void setSpacingX(int x)
+		{
+			this.x = x;
+		}
+		
+		public void setSpacingY(int y)
+		{
+			this.y = y;
+		}
+		
+		public int getSpacingX()
+		{
+			return x;
+		}
+		
+		public int getSpacingY()
+		{
+			return y;
+		}
+	}
+	
+	
+	
+	protected class Neighbor
+	{
+		public final static int NONE = 0;
+		public final static int TOP = 1;
+		public final static int RIGHT = 2;
+		public final static int BOTTOM = 3;
+		public final static int LEFT = 4;
+		
+		private View neighbor = null;
+		private int directionOfNeighbor = NONE;
+		
+		public void setTopNeighbor(View v)
+		{
+			setNewNeighbor(v, TOP);
+		}
+		
+		public void setRightNeighbor(View v)
+		{
+			setNewNeighbor(v, RIGHT);
+		}
+		
+		public void setBottomNeighbor(View v)
+		{
+			setNewNeighbor(v, BOTTOM);
+		}
+		
+		
+		
+		public void setLeftNeighbor(View v)
+		{
+			setNewNeighbor(v, LEFT);
+		}
+		
+		private void setNewNeighbor(View v, int dir)
+		{
+			this.neighbor = v;
+			this.directionOfNeighbor = dir;
+		}
+		
+		public void removeNeighbor()
+		{
+			this.neighbor = null;
+			this.directionOfNeighbor = NONE;
+		}
+		
+		public int exists()
+		{
+			return this.directionOfNeighbor;
+		}
+		
+		public View getNeighbor()
+		{
+			return this.neighbor;
+		}
 	}
 
 	public void setVisibility(boolean visible)
@@ -95,65 +211,150 @@ public abstract class View implements UserInputListener, KeyListener
 		this.viewHeight = h;
 	}
 
-	public void calcPosX()
+	private void calcPosX()
 	{
-		switch (this.horizontalAlignment)
+		int neighborDir = this.neighbor.exists();
+		View other = this.neighbor.getNeighbor();
+		final Map<View.AlignmentHorizontal, Runnable> actions = new HashMap<>();
+		
+		switch (neighborDir)
 		{
-			case TextView.ALIGNMENT_MANUALL:
+			case Neighbor.RIGHT:
+				this.pos.x = other.pos.x - this.viewWidth - other.margin.getSpacingX() - this.margin.getSpacingX();
 				break;
-
-			case TextView.ALIGNMENT_CENTER:
-				this.pos.x = (this.context.width - this.viewWidth) / 2;
+				
+			case Neighbor.LEFT:
+				this.pos.x = other.pos.x + other.viewWidth + other.margin.getSpacingX() + this.margin.getSpacingX();
 				break;
-
-			case TextView.ALIGNMENT_LEFT:
-				this.pos.x = this.padding;
+				
+			case Neighbor.TOP:
+			case Neighbor.BOTTOM:
+				actions.put(View.AlignmentHorizontal.CENTER, () -> {this.pos.x = other.pos.x + (other.viewWidth - this.viewWidth) / 2;});
+				actions.put(View.AlignmentHorizontal.LEFT, () -> {this.pos.x = other.pos.x;});
+				actions.put(View.AlignmentHorizontal.RIGHT, () -> {this.pos.x = other.pos.x + other.viewWidth - this.viewWidth;});
 				break;
-
-			case TextView.ALIGNMENT_RIGHT:
-				this.pos.x = this.context.width - this.viewWidth - this.padding;
-				break;
+				
+			default:
+				actions.put(View.AlignmentHorizontal.CENTER, () -> {this.pos.x = (this.context.width - this.viewWidth) / 2;});
+				actions.put(View.AlignmentHorizontal.LEFT, () -> {this.pos.x = this.margin.getSpacingX();});
+				actions.put(View.AlignmentHorizontal.RIGHT, () -> {this.pos.x = this.context.width - this.viewWidth - this.margin.getSpacingX();});
+		}
+		
+		Runnable action = actions.get(this.horizontalAlignment);
+		
+		if (action != null)
+		{
+			action.run();
 		}
 	}
 
-	public void calcPosY()
+	private void calcPosY()
 	{
-		switch (this.verticalAlignment)
+		int neighborDir = this.neighbor.exists();
+		View other = this.neighbor.getNeighbor();
+		final Map<View.AlignmentVertical, Runnable> actions = new HashMap<>();
+		
+		switch(neighborDir)
 		{
-			case TextView.ALIGNMENT_MANUALL:
+			case Neighbor.TOP:
+				this.pos.y = other.pos.y + other.viewHeight + other.margin.getSpacingY() + this.margin.getSpacingY();
 				break;
-
-			case TextView.ALIGNMENT_CENTER:
-				this.pos.y = (this.context.height - this.viewHeight) / 2;
+				
+			case Neighbor.BOTTOM:
+				this.pos.y = other.pos.y - other.margin.getSpacingY() - this.viewHeight - this.margin.getSpacingY();
 				break;
-
-			case TextView.ALIGNMENT_TOP:
-				this.pos.y = this.padding;
+				
+			case Neighbor.LEFT:
+			case Neighbor.RIGHT:
+				actions.put(View.AlignmentVertical.CENTER, () -> {this.pos.y = other.pos.y + (other.viewHeight - this.viewHeight) / 2;});
+				actions.put(View.AlignmentVertical.TOP, () -> {this.pos.y = other.pos.y;});
+				actions.put(View.AlignmentVertical.BOTTOM, () -> {this.pos.y = other.pos.y + other.viewHeight - this.viewHeight;});
 				break;
-
-			case TextView.ALIGNMENT_BOTTOM:
-				this.pos.y = this.context.height - this.viewHeight - this.padding;
-				break;
+				
+			default:
+				actions.put(View.AlignmentVertical.CENTER, () -> {this.pos.y = (this.context.height - this.viewHeight) / 2;});
+				actions.put(View.AlignmentVertical.TOP, () -> {this.pos.y = this.margin.getSpacingY();});
+				actions.put(View.AlignmentVertical.BOTTOM, () -> {this.pos.y = this.context.height - this.viewHeight - this.margin.getSpacingY();});	
+		}
+		
+		Runnable action = actions.get(this.verticalAlignment);
+		
+		if (action != null)
+		{
+			action.run();
 		}
 	}
 
-	public void setHorizontalAlignment(int alignment)
+	public void alignTop(View v)
+	{
+		neighbor.setBottomNeighbor(v);
+		changeToNeighborttachedPlacement();
+	}
+	
+	public void alignRight(View v)
+	{
+		neighbor.setLeftNeighbor(v);
+		changeToNeighborttachedPlacement();
+	}
+	
+	public void alignBottom(View v)
+	{
+		neighbor.setTopNeighbor(v);
+		changeToNeighborttachedPlacement();
+	}
+	
+	public void alignLeft(View v)
+	{
+		neighbor.setRightNeighbor(v);
+		changeToNeighborttachedPlacement();
+	}
+	
+	private void changeToNeighborttachedPlacement()
+	{
+		if (this.horizontalAlignment == AlignmentHorizontal.MANUALL)
+		{
+			this.horizontalAlignment = AlignmentHorizontal.LEFT;
+		}
+		if (this.verticalAlignment == AlignmentVertical.MANUALL)
+		{
+			this.verticalAlignment = AlignmentVertical.CENTER;
+		}
+		calcPosX();
+		calcPosY();
+	}
+	
+	public void setHorizontalAlignment(AlignmentHorizontal alignment)
 	{
 		this.horizontalAlignment = alignment;
 		calcPosX();
 	}
 
-	public void setVerticalAlignment(int alignment)
+	public void setVerticalAlignment(AlignmentVertical alignment)
 	{
 		this.verticalAlignment = alignment;
 		calcPosY();
 	}
 
-	public void setPadding(int padding)
+	public void setMargin(int spacing)
 	{
-		this.padding = padding;
+		this.margin.setSpacing(spacing);
 	}
-
+	
+	public void setMarginX(int x)
+	{
+		this.margin.setSpacingX(x);
+	}
+	
+	public void setMarginY(int y)
+	{
+		this.margin.setSpacingY(y);
+	}
+	
+	public void setMargin(int x, int y)
+	{
+		this.margin.setSpacing(x, y);
+	}
+	
 	public void setId(int id)
 	{
 		this.id = id;
@@ -209,7 +410,6 @@ public abstract class View implements UserInputListener, KeyListener
 	@Override
 	public void onMouseReleased(int mouseButton)
 	{
-		this.clicked = false;
 	}
 
 	@Override
@@ -250,11 +450,5 @@ public abstract class View implements UserInputListener, KeyListener
 				this.onHoverAction.run();
 			}
 		}
-		// this.context.stroke(255);
-		// this.context.strokeWeight(1);
-		// this.context.fill(this.backgroundColor, this.backgroundColor,
-		// this.backgroundColor, this.backgroundAlpha);
-		// this.context.rect(this.pos.x, this.pos.y, this.viewWidth,
-		// this.viewHeight);
 	}
 }

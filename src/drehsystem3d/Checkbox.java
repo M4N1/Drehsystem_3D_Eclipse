@@ -6,41 +6,30 @@ import processing.core.PApplet;
 
 public class Checkbox extends View
 {
-	ArrayList<Checkbox> group = new ArrayList<>();;
-	private int posX = 0;
-	private int posY = 0;
+	ArrayList<Checkbox> group = new ArrayList<>();
 	private int size = 0;
+	private int padding = 4;
 	private boolean checked = false;
 	String text = "";
 
 	Checkbox(PApplet context, int posX, int posY, int size)
 	{
-		super(context, posX, posY, size, size);
-		init(posX, posY, size, "", null);
+		this(context, posX, posY, size, "", null);
 	}
 
 	Checkbox(PApplet context, int posX, int posY, int size, String text)
 	{
-		super(context, posX, posY, size, size);
-		init(posX, posY, size, text, null);
+		this(context, posX, posY, size, text, null);
 	}
 
 	Checkbox(PApplet context, int posX, int posY, int size, ArrayList<Checkbox> group)
 	{
-		super(context, posX, posY, size, size);
-		init(posX, posY, size, "", group);
+		this(context, posX, posY, size, "", group);
 	}
 
 	Checkbox(PApplet context, int posX, int posY, int size, String text, ArrayList<Checkbox> group)
 	{
 		super(context, posX, posY, size, size);
-		init(posX, posY, size, text, group);
-	}
-
-	private void init(int posX, int posY, int size, String text, ArrayList<Checkbox> group)
-	{
-		this.posX = posX;
-		this.posY = posY;
 		this.size = size;
 		this.text = text;
 		if (group != null)
@@ -112,8 +101,8 @@ public class Checkbox extends View
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		if (this.context.mouseX >= this.posX && this.context.mouseX <= this.posX + this.size
-				&& this.context.mouseY >= this.posY && this.context.mouseY <= this.posY + this.size)
+		if (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.size
+				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.size)
 		{
 			this.checked = !this.checked;
 			if (this.group != null)
@@ -133,17 +122,18 @@ public class Checkbox extends View
 	{
 		this.context.noFill();
 		this.context.stroke(255);
+		this.context.strokeWeight(1);
 		this.context.textSize(this.size);
-		this.context.rect(this.posX, this.posY, this.size, this.size);
+		this.context.rect(this.pos.x, this.pos.y, this.size, this.size);
 		if (this.checked)
 		{
-			this.context.line(this.posX, this.posY, this.posX + this.size, this.posY + this.size);
-			this.context.line(this.posX, this.posY + this.size, this.posX + this.size, this.posY);
+			this.context.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.size - padding, this.pos.y + this.size - padding);
+			this.context.line(this.pos.x + padding, this.pos.y + this.size - padding, this.pos.x + this.size - padding, this.pos.y + padding);
 		}
 		if (!this.text.equals(""))
 		{
 			this.context.fill(255);
-			this.context.text(this.text, this.posX + this.size + 10, this.posY + this.size);
+			this.context.text(this.text, this.pos.x + this.size + 10, this.pos.y + this.size);
 		}
 	}
 }

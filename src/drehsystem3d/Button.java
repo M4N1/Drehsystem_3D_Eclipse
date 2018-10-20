@@ -76,12 +76,13 @@ public class Button extends TextView
 
 	public void init()
 	{
-		this.textAlignment = TextView.TEXTALIGNMENT_CENTER;
+		this.textAlignment = TextView.TextAlignment.CENTER;
 	}
 
 	ArrayList<PVector> points = new ArrayList<>();
 
-	public @Override void draw()
+	@Override
+	public void draw()
 	{
 		super.draw();
 		if (this.clickAnimationVisible)
@@ -93,14 +94,6 @@ public class Button extends TextView
 			{
 				this.context.beginShape();
 				float x = 0, y = 0;
-				// float r = 400;
-				// for (x=this.pos.x; x<=this.pos.x+r; x++) {
-				// y = this.pos.y+r-sqrt(r*r-(r-x)*(r-x));
-				// this.context.stroke(255);
-				// this.context.vertex(x, y);
-				// }
-				// println("pos:"+this.pos);
-				// println("y(r):"+(this.pos.y+r-sqrt(r*r-(r-r)*(r-r))));
 				if (this.points.size() == 0)
 				{
 					this.clickAnimationSize = 1;
@@ -138,52 +131,15 @@ public class Button extends TextView
 					{
 						x = shapeDimPos.x;
 						y = shapeDimPos.y;
-						// points.set(counter, new PVector(x, y, 0));
 					}
 					// println("x:"+x);
 					// println("y:"+y);
 					counter++;
 					this.context.stroke(255);
-					// this.context.line(x, y, clickAnimationPos.x,
-					// clickAnimationPos.y);
-					// this.context.ellipse(this.pos.x, this.pos.y, 10, 10);
 					this.context.vertex(x, y);
-					// println("x:"+x);
-					// println("y:"+y);
-					// println("\n");
-					// if (x > xMin-offset && x < xMax+offset && y > yMin-offset
-					// && y < yMax+offset) finished = false;
-					// if (x<=this.pos.x+this.cornerRadius) {
-					// float xOff = this.cornerRadius-(x-this.pos.x);
-					// float yOff = this.cornerRadius-(y-this.pos.y);
-					// xMin =
-					// this.pos.x+sqrt(this.cornerRadius*this.cornerRadius+yOff*yOff);
-					// xMax =
-					// this.pos.x+this.viewWidth-sqrt(this.cornerRadius*this.cornerRadius+yOff*yOff);
-					// yMin =
-					// this.pos.y+sqrt(this.cornerRadius*this.cornerRadius+xOff*xOff);
-					// yMax =
-					// this.pos.y+this.viewHeight-sqrt(this.cornerRadius*this.cornerRadius+xOff*xOff);
-					// if (!finished) {
-					// println("xOff:"+xOff);
-					// println("yMin:"+yMin);
-					// println("yMax:"+yMax);
-					// println("r:"+this.cornerRadius);
-					// println("\n");
-					// }
-					// } else {
-					// yMin = this.pos.y;
-					// yMax = this.pos.y+this.viewHeight;
-					// }
-					// x = constrain(x, xMin, xMax);
-					// y = constrain(y, yMin, yMax);
-					// this.context.ellipse(this.pos.x, this.pos.y, 10, 10);
 				}
 				this.context.endShape();
 			}
-			// this.context.ellipse(this.clickAnimationPos.x,
-			// this.clickAnimationPos.y, this.clickAnimationSize,
-			// this.clickAnimationSize);
 			if (this.context.millis() - this.clickAnimationLastTime > 1)
 			{
 				this.clickAnimationSize += 9;

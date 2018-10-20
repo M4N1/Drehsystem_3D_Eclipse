@@ -5,104 +5,82 @@ import processing.core.PVector;
 
 class TextView extends View
 {
-	final static int TEXTALIGNMENT_LEFT = 0;
-	final static int TEXTALIGNMENT_RIGHT = 1;
-	final static int TEXTALIGNMENT_CENTER = 2;
+	public enum TextAlignment
+	{
+		LEFT,
+		RIGHT,
+		CENTER
+	}
 
-	int setWidth = 0, setHeight = 0;
 	String text = "";
-	int margin = 5;
+	protected final Spacing padding = new Spacing();
 	int textSize = 20;
 	int strokeColor = 255;
 	int strokeWeight = 1;
-	// int backgroundColor = 0;
-	// int backgroundgAlpha = 255;
 	int textColor = 255;
-	int textAlignment = TextView.TEXTALIGNMENT_LEFT;
-	int horizontalAlignment = TextView.ALIGNMENT_MANUALL;
-	int verticalAlignment = TextView.ALIGNMENT_MANUALL;
 	int cornerRadius = 0;
-	PApplet context = null;
+	TextAlignment textAlignment = TextAlignment.LEFT;
 
+	TextView(PApplet context)
+	{
+		super(context);
+	}
+	
 	TextView(PApplet context, float x, float y)
 	{
 		super(context, x, y);
-		this.context = context;
-		this.pos = new PVector(x, y, 0);
 	}
 
 	TextView(PApplet context, float x, float y, int w, int h)
 	{
 		super(context, x, y, w, h);
-		this.context = context;
-		this.pos = new PVector(x, y, 0);
-		this.setWidth = w;
-		this.setHeight = h;
 	}
 
 	TextView(PApplet context, PVector pos)
 	{
 		super(context, pos);
-		this.context = context;
-		this.pos = new PVector(pos.x, pos.y, pos.z);
 	}
 
 	TextView(PApplet context, PVector pos, int w, int h)
 	{
 		super(context, pos, w, h);
-		this.context = context;
-		this.pos = new PVector(pos.x, pos.y, pos.z);
-		this.setWidth = w;
-		this.setHeight = h;
 	}
 
 	TextView(PApplet context, float x, float y, String text)
 	{
 		super(context, x, y);
-		this.context = context;
-		this.pos = new PVector(x, y, 0);
 		this.text = text;
 	}
 
 	TextView(PApplet context, float x, float y, int w, int h, String text)
 	{
 		super(context, x, y, w, h);
-		this.context = context;
-		this.pos = new PVector(x, y, 0);
-		this.setWidth = w;
-		this.setHeight = h;
 		this.text = text;
 	}
 
 	TextView(PApplet context, PVector pos, String text)
 	{
 		super(context, pos);
-		this.context = context;
-		this.pos = new PVector(pos.x, pos.y, pos.z);
 		this.text = text;
 	}
 
 	TextView(PApplet context, PVector pos, int w, int h, String text)
 	{
 		super(context, pos, w, h);
-		this.context = context;
-		this.pos = new PVector(pos.x, pos.y, pos.z);
-		this.setWidth = w;
-		this.setHeight = h;
 		this.text = text;
 	}
 
 	@Override
 	public void setWidth(int w)
 	{
-		this.setWidth = w;
+		super.setWidth(w);
 		calcWidth();
 	}
 
 	@Override
 	public void setHeight(int h)
 	{
-		this.setHeight = h;
+		super.setHeight(h);
 		calcHeight();
 	}
 
@@ -140,96 +118,44 @@ class TextView extends View
 		this.strokeWeight = weight;
 	}
 
-	@Override
-	public void calcPosX()
-	{
-		switch (this.horizontalAlignment)
-		{
-			case TextView.ALIGNMENT_MANUALL:
-				break;
-
-			case TextView.ALIGNMENT_CENTER:
-				this.pos.x = (this.context.width - this.viewWidth) / 2;
-				break;
-
-			case TextView.ALIGNMENT_LEFT:
-				this.pos.x = this.padding;
-				break;
-
-			case TextView.ALIGNMENT_RIGHT:
-				this.pos.x = this.context.width - this.viewWidth - this.padding;
-				break;
-		}
-	}
-
-	@Override
-	public void calcPosY()
-	{
-		switch (this.verticalAlignment)
-		{
-			case TextView.ALIGNMENT_MANUALL:
-				break;
-
-			case TextView.ALIGNMENT_CENTER:
-				this.pos.y = (this.context.height - this.viewHeight) / 2;
-				break;
-
-			case TextView.ALIGNMENT_TOP:
-				this.pos.y = this.padding;
-				break;
-
-			case TextView.ALIGNMENT_BOTTOM:
-				this.pos.y = this.context.height - this.viewHeight - this.padding;
-				break;
-		}
-	}
-
 	public void calcWidth()
 	{
 		this.context.textSize(this.textSize);
-		int nWidth = (int) this.context.textWidth(this.text) + this.margin * 2;
-		int newWidth = this.setWidth > nWidth ? this.setWidth : nWidth;
+		int nWidth = (int) this.context.textWidth(this.text) + this.padding.getSpacingX() * 2;
+		int newWidth = this.viewWidth > nWidth ? this.viewWidth : nWidth;
 		this.viewWidth = newWidth;
 	}
 
 	public void calcHeight()
 	{
-		int nHeight = this.textSize + 2 * this.margin;
-		int newHeight = this.setHeight > nHeight ? this.setHeight : nHeight;
+		int nHeight = this.textSize + 2 * this.padding.getSpacingY();
+		int newHeight = this.viewHeight > nHeight ? this.viewHeight : nHeight;
 		this.viewHeight = newHeight;
 	}
 
-	@Override
-	public void setHorizontalAlignment(int alignment)
+	public void setTextAlignment(TextAlignment alignment)
 	{
-		this.horizontalAlignment = alignment;
-		calcPosX();
+		this.textAlignment = alignment;
 	}
-
-	@Override
-	public void setVerticalAlignment(int alignment)
+	
+	public void setPadding(int spacing)
 	{
-		this.verticalAlignment = alignment;
-		calcPosY();
+		this.padding.setSpacing(spacing);
 	}
-
-	public void setTextAlignment(int alignment)
+	
+	public void setPadding(int x, int y)
 	{
-		if (alignment >= 0 && alignment < 3)
-		{
-			this.textAlignment = alignment;
-		}
+		this.padding.setSpacing(x, y);
 	}
-
-	public void setMargin(int margin)
+	
+	public void setPaddingX(int x)
 	{
-		this.margin = margin;
+		this.padding.setSpacingX(x);
 	}
-
-	@Override
-	public void setPadding(int padding)
+	
+	public void setPaddingY(int y)
 	{
-		this.padding = padding;
+		this.padding.setSpacingY(y);
 	}
 
 	public void setCornerRadius(int radius)
@@ -242,26 +168,27 @@ class TextView extends View
 		this.context.textSize(this.textSize);
 		float posX = this.pos.x;
 		float offset = 0;
+		int paddingSpacingX = this.padding.getSpacingX();
 		switch (this.textAlignment)
 		{
-			case TEXTALIGNMENT_LEFT:
-				posX += this.margin;
+			case LEFT:
+				posX += paddingSpacingX;
 				break;
 
-			case TEXTALIGNMENT_RIGHT:
-				offset = this.viewWidth - this.context.textWidth(this.text) - this.margin;
-				if (offset < this.margin)
+			case RIGHT:
+				offset = this.viewWidth - this.context.textWidth(this.text) - paddingSpacingX;
+				if (offset < paddingSpacingX)
 				{
-					offset = this.margin;
+					offset = paddingSpacingX;
 				}
 				posX += offset;
 				break;
 
-			case TEXTALIGNMENT_CENTER:
+			case CENTER:
 				offset = (this.viewWidth - this.context.textWidth(this.text)) / 2;
-				if (offset < this.margin)
+				if (offset < paddingSpacingX)
 				{
-					offset = this.margin;
+					offset = paddingSpacingX;
 				}
 				posX += offset;
 				break;

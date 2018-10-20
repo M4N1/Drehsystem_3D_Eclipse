@@ -8,10 +8,8 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 class TextBox extends TextView
-{ // <>// //<>//
-	/**
-	 * 
-	 */
+{
+	
 	ArrayList<Integer> keysPressed = new ArrayList<>();
 	boolean mouseDrag = false;
 	int markedAreaStart = 0;
@@ -19,72 +17,38 @@ class TextBox extends TextView
 	int inputType = InputTypes.ALL;
 	TextBoxListener mListener;
 	KeyListener keyListener;
-	int id = -1;
-	int margin = 5;
 	int cursorPos = 0;
 	int dragCursorPos = 0;
 	float cursorPosX;
 	float dragCursorPosX;
-	PVector pos;
 	String hint = "";
 	String standardText = "";
 	String outputText = "";
 	String input = "";
-	String text = "";
-	int textSize = 20;
 	boolean setClicked = false;
 	boolean clicked = false;
 	int cursorTimer = 0;
 	boolean cursorVisible = false;
-	PApplet context = null;
 
 	TextBox(PApplet context, int posX, int posY)
 	{
 		super(context, posX, posY);
-		if (context == null)
-		{
-			return;
-		}
-		this.context = context;
-		this.pos = new PVector(posX, posY, 0);
 	}
 
 	TextBox(PApplet context, int posX, int posY, int w, int h)
 	{
 		super(context, posX, posY, w, h);
-		if (context == null)
-		{
-			return;
-		}
-		this.context = context;
-		this.pos = new PVector(posX, posY, 0);
-		this.setWidth = w;
-		this.setHeight = h;
 		calcWidth();
 	}
 
 	TextBox(PApplet context, PVector pos)
 	{
 		super(context, pos);
-		if (context == null)
-		{
-			return;
-		}
-		this.context = context;
-		pos = new PVector(pos.x, pos.y, 0);
 	}
 
 	TextBox(PApplet context, PVector pos, int w, int h)
 	{
 		super(context, pos, w, h);
-		if (context == null)
-		{
-			return;
-		}
-		this.context = context;
-		pos = new PVector(pos.x, pos.y, 0);
-		this.setWidth = w;
-		this.setHeight = h;
 		calcWidth();
 	}
 
@@ -134,21 +98,6 @@ class TextBox extends TextView
 	{
 		this.textSize = size;
 		updateText();
-	}
-
-	@Override
-	public void setTextAlignment(int alignment)
-	{
-		if (alignment >= 0 && alignment < 3)
-		{
-			this.textAlignment = alignment;
-		}
-	}
-
-	@Override
-	public void setMargin(int margin)
-	{
-		this.margin = margin;
 	}
 
 	@Override
@@ -580,21 +529,6 @@ class TextBox extends TextView
 		calcHeight();
 	}
 
-	public @Override void calcWidth()
-	{
-		this.context.textSize(this.textSize);
-		int nWidth = (int) this.context.textWidth(this.outputText) + this.margin * 2;
-		int newWidth = this.setWidth > nWidth ? this.setWidth : nWidth;
-		this.viewWidth = newWidth;
-	}
-
-	public @Override void calcHeight()
-	{
-		int nHeight = this.textSize + 10;
-		int newHeight = this.setWidth > nHeight ? this.setHeight : nHeight;
-		this.viewHeight = newHeight;
-	}
-
 	public void updateCursor(int change)
 	{
 		if (change == -1 && this.cursorPos > 0)
@@ -719,33 +653,29 @@ class TextBox extends TextView
 	public float calcAlignment(String displayedText)
 	{
 		this.context.textSize(this.textSize);
-		// String outputText = this.clicked ? this.input : this.text;
-		// if (outputText.equals("")) {
-		// if (!this.standardText.equals("")) outputText = this.standardText;
-		// else if (!this.hint.equals("")) outputText = this.hint;
-		// }
 		float posX = this.pos.x;
 		float offset = 0;
+		int paddingSpacingX = this.padding.getSpacingX();
 		switch (this.textAlignment)
 		{
-			case TextView.TEXTALIGNMENT_LEFT:
-				posX += this.margin;
+			case LEFT:
+				posX += this.margin.getSpacingX();
 				break;
 
-			case TextView.TEXTALIGNMENT_RIGHT:
-				offset = this.viewWidth - this.context.textWidth(displayedText) - this.margin;
-				if (offset < this.margin)
+			case RIGHT:
+				offset = this.viewWidth - this.context.textWidth(displayedText) - paddingSpacingX;
+				if (offset < paddingSpacingX)
 				{
-					offset = this.margin;
+					offset = paddingSpacingX;
 				}
 				posX += offset;
 				break;
 
-			case TextView.TEXTALIGNMENT_CENTER:
+			case CENTER:
 				offset = (this.viewWidth - this.context.textWidth(displayedText)) / 2;
-				if (offset < this.margin)
+				if (offset < paddingSpacingX)
 				{
-					offset = this.margin;
+					offset = paddingSpacingX;
 				}
 				posX += offset;
 				break;
@@ -785,7 +715,6 @@ class TextBox extends TextView
 		this.context.strokeWeight(1);
 		this.context.textSize(this.textSize);
 		this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
-		// outputText = this.clicked ? this.input : this.text;
 		float offset = (this.viewHeight - this.textSize) / 2 + 2;
 		float posX = calcAlignment();
 		if (offset < 0)

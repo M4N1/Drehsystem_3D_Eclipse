@@ -29,8 +29,7 @@ public class MenuItem extends View
 
 	MenuItem(PApplet context, float x, float y, String title, String[] values)
 	{
-		super(context, x + standardOffset, y + standardOffset, standardWidth, standardHeight);
-		init(title, values);
+		this(context, x + standardOffset, y + standardOffset, standardWidth, standardHeight, title, values);
 	}
 
 	MenuItem(PApplet context, float x, float y, int w, int h, String title, String[] values)
@@ -56,16 +55,16 @@ public class MenuItem extends View
 
 	private void init(String title, String[] values)
 	{
-		this.padding = 10;
-		this.startPosX = (int) this.pos.x + this.padding;
-		this.startPosY = (int) this.pos.y + this.padding;
+		this.margin.setSpacing(10);
+		this.startPosX = (int) this.pos.x + this.margin.getSpacingX();
+		this.startPosY = (int) this.pos.y + this.margin.getSpacingY();
 		this.textviews = new ArrayList<>();
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
 		{
 			final TextView tv = new TextView(this.context, this.startPosX, this.startPosY, this.tvWidth, this.tvHeight);
 			tv.setText(this.values[i]);
-			tv.setTextAlignment(TextView.TEXTALIGNMENT_CENTER);
+			tv.setTextAlignment(TextView.TextAlignment.CENTER);
 			tv.setTextSize(15);
 			tv.setMargin(10);
 			tv.setId(i + 1);
@@ -93,23 +92,6 @@ public class MenuItem extends View
 					}
 				}
 			});
-			// tv.setOnHoverAction(new Runnable() {
-			// @Override
-			// public void run() {
-
-			// }
-			// }
-			// );
-			// tv.setOnHoverListener(new OnHoverListener() {
-			// @Override
-			// public void onHover(int id) {
-			// println("clicked on menu item " + id);
-			// if (tv.backgroundColor == 150) {
-			// tv.setBackground(255-tv.backgroundColor);
-			// }
-			// }
-			// }
-			// );
 			this.startPosY += this.tvHeight + 1;
 			this.textviews.add(tv);
 		}
@@ -121,7 +103,7 @@ public class MenuItem extends View
 
 	public void calcWidth()
 	{
-		int nWidth = 2 * this.padding;
+		int nWidth = 2 * this.margin.getSpacingX();
 		int maxTvWidth = 0;
 		for (TextView tv : this.textviews)
 		{
@@ -143,13 +125,13 @@ public class MenuItem extends View
 
 	public void calcHeight()
 	{
-		int nHeight = this.padding;
+		int nHeight = this.margin.getSpacingY();
 		for (TextView tv : this.textviews)
 		{
 			nHeight += tv.viewHeight + 1;
 			Drehsystem3d.println("viewHeight:" + tv.viewHeight);
 		}
-		nHeight += this.padding;
+		nHeight += this.margin.getSpacingY();
 		this.viewHeight = nHeight;
 		Drehsystem3d.println("this.viewHeight:" + this.viewHeight);
 	}

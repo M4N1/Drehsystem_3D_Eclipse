@@ -460,6 +460,7 @@ public class Drehsystem3d extends PApplet
 	private void handleWindowResizeEvent()
 	{
 		this.cameraController.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
+		this.cameraController.setInitPos(width/2, height/2);
 		this.uiHandler.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;

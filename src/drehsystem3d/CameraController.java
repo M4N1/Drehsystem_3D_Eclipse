@@ -80,6 +80,16 @@ public class CameraController implements WindowResizeListener
 		this.pos.y = this.pos.y * heightNew / heightNew;
 	}
 	
+	public void setInitPos(int x, int y)
+	{
+		this.initialPos = new PVector(x, y, 0);
+	}
+	
+	public void setInitPos(PVector pos)
+	{
+		this.initialPos = pos.copy();
+	}
+	
 	public PVector getPos()
 	{
 		return this.pos;

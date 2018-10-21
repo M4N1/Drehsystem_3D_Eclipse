@@ -5,9 +5,7 @@ import processing.core.PVector;
 
 public class Toast extends View
 {
-	/**
-	 * 
-	 */
+	
 	private static final int STATE_ENTER = 0;
 	private static final int STATE_SHOW = 1;
 	private static final int STATE_EXIT = 2;
@@ -69,6 +67,12 @@ public class Toast extends View
 		return (mX >= this.pos.x && mX <= this.pos.x + Toast.standardWidth && mY >= this.pos.y
 				&& mY <= this.pos.y + Toast.standardHeight);
 	}
+	
+	@Override
+	public void onMouseReleased(int mouseButton) {
+		super.onMouseReleased(mouseButton);
+		this.clicked = false;
+	}
 
 	public void update()
 	{
@@ -98,12 +102,6 @@ public class Toast extends View
 				}
 				break;
 		}
-	}
-
-	public void windowResized(int w, int h)
-	{
-		this.pos.x = this.context.width / 2 - Toast.standardWidth / 2;
-		this.pos.y = this.pos.y / h * this.context.height;
 	}
 
 	@Override
@@ -158,8 +156,7 @@ public class Toast extends View
 			}
 
 			this.context.fill(255);
-			this.context.stroke(100);
-			this.context.strokeWeight(1);
+			this.context.noStroke();
 			this.context.textSize(20);
 
 			this.context.rect(x, y, getWidth(), getHeight(), Toast.standardRadius);

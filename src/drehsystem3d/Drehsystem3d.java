@@ -74,8 +74,6 @@ public class Drehsystem3d extends PApplet
 	boolean stopped = false;
 	boolean clearPath = false;
 
-	Toast toast;
-
 	@Override
 	public void settings()
 	{
@@ -138,8 +136,6 @@ public class Drehsystem3d extends PApplet
 		this.ellapsedTime = 0;
 		this.stopped = true;
 		this.setup = false;
-
-		this.toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
 	}
 
 	private void setupUI()
@@ -160,6 +156,7 @@ public class Drehsystem3d extends PApplet
 		Button bReset, bStart, bClearPath, bAlign;
 
 		bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
+		bReset.setMargin(10);
 		bReset.setBackground(0);
 		bReset.setTextColor(255);
 		bReset.setCornerRadius(15);
@@ -175,7 +172,12 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement("bReset", bReset);
 		yOff += 70;
 
-		bStart = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Start Pos");
+		//bStart = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Start Pos");
+		bStart = new Button(this);
+		bStart.alignBottom(bReset);
+		bStart.setSize(120, 50);
+		bStart.setText("Start Pos");
+		bStart.setMargin(10);
 		bStart.setBackground(0);
 		bStart.setTextColor(255);
 		bStart.setCornerRadius(15);
@@ -191,7 +193,12 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement("bStart", bStart);
 		yOff += 70;
 
-		bClearPath = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Clear Path");
+		//bClearPath = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Clear Path");
+		bClearPath = new Button(this);
+		bClearPath.alignBottom(bStart);
+		bClearPath.setSize(120, 50);
+		bClearPath.setText("Clear Path");
+		bClearPath.setMargin(10);
 		bClearPath.setBackground(0);
 		bClearPath.setTextColor(255);
 		bClearPath.setCornerRadius(15);
@@ -207,7 +214,12 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement("bClearPath", bClearPath);
 		yOff += 70;
 
-		bAlign = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Align");
+		//bAlign = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Align");
+		bAlign = new Button(this);
+		bAlign.alignBottom(bClearPath);
+		bAlign.setSize(120, 50);
+		bAlign.setText("Align");
+		bAlign.setMargin(10);
 		bAlign.setBackground(0);
 		bAlign.setTextColor(255);
 		bAlign.setCornerRadius(15);
@@ -223,7 +235,10 @@ public class Drehsystem3d extends PApplet
 		bAlign.setId(1);
 		this.uiHandler.addUiElement("bAlign", bAlign);
 		
-		TextView testView = new TextView(this, width/2, height/2);
+		Toast toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
+		this.uiHandler.addUiElement("WelcomeToast", toast);
+		
+		/*TextView testView = new TextView(this, width/2, height/2);
 		testView.setBackground(255);
 		testView.setTextColor(0);
 		testView.setText("Hello World!");
@@ -252,7 +267,7 @@ public class Drehsystem3d extends PApplet
 		
 		view = getDummy("Bottom");
 		view.alignBottom(testView);
-		view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);
+		view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);*/
 	}
 	
 	private TextView getDummy(String text)
@@ -333,7 +348,7 @@ public class Drehsystem3d extends PApplet
 	public void draw()
 	{
 		addBufferedPoint();
-		handlePathLengthRestriction();
+		handlePathUpdates();
 		noLights();
 		pushMatrix();
 		if (!(this.currWindowWidth == this.width && this.currWindowHeight == this.height))
@@ -350,9 +365,9 @@ public class Drehsystem3d extends PApplet
 			resetToStartPosition();
 		}
 
+		setButtonVisibility();
+		
 		this.uiHandler.draw();
-
-		this.toast.draw();
 
 		drawSimulation();
 
@@ -366,6 +381,18 @@ public class Drehsystem3d extends PApplet
 		// translate(0, 0, 0);
 		// image(this.detectionCanvas, 0, 0);
 		// }
+	}
+	
+	private void setButtonVisibility()
+	{
+		Button align = (Button) uiHandler.getUiElement("bAlign");
+		boolean bAlignVisible = !(
+					cameraController.getAngle()[0] == 0 
+				&& 	cameraController.getAngle()[1] == 0 
+				&& 	cameraController.getPos().x == width/2 
+				&&  cameraController.getPos().y == height/2
+		);
+		align.setVisibility(bAlignVisible);
 	}
 
 	private void drawSimulation()
@@ -411,7 +438,7 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	private void handlePathLengthRestriction()
+	private void handlePathUpdates()
 	{
 		if (this.removePoints)
 		{
@@ -432,8 +459,8 @@ public class Drehsystem3d extends PApplet
 
 	private void handleWindowResizeEvent()
 	{
-		this.toast.windowResized(this.currWindowWidth, this.currWindowHeight);
 		this.cameraController.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
+		this.uiHandler.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
@@ -560,23 +587,22 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mousePressed()
 	{
+		println("\n\nmouse pressed : '" + this.mouseButton + "'");
+		boolean itemClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
-			l.onMousePressed(this.mouseButton);
-		}
-		println("mouse pressed : '" + this.mouseButton + "'");
-		if (this.toast.onMousePressed(this.mouseButton))
-		{
-			return;
+			itemClicked = itemClicked || l.onMousePressed(this.mouseButton);
 		}
 		if (this.menuItem != null)
 		{
-			if (this.menuItem.onMousePressed(this.mouseButton))
-			{
-				return;
-			}
+			itemClicked = itemClicked || this.menuItem.onMousePressed(this.mouseButton);
 		}
 
+		if (itemClicked)
+		{
+			return;
+		}
+		
 		if (this.mouseButton == LEFT)
 		{
 			this.leftButtonPressed = true;
@@ -980,7 +1006,7 @@ public class Drehsystem3d extends PApplet
 			this.rightButtonPressed = false;
 		}
 
-		println("mouse released:" + this.mouseButton);
+		println("\n\nmouse released:" + this.mouseButton);
 
 		if (this.rotation || this.translation || this.zooming)
 		{
@@ -995,8 +1021,6 @@ public class Drehsystem3d extends PApplet
 			this.cameraController.setNewAdjustment(CameraController.Adjustment.ZOOM);
 			this.zooming = true;
 		}
-
-		this.toast.onMouseReleased(this.mouseButton);
 	}
 
 	@Override

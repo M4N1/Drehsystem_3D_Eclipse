@@ -59,18 +59,30 @@ public class CameraController implements WindowResizeListener
 		this.zoom = this.initialZoom;
 		this.setZoom = this.initialZoom;
 
-		this.pos = this.initialPos;
-		this.lastSetPos = this.initialPos;
+		this.pos = this.initialPos.copy();
+		this.lastSetPos = this.initialPos.copy();
+		
+		PApplet.println("\nCamera reset:");
+		PApplet.println("angle: " + this.angle[0] + ", " + this.angle[1]);
+		PApplet.println("zoom: " + this.zoom);
+		PApplet.println("pos: " + this.pos);
 	}
 
 	@Override
 	public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew)
 	{
+		this.initialPos.x = this.initialPos.x * widthNew / widthOld;
+		this.initialPos.y = this.initialPos.y * heightNew / heightOld;
 		this.lastSetPos.x = this.lastSetPos.x * widthNew / widthOld;
-		this.lastSetPos.y = this.lastSetPos.y * heightNew / heightNew;
+		this.lastSetPos.y = this.lastSetPos.y * heightNew / heightOld;
 
 		this.pos.x = this.pos.x * widthNew / widthOld;
 		this.pos.y = this.pos.y * heightNew / heightNew;
+	}
+	
+	public PVector getPos()
+	{
+		return this.pos;
 	}
 
 	public void setZoom(float zoom)

@@ -26,6 +26,12 @@ public class Button extends TextView
 	long clickAnimationLastTime = 0;
 	int clickAnimationSize = 0;
 
+	Button(PApplet context)
+	{
+		super(context);
+		init();
+	}
+	
 	Button(PApplet context, float x, float y)
 	{
 		super(context, x, y);
@@ -103,7 +109,7 @@ public class Button extends TextView
 						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
 						this.points.add(new PVector(x, y, 0));
 					}
-					println("pos:" + this.pos);
+					//println("pos:" + this.pos);
 				}
 				int counter = 0;
 				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
@@ -266,6 +272,7 @@ public class Button extends TextView
 		if (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
 				&& mY <= this.pos.y + this.viewHeight)
 		{
+			this.clicked = true;
 			this.clickAnimationVisible = true;
 			this.clickAnimationPos = new PVector(mX, mY, 0);
 			this.clickAnimationStartTime = this.context.millis();
@@ -274,6 +281,10 @@ public class Button extends TextView
 			{
 				this.onClickListener.onClick(this.id);
 			}
+		}
+		else
+		{
+			this.clicked = false;
 		}
 		return this.clicked;
 	}

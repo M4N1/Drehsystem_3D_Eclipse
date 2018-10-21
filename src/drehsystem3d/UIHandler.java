@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import drehsystem3d.Listener.UserInputListener;
+import drehsystem3d.Listener.WindowResizeListener;
 import processing.core.PApplet;
 
-public class UIHandler implements UserInputListener
+public class UIHandler implements UserInputListener, WindowResizeListener
 {
 	private PApplet context;
 	private Map<String, View> uiContents;
@@ -90,6 +91,13 @@ public class UIHandler implements UserInputListener
 	{
 		this.uiContents.forEach((k, v) -> {
 			v.onMouseReleased(mouseButton);
+		});
+	}
+
+	@Override
+	public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew) {
+		this.uiContents.forEach((k, v) -> {
+			v.onWindowResize(widthOld, heightOld, widthNew, heightNew);
 		});
 	}
 }

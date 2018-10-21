@@ -7,10 +7,11 @@ import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnHoverListener;
 import drehsystem3d.Listener.UserInputListener;
+import drehsystem3d.Listener.WindowResizeListener;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public abstract class View implements UserInputListener, KeyListener
+public abstract class View implements UserInputListener, KeyListener, WindowResizeListener
 {
 	
 	public enum AlignmentHorizontal
@@ -201,6 +202,12 @@ public abstract class View implements UserInputListener, KeyListener
 		this.backgroundAlpha = alpha;
 	}
 
+	public void setSize(int w, int h)
+	{
+		this.viewWidth = w;
+		this.viewHeight = h;
+	}
+	
 	public void setWidth(int w)
 	{
 		this.viewWidth = w;
@@ -220,7 +227,7 @@ public abstract class View implements UserInputListener, KeyListener
 		switch (neighborDir)
 		{
 			case Neighbor.RIGHT:
-				this.pos.x = other.pos.x - this.viewWidth - other.margin.getSpacingX() - this.margin.getSpacingX();
+				this.pos.x = other.pos.x - other.margin.getSpacingX() - this.viewWidth - this.margin.getSpacingX();
 				break;
 				
 			case Neighbor.LEFT:
@@ -432,6 +439,12 @@ public abstract class View implements UserInputListener, KeyListener
 	public int getHeight()
 	{
 		return this.viewHeight;
+	}
+	
+	@Override
+	public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew) {
+		this.pos.x = this.pos.x * widthNew / widthOld;
+		this.pos.y = this.pos.y * heightNew / heightOld;
 	}
 
 	public void draw()

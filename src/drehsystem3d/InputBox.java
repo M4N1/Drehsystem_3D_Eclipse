@@ -227,7 +227,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			@Override
 			public void textEdited(int id, String text)
 			{
-				println("Text Edited");
+				Logger.log(this, "Text Edited");
 				if (tb.inputType == InputTypes.FLOAT)
 				{
 					float value;
@@ -252,7 +252,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 					}
 					catch (NumberFormatException e)
 					{
-						println(e);
+						Logger.log(this, e);
 						tb.setText(Float.toString(InputBox.this.limitsMax[id - 1]));
 					}
 				}
@@ -280,7 +280,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 					}
 					catch (NumberFormatException e)
 					{
-						println(e);
+						Logger.log(this, e);
 						tb.setText(Integer.toString((int) InputBox.this.limitsMax[id - 1]));
 					}
 				}
@@ -308,10 +308,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 					{
 						int next = (i + 1) % InputBox.this.textboxes.size();
 						InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
-						println("i:" + i);
-						println("tb id:" + id);
-						println("size:" + InputBox.this.textboxes.size());
-						println("next:" + next);
+						Logger.log(this, "i:" + i);
+						Logger.log(this, "tb id:" + id);
+						Logger.log(this, "size:" + InputBox.this.textboxes.size());
+						Logger.log(this, "next:" + next);
 					}
 				}
 			}
@@ -337,10 +337,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 								return true;
 							}
 							InputBox.this.textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorPos));
-							println("i:" + i);
-							println("tb id:" + id);
-							println("size:" + InputBox.this.textboxes.size());
-							println("next:" + next);
+							Logger.log(this, "i:" + i);
+							Logger.log(this, "tb id:" + id);
+							Logger.log(this, "size:" + InputBox.this.textboxes.size());
+							Logger.log(this, "next:" + next);
 							break;
 						}
 					}

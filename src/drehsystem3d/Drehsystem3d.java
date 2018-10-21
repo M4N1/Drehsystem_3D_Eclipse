@@ -83,6 +83,8 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void setup()
 	{
+		Logger.setLogStatus(true);
+		Logger.setLogStoreStatus(false);
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
@@ -124,13 +126,6 @@ public class Drehsystem3d extends PApplet
 
 		setupUI();
 
-		println("\n");
-		for (Point p : this.points)
-		{
-			println(p.name);
-			println(p.pos + "\n");
-		}
-
 		this.lastTime = millis();
 		this.startTime = millis();
 		this.ellapsedTime = 0;
@@ -152,10 +147,9 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement("cOutput", this.cOutput);
 		this.uiHandler.addUiElement("cPath", this.cPath);
 
-		float yOff = 0;
 		Button bReset, bStart, bClearPath, bAlign;
 
-		bReset = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Remove All");
+		bReset = new Button(this, this.tbStartX - 40, this.tbStartY, 120, 50, "Remove All");
 		bReset.setMargin(10);
 		bReset.setBackground(0);
 		bReset.setTextColor(255);
@@ -170,9 +164,7 @@ public class Drehsystem3d extends PApplet
 			}
 		});
 		this.uiHandler.addUiElement("bReset", bReset);
-		yOff += 70;
 
-		//bStart = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Start Pos");
 		bStart = new Button(this);
 		bStart.alignBottom(bReset);
 		bStart.setSize(120, 50);
@@ -191,9 +183,7 @@ public class Drehsystem3d extends PApplet
 			}
 		});
 		this.uiHandler.addUiElement("bStart", bStart);
-		yOff += 70;
 
-		//bClearPath = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Clear Path");
 		bClearPath = new Button(this);
 		bClearPath.alignBottom(bStart);
 		bClearPath.setSize(120, 50);
@@ -212,9 +202,7 @@ public class Drehsystem3d extends PApplet
 			}
 		});
 		this.uiHandler.addUiElement("bClearPath", bClearPath);
-		yOff += 70;
 
-		//bAlign = new Button(this, this.tbStartX - 40, this.tbStartY + yOff, 120, 50, "Align");
 		bAlign = new Button(this);
 		bAlign.alignBottom(bClearPath);
 		bAlign.setSize(120, 50);
@@ -248,7 +236,7 @@ public class Drehsystem3d extends PApplet
 			
 			@Override
 			public void onClick(int id) {
-				println("Hello World clicked!");				
+				Logger.log("Hello World clicked!");				
 			}
 		});
 		this.uiHandler.addUiElement("testView", testView);
@@ -282,7 +270,7 @@ public class Drehsystem3d extends PApplet
 			
 			@Override
 			public void onClick(int id) {
-				println("'" + text + "' clicked");		
+				Logger.log(this, "'" + text + "' clicked");		
 			}
 		});
 		this.uiHandler.addUiElement(text + "View", textView);
@@ -296,7 +284,7 @@ public class Drehsystem3d extends PApplet
 		{
 			if (this.reset)
 			{
-				println("reset update");
+				Logger.log(this, "reset update");
 			}
 			float dTime = (millis() - this.lastTime);
 
@@ -588,7 +576,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mousePressed()
 	{
-		println("\n\nmouse pressed : '" + this.mouseButton + "'");
+		Logger.log(this, "\n\nMouse pressed : '" + this.mouseButton + "'");
 		boolean itemClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
@@ -676,7 +664,7 @@ public class Drehsystem3d extends PApplet
 			{
 				if (p.getId() == objectId)
 				{
-					println("point " + p.getName() + " pressed");
+					Logger.log(this, "point " + p.getName() + " pressed");
 					openMenuContext(p);
 				}
 			}
@@ -702,8 +690,6 @@ public class Drehsystem3d extends PApplet
 
 		PVector screenPos = getScreenPos(point);
 
-		println("MenuX:" + screenPos.x);
-		println("MenuY:" + screenPos.y);
 		this.menuItem = new MenuItem(this, screenPos.x, screenPos.y, "Title", values);
 		this.menuItem.setOnItemClickListener(new PointMenuItemClickListener(point, possibleValues));
 	}
@@ -824,9 +810,6 @@ public class Drehsystem3d extends PApplet
 							int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
 							int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
 							int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
-							println("\nr:" + r);
-							println("g:" + g);
-							println("b:" + b);
 							PointMenuItemClickListener.this.point.setPathColor(new int[] { r, g, b });
 							PointMenuItemClickListener.this.point.drawPath();
 						}
@@ -937,10 +920,6 @@ public class Drehsystem3d extends PApplet
 		float wy = getValueOrZero(data[4]);
 		float wz = getValueOrZero(data[5]);
 		float alpha = getValueOrZero(data[6]);
-		for (String s : data)
-		{
-			println(s + ": " + getValueOrZero(s));
-		}
 
 		if (x == 0 && y == 0 && z == 0)
 		{
@@ -1007,8 +986,6 @@ public class Drehsystem3d extends PApplet
 			this.rightButtonPressed = false;
 		}
 
-		println("\n\nmouse released:" + this.mouseButton);
-
 		if (this.rotation || this.translation || this.zooming)
 		{
 			this.cameraController.removeAdjustment();
@@ -1034,7 +1011,6 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		println("key pressed");
 		boolean uiElementClicked = this.uiHandler.onKeyPressed(this.keyCode, this.key);
 		if (!uiElementClicked)
 		{
@@ -1296,7 +1272,6 @@ public class Drehsystem3d extends PApplet
 		{
 			this.nameCounter = 65;
 		}
-		println("Added Point " + point.getName());
 		return point;
 	}
 
@@ -1329,7 +1304,6 @@ public class Drehsystem3d extends PApplet
 		{
 			this.nameCounter = 65;
 		}
-		println("Added Point " + point.getName());
 		return point;
 	}
 

@@ -18,8 +18,6 @@ public class InputHandler implements UserInputListener
 		this.keyCodes = new ArrayList<>();
 		this.mouseButtons = new ArrayList<>();
 		this.lastPressedKey = new Key(-1, ' ');
-		// println("keyCode:" + pressedKeyCode);
-		// println("key:'" + pressedKey + "'");
 	}
 
 	public boolean isKeyPressed(int keyCode)

@@ -2,7 +2,6 @@ package drehsystem3d;
 
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.cos;
-import static processing.core.PApplet.println;
 import static processing.core.PApplet.sin;
 import static processing.core.PApplet.sqrt;
 import static processing.core.PApplet.tan;
@@ -109,7 +108,7 @@ public class Button extends TextView
 						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
 						this.points.add(new PVector(x, y, 0));
 					}
-					//println("pos:" + this.pos);
+					//Logger.log("pos:" + this.pos);
 				}
 				int counter = 0;
 				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
@@ -138,8 +137,8 @@ public class Button extends TextView
 						x = shapeDimPos.x;
 						y = shapeDimPos.y;
 					}
-					// println("x:"+x);
-					// println("y:"+y);
+					// Logger.log("x:"+x);
+					// Logger.log("y:"+y);
 					counter++;
 					this.context.stroke(255);
 					this.context.vertex(x, y);
@@ -202,13 +201,13 @@ public class Button extends TextView
 				return new PVector(xMax, y);
 			}
 			xOff = x - (xMax - this.cornerRadius);
-			// println("xOff:"+xOff);
+			// Logger.log("xOff:"+xOff);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
-			// println("f:"+f);
+			// Logger.log("f:"+f);
 			yMin = this.pos.y + f;
 			yMax = this.pos.y + this.viewHeight - f;
-			// println("yMin:"+yMin);
-			// println("yMax:"+yMax);
+			// Logger.log("yMin:"+yMin);
+			// Logger.log("yMax:"+yMax);
 			if (y < yMin)
 			{
 				return new PVector(x, yMin);

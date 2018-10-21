@@ -288,7 +288,7 @@ class TextBox extends TextView
 								}
 								catch (NumberFormatException e)
 								{
-									Drehsystem3d.println(e);
+									Logger.log(this, e);
 									if (!(this.cursorPos == 0 && pressedKey == '-' && !this.input.contains("-")))
 									{
 										return;
@@ -308,7 +308,7 @@ class TextBox extends TextView
 								}
 								catch (NumberFormatException e)
 								{
-									Drehsystem3d.println(e);
+									Logger.log(this, e);
 									if (!(!this.input.contains(".") && pressedKey == '.') && pressedKey != '-')
 									{
 										return;
@@ -360,7 +360,7 @@ class TextBox extends TextView
 			{
 				this.keyListener.onKeyPressed(pressedKeyCode, pressedKey);
 			}
-			// println("input:"+this.input);
+			// Logger.log("input:"+this.input);
 		}
 	}
 
@@ -516,7 +516,6 @@ class TextBox extends TextView
 		{
 			if (!this.standardText.equals("") && !this.clicked)
 			{
-				// println("std text");
 				this.outputText = this.standardText;
 				this.input = this.outputText;
 			}
@@ -610,7 +609,6 @@ class TextBox extends TextView
 	public int calcCharPos(int idx)
 	{
 		this.context.textSize(this.textSize);
-		// String outputText = this.clicked ? this.input : this.text;
 		String displayedText = getEditableText();
 		if (displayedText.length() == 0 || idx < 0 || idx > displayedText.length())
 		{
@@ -622,12 +620,10 @@ class TextBox extends TextView
 	public int calcClosestCharPos(float x)
 	{
 		int idx = -1;
-		String displayedText = getEditableText(); // this.outputText;
+		String displayedText = getEditableText();
 		float posX = calcAlignment(displayedText);
-		// String outputText = this.clicked ? this.input : this.text;
 		float min = this.viewWidth;
 		this.context.textSize(this.textSize);
-		Drehsystem3d.println();
 		for (int i = 0; i < displayedText.length() + 1; i++)
 		{
 			String subString = displayedText.substring(0, i);
@@ -637,9 +633,9 @@ class TextBox extends TextView
 				min = dist;
 				idx = i;
 			}
-			Drehsystem3d.println("dist:" + dist);
-			Drehsystem3d.println("min:" + min);
-			Drehsystem3d.println("idx:" + idx);
+			Logger.log(this, "\ndist:" + dist);
+			Logger.log(this, "min:" + min);
+			Logger.log(this, "idx:" + idx);
 		}
 		return idx;
 	}

@@ -11,9 +11,6 @@ public class CameraController implements WindowResizeListener
 	private PVector mouseReference = new PVector(0, 0, 0);
 	private PVector pos;
 	private PVector lastSetPos;
-	// private boolean rotation = false;
-	// private boolean zooming = false;
-	// private boolean translation = false;
 
 	private PVector initialPos;
 	private float[] initialAngle;
@@ -62,10 +59,10 @@ public class CameraController implements WindowResizeListener
 		this.pos = this.initialPos.copy();
 		this.lastSetPos = this.initialPos.copy();
 		
-		PApplet.println("\nCamera reset:");
-		PApplet.println("angle: " + this.angle[0] + ", " + this.angle[1]);
-		PApplet.println("zoom: " + this.zoom);
-		PApplet.println("pos: " + this.pos);
+		Logger.log(this, "\nCamera reset:");
+		Logger.log(this, "angle: " + this.angle[0] + ", " + this.angle[1]);
+		Logger.log(this, "zoom: " + this.zoom);
+		Logger.log(this, "pos: " + this.pos);
 	}
 
 	@Override
@@ -131,12 +128,6 @@ public class CameraController implements WindowResizeListener
 	{
 		if (this.adjustment == Adjustment.ROTATION)
 		{
-			// PApplet.println("\n\n");
-			// PApplet.println("mouse x: " + this.context.mouseX);
-			// PApplet.println("mouse y: " + this.context.mouseY);
-			//
-			// PApplet.println("mouse ref x: " + this.mouseReference.x);
-			// PApplet.println("mouse ref y: " + this.mouseReference.y);
 			float maxAngle = PApplet.PI;
 			this.angle[0] = PApplet.map(this.context.mouseX - this.mouseReference.x, -this.context.width,
 					this.context.width, -maxAngle, maxAngle) * 2 + this.lastSetAngle[0];
@@ -145,9 +136,6 @@ public class CameraController implements WindowResizeListener
 
 			this.angle[0] = trimAngle(this.angle[0]);
 			this.angle[1] = trimAngle(this.angle[1]);
-
-			// PApplet.println("angle x: " + this.angle[1]);
-			// PApplet.println("angle y: " + this.angle[0]);
 		}
 		else if (this.adjustment == Adjustment.TRANSLATION)
 		{

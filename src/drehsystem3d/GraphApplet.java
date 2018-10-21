@@ -41,7 +41,6 @@ public class GraphApplet extends PApplet
 	public void setup()
 	{
 		df.setRoundingMode(RoundingMode.CEILING);
-		// surface.setTitle("Graph");
 	}
 
 	@Override
@@ -66,10 +65,6 @@ public class GraphApplet extends PApplet
 		for (int i = 0; i < this.dataSets.size(); i++)
 		{
 			this.dataSets.get(i).reset();
-			// this.dataSets.set(i, new
-			// DataSet(this.dataSets.get(i).getName())); //new
-			// ArrayList<Float>();
-			// println("data size:"+d.data.size());
 		}
 		this.maxSize = 0;
 		this.noLoop();
@@ -101,7 +96,6 @@ public class GraphApplet extends PApplet
 	public void keyPressed()
 	{
 		drehsystem3d.handleKeyPressedEvent(keyCode, key);
-		println("key pressed");
 	}
 
 	public void keyReleased()
@@ -145,11 +139,6 @@ public class GraphApplet extends PApplet
 		return false;
 	}
 
-	// public float getLastPoint(String name) {
-	// if (this.graphPoints.size() == 0) return 0;
-	// return this.graphPoints.get(this.graphPoints.size()-1);
-	// }
-
 	public void addGraphPoint(float point)
 	{
 		this.graphAddBuffer = point;
@@ -172,7 +161,7 @@ public class GraphApplet extends PApplet
 			{
 				ds.addPointFromBuffer();
 			}
-			println("data size:" + ds.data.size());
+			Logger.log(this, "data size:" + ds.data.size());
 			startIdx = ds.getDataSize() - floor((width - this.margin - 50 * this.dataSets.size()) / (this.dx));
 			if (startIdx > 0)
 			{

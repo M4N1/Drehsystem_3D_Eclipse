@@ -9,15 +9,12 @@ import processing.core.PVector;
 
 public class MenuItem extends View
 {
-	/**
-	 * 
-	 */
+	
 	static final int standardWidth = 120;
 	static final int standardHeight = 200;
 	static final int standardOffset = 15;
 
 	OnItemClickListener onItemClickListener;
-	// int padding = 0;
 	int startPosX;
 	int startPosY;
 	int tvWidth = 120;
@@ -78,7 +75,7 @@ public class MenuItem extends View
 				@Override
 				public void onClick(int id)
 				{
-					Drehsystem3d.println("clicked on menu item " + id);
+					Logger.log(this, "clicked on menu item " + id);
 					if (MenuItem.this.context.mouseButton == Drehsystem3d.LEFT)
 					{
 						if (MenuItem.this.visible)
@@ -107,17 +104,14 @@ public class MenuItem extends View
 		int maxTvWidth = 0;
 		for (TextView tv : this.textviews)
 		{
-			// println("tv.viewWidth:"+tv.viewWidth);
 			if (tv.viewWidth > maxTvWidth)
 			{
 				maxTvWidth = tv.viewWidth;
 			}
 		}
-		// println("maxTvWidth:"+maxTvWidth);
 		for (TextView tv : this.textviews)
 		{
 			tv.setWidth(maxTvWidth);
-			// println("tv.viewWidth:"+tv.viewWidth);
 		}
 		nWidth += maxTvWidth;
 		this.viewWidth = nWidth;
@@ -129,11 +123,11 @@ public class MenuItem extends View
 		for (TextView tv : this.textviews)
 		{
 			nHeight += tv.viewHeight + 1;
-			Drehsystem3d.println("viewHeight:" + tv.viewHeight);
+			Logger.log(this, "viewHeight:" + tv.viewHeight);
 		}
 		nHeight += this.margin.getSpacingY();
 		this.viewHeight = nHeight;
-		Drehsystem3d.println("this.viewHeight:" + this.viewHeight);
+		Logger.log(this, "this.viewHeight:" + this.viewHeight);
 	}
 
 	public void calcPos()
@@ -156,9 +150,9 @@ public class MenuItem extends View
 	{
 		for (TextView tv : this.textviews)
 		{
-			Drehsystem3d.println("\nprevious pos:" + tv.pos);
+			Logger.log(this, "\nprevious pos:" + tv.pos);
 			tv.setPos(new PVector(tv.pos.x + offsetX, tv.pos.y + offsetY, 0));
-			Drehsystem3d.println("pos update:" + tv.pos);
+			Logger.log(this, "pos update:" + tv.pos);
 		}
 	}
 
@@ -177,7 +171,6 @@ public class MenuItem extends View
 			this.context.stroke(0);
 			this.context.strokeWeight(1);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
-			// println("this.viewHeight:" + this.viewHeight);
 			for (int i = 0; i < this.textviews.size(); i++)
 			{
 				TextView tv = this.textviews.get(i);
@@ -190,14 +183,6 @@ public class MenuItem extends View
 					tv.setBackground(150);
 				}
 				tv.draw();
-				// if (i < textviews.size()-1) {
-				// this.context.stroke(0);
-				// this.context.strokeWeight(1);
-				// this.context.line(this.pos.x+this.padding,
-				// tv.pos.y+tv.viewHeight,
-				// this.pos.x+this.viewWidth-this.padding,
-				// tv.pos.y+tv.viewHeight);
-				// }
 			}
 		}
 	}

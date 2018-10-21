@@ -92,7 +92,7 @@ public class Point
 		this.v = new PVector(0, 0, 0);
 		this.a = new PVector(0, 0, 0);
 		
-		Logger.log(this, "\n\nCreated point '" + name + "'\n");
+		Logger.log(this, "Created point '" + name + "'\n");
 		Logger.log(this, "Parent object:\t\t" + (parent == null ? "null" : "'" + parent.name + "'"));
 		Logger.log(this, "Initial position:\t" + setPos);
 		Logger.log(this, "Initial omega:\t\t" + setW);
@@ -189,7 +189,7 @@ public class Point
 		this.alpha = this.setAlpha;
 		initPos(this.setPos);
 		update();
-		Logger.log(this, "\nPosition calculation finished:" + this.pos);
+		Logger.log(this, "Position calculation finished:" + this.pos);
 	}
 
 	public void moveToStart()

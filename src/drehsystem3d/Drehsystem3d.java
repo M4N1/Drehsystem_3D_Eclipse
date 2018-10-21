@@ -576,7 +576,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mousePressed()
 	{
-		Logger.log(this, "\n\nMouse pressed : '" + this.mouseButton + "'");
+		Logger.log(this, "Mouse pressed : '" + this.mouseButton + "'");
 		boolean itemClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
@@ -1011,6 +1011,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyPressed()
 	{
+		Logger.log(this, "Key was pressed ('" + this.key + "', " + this.keyCode + ")");
 		boolean uiElementClicked = this.uiHandler.onKeyPressed(this.keyCode, this.key);
 		if (!uiElementClicked)
 		{

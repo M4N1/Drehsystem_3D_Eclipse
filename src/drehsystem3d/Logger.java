@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-import processing.core.PApplet;
-
 public final class Logger {
 	
 	private static boolean log = true;

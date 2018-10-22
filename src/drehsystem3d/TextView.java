@@ -229,7 +229,7 @@ class TextView extends View
 			{
 				this.context.noStroke();
 			}
-			this.context.fill(this.backgroundColor, this.backgroundColor, this.backgroundColor, this.backgroundAlpha);
+			this.context.fill(this.backgroundColor[0], this.backgroundColor[1], this.backgroundColor[2], this.backgroundAlpha);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
 			this.context.fill(this.textColor);
 			this.context.textSize(this.textSize);

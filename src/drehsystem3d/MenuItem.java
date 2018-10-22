@@ -67,7 +67,7 @@ public class MenuItem extends View
 			tv.setId(i + 1);
 			tv.setTextColor(0);
 			tv.setBackgroundgAlpha(255);
-			tv.setBackground(150);
+			tv.setBackgroundColor(150);
 			tv.setStrokeColor(0);
 			tv.setStrokeWeight(0);
 			tv.setOnClickListener(new OnClickListener()
@@ -123,11 +123,9 @@ public class MenuItem extends View
 		for (TextView tv : this.textviews)
 		{
 			nHeight += tv.viewHeight + 1;
-			Logger.log(this, "viewHeight:" + tv.viewHeight);
 		}
 		nHeight += this.margin.getSpacingY();
 		this.viewHeight = nHeight;
-		Logger.log(this, "this.viewHeight:" + this.viewHeight);
 	}
 
 	public void calcPos()
@@ -174,13 +172,14 @@ public class MenuItem extends View
 			for (int i = 0; i < this.textviews.size(); i++)
 			{
 				TextView tv = this.textviews.get(i);
-				if (tv.hovered && tv.backgroundColor == 150)
+				if (tv.hovered && tv.backgroundColor[0] == 150 && tv.backgroundColor[1] == 150 && tv.backgroundColor[2] == 150)
 				{
-					tv.setBackground(255 - tv.backgroundColor);
+					int color = (tv.backgroundColor[0] + tv.backgroundColor[1] + tv.backgroundColor[2]) / 3;
+					tv.setBackgroundColor(255 - color);
 				}
 				else if (!tv.hovered)
 				{
-					tv.setBackground(150);
+					tv.setBackgroundColor(150);
 				}
 				tv.draw();
 			}

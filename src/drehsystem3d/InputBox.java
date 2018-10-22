@@ -14,6 +14,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	
 	ArrayList<TextView> textviews = new ArrayList<>();
 	ArrayList<TextBox> textboxes = new ArrayList<>();
+	ArrayList<View> contents = new ArrayList<>();
 	Button bSubmit;
 	String[] values;
 	String[] standardValues;
@@ -36,11 +37,6 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	int tbHeight = 50;
 	int tvWidthMax = 0;
 	int tbWidthMax = 0;
-	int margin = 10;
-	int marginLeft = 0;
-	int marginRight = 0;
-	int marginTop = 0;
-	int marginBottom = 0;
 	int counter = 1;
 	int minInputBoxWidth = 200;
 	int inputType = InputTypes.FLOAT;
@@ -74,6 +70,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 				}
 			}
 		}
+		this.xStart = this.padding;
+		this.yStart = this.padding;
 	}
 	
 	public void run()
@@ -86,7 +84,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void settings()
 	{
-		size(this.tvWidth + this.tbWidth + this.margin * 2 + this.padding, this.minInputBoxWidth);
+		size(this.tvWidth + this.tbWidth + this.padding, this.minInputBoxWidth);
 		this.windowWidth = this.width;
 		this.windowHeight = this.height;
 	}
@@ -94,9 +92,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void setup()
 	{
+		Logger.log(this, "Input box setup");
 		this.surface.setTitle(this.title);
-		this.xStart = this.padding;
-		this.yStart = this.padding;
 		for (String value : this.values)
 		{
 			addTextView(value);
@@ -111,7 +108,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			tb.setWidth(this.tbWidthMax);
 		}
 		this.bSubmit = new Button(this, this.xStart, this.yStart, 100, 50, "Submit");
-		this.bSubmit.setBackground(255);
+		this.bSubmit.setBackgroundColor(255);
+		this.bSubmit.setCornerRadius(5);
 		this.bSubmit.setTextColor(0);
 		this.bSubmit.setTextSize(25);
 		this.bSubmit.setMargin(10);
@@ -119,8 +117,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		this.bSubmit.setVerticalAlignment(View.AlignmentVertical.BOTTOM);
 		this.bSubmit.setOnClickListener(this);
 		this.bSubmit.setOnAnimationFinishedListener(this);
-		this.yMax = this.yStart + this.tbHeight + this.padding;
-		this.xMax += this.tvWidth + 2 * this.padding;
+		this.yMax += this.yStart + this.tbHeight + this.padding;
+		this.xMax += this.xStart + this.tvWidth + 2 * this.padding;
 		if (this.xMax > this.windowWidth)
 		{
 			this.windowWidth = this.xMax;
@@ -194,23 +192,31 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	private void addTextView(String text)
 	{
 		TextView tv = new TextView(this, this.xStart, this.yStart, this.tvWidth, this.tvHeight);
-		tv.setMargin(5);
+		tv.setMarginY(5);
+		tv.setPadding(0);
 		tv.setText(text);
 		tv.setTextSize(30);
+		if (textviews.size() > 0)
+		{
+			tv.alignBottom(this.textviews.get(this.textviews.size()-1));
+		}
 		tv.setTextAlignment(TextView.TextAlignment.CENTER);
 		if (tv.viewWidth > this.tvWidthMax)
 		{
 			this.tvWidthMax = tv.viewWidth;
 		}
 		this.textviews.add(tv);
+		this.contents.add(tv);
 	}
 
 	private void addTextBox()
 	{
 		final TextBox tb = new TextBox(this, this.xStart + this.tvWidth, this.yStart, this.tbWidth, this.tbHeight);
-		tb.setMargin(5);
+		tb.setMarginY(5);
+		tb.setPadding(5);
 		tb.setTextSize(30);
 		tb.setId(this.counter);
+		tb.alignRight(this.textviews.get(this.textviews.size()-1));
 		if (this.standardValues != null)
 		{
 			tb.setStandardText(this.standardValues[this.counter - 1]);
@@ -219,110 +225,16 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			tb.setHint(this.hintValues[this.counter - 1]);
 		}
-
 		tb.setInputType(this.inputType);
 		tb.setTextAlignment(TextView.TextAlignment.RIGHT);
-		tb.setTextBoxListener(new TextBoxListener()
-		{
-			@Override
-			public void textEdited(int id, String text)
-			{
-				Logger.log(this, "Text Edited");
-				if (tb.inputType == InputTypes.FLOAT)
-				{
-					float value;
-					try
-					{
-						value = Float.parseFloat(text);
-						if (InputBox.this.limitsMax != null && InputBox.this.limitsMax.length > id - 1)
-						{
-							float maxValue = InputBox.this.limitsMax[id - 1];
-							if (value > maxValue)
-							{
-								tb.setText(Float.toString(maxValue));
-								return;
-							}
-							float minValue = InputBox.this.limitsMin[id - 1];
-							if (value < minValue)
-							{
-								tb.setText(Float.toString(minValue));
-								return;
-							}
-						}
-					}
-					catch (NumberFormatException e)
-					{
-						Logger.log(this, e);
-						tb.setText(Float.toString(InputBox.this.limitsMax[id - 1]));
-					}
-				}
-				else if (tb.inputType == InputTypes.INTEGER)
-				{
-					int value;
-					try
-					{
-						value = Integer.parseInt(text);
-						if (InputBox.this.limitsMax != null && InputBox.this.limitsMax.length > id - 1)
-						{
-							int maxValue = (int) InputBox.this.limitsMax[id - 1];
-							if (value > maxValue)
-							{
-								tb.setText(Integer.toString(maxValue));
-								return;
-							}
-							int minValue = (int) InputBox.this.limitsMin[id - 1];
-							if (value < minValue)
-							{
-								tb.setText(Integer.toString(minValue));
-								return;
-							}
-						}
-					}
-					catch (NumberFormatException e)
-					{
-						Logger.log(this, e);
-						tb.setText(Integer.toString((int) InputBox.this.limitsMax[id - 1]));
-					}
-				}
-			}
-
-			@Override
-			public void previousTextBox(int id, int cursorPosX)
-			{
-				for (int i = 0; i < InputBox.this.textboxes.size(); i++)
-				{
-					if (InputBox.this.textboxes.get(i).getId() == id)
-					{
-						int next = i == 0 ? InputBox.this.textboxes.size() - 1 : i - 1;
-						InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
-					}
-				}
-			}
-
-			@Override
-			public void nextTextBox(int id, int cursorPosX)
-			{
-				for (int i = 0; i < InputBox.this.textboxes.size(); i++)
-				{
-					if (InputBox.this.textboxes.get(i).getId() == id)
-					{
-						int next = (i + 1) % InputBox.this.textboxes.size();
-						InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
-						Logger.log(this, "i:" + i);
-						Logger.log(this, "tb id:" + id);
-						Logger.log(this, "size:" + InputBox.this.textboxes.size());
-						Logger.log(this, "next:" + next);
-					}
-				}
-			}
-		});
+		tb.setTextBoxListener(this);
 		tb.setKeyListener(new KeyListener()
 		{
 			@Override
 			public boolean onKeyPressed(int pressedKeyCode, char pressedKey)
 			{
 				if (pressedKeyCode == 10)
-				{
+				{			
 					tb.clicked = false;
 					int id = tb.getId();
 
@@ -363,6 +275,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			this.tbWidthMax = tb.viewWidth;
 		}
 		this.textboxes.add(tb);
+		this.contents.add(tb);
 		this.yStart += this.tbHeight + 10;
 		this.counter++;
 	}
@@ -376,60 +289,50 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	public void mousePressed()
 	{
 		this.bSubmit.onMousePressed(this.mouseButton);
-		for (TextBox tb : this.textboxes)
-		{
-			tb.onMousePressed(this.mouseButton);
-		}
+		this.contents.forEach((v) -> {
+			v.onMousePressed(this.mouseButton);
+		});
 	}
 
 	@Override
 	public void mouseReleased()
 	{
-		for (TextBox tb : this.textboxes)
-		{
-			tb.onMouseReleased(this.mouseButton);
-		}
+		this.contents.forEach((v) -> {
+			v.onMouseReleased(this.mouseButton);
+		});
 	}
 
 	@Override
 	public void mouseDragged()
 	{
-		for (TextBox tb : this.textboxes)
-		{
-			tb.onMouseDragged();
-		}
+		this.contents.forEach((v) -> {
+			v.onMouseDragged();
+		});
 	}
 
 	@Override
 	public void keyPressed()
 	{
-		for (TextBox tb : this.textboxes)
-		{
-			tb.handleKeyPressedEvent(this.keyCode, this.key);
-		}
+		this.contents.forEach((v) -> {
+			v.onKeyPressed(this.keyCode, this.key);
+		});
 	}
 
 	@Override
 	public void keyReleased()
 	{
-		for (TextBox tb : this.textboxes)
-		{
-			tb.handleKeyReleasedEvent(this.keyCode, this.key);
-		}
+		this.contents.forEach((v) -> {
+			v.onKeyReleased(this.keyCode, this.key);
+		});
 	}
 
 	@Override
 	public void draw()
 	{
 		background(0);
-		for (TextView tv : this.textviews)
-		{
-			tv.draw();
-		}
-		for (TextBox tb : this.textboxes)
-		{
-			tb.draw();
-		}
+		this.contents.forEach((v) -> {
+			v.draw();
+		});
 		this.bSubmit.draw();
 	}
 
@@ -496,20 +399,129 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		}
 		exit();
 	}
+	
+	private TextBox getTextBoxById(int id)
+	{
+		for (TextBox tb : this.textboxes)
+		{
+			if (tb.id == id)
+			{
+				return tb;
+			}
+		}
+		return null;
+	}
 
+	@Override
+	public void textEditingFinished(int id, String text)
+	{
+		trimTextBoxContents(id, text);
+	}
+	
 	@Override
 	public void textEdited(int id, String text)
 	{
+		Logger.log(this, "text:'" + text + "'");
+		Logger.log(this, "text length: " + text.length());
+		if (text.isEmpty())
+		{
+			Logger.log(this, "Returning because text is empty");
+			return;
+		}
+		trimTextBoxContents(id, text);
+	}
+	
+	private void trimTextBoxContents(int id, String text)
+	{
+		TextBox tb = getTextBoxById(id);
+		if (tb == null) return;
+		
+		if (tb.inputType == InputTypes.FLOAT)
+		{
+			float value;
+			try
+			{
+				value = Float.parseFloat(text);
+				if (InputBox.this.limitsMax != null && InputBox.this.limitsMax.length > id - 1)
+				{
+					float maxValue = InputBox.this.limitsMax[id - 1];
+					if (value > maxValue)
+					{
+						tb.setText(Float.toString(maxValue));
+						return;
+					}
+					float minValue = InputBox.this.limitsMin[id - 1];
+					if (value < minValue)
+					{
+						tb.setText(Float.toString(minValue));
+						return;
+					}
+				}
+			}
+			catch (NumberFormatException e)
+			{
+				Logger.log(this, e);
+				tb.setText(Float.toString(InputBox.this.limitsMax[id - 1]));
+			}
+		}
+		else if (tb.inputType == InputTypes.INTEGER)
+		{
+			int value;
+			try
+			{
+				value = Integer.parseInt(text);
+				if (InputBox.this.limitsMax != null && InputBox.this.limitsMax.length > id - 1)
+				{
+					int maxValue = (int) InputBox.this.limitsMax[id - 1];
+					if (value > maxValue)
+					{
+						tb.setText(Integer.toString(maxValue));
+						return;
+					}
+					int minValue = (int) InputBox.this.limitsMin[id - 1];
+					if (value < minValue)
+					{
+						tb.setText(Integer.toString(minValue));
+						return;
+					}
+				}
+			}
+			catch (NumberFormatException e)
+			{
+				Logger.log(this, e);
+				tb.setText(Integer.toString((int) InputBox.this.limitsMax[id - 1]));
+			}
+		}
 	}
 
 	@Override
 	public void previousTextBox(int id, int cursorPosX)
 	{
+		for (int i = 0; i < InputBox.this.textboxes.size(); i++)
+		{
+			if (InputBox.this.textboxes.get(i).getId() == id)
+			{
+				int next = i == 0 ? InputBox.this.textboxes.size() - 1 : i - 1;
+				InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
+			}
+		}
 	}
 
 	@Override
 	public void nextTextBox(int id, int cursorPosX)
 	{
+		for (int i = 0; i < InputBox.this.textboxes.size(); i++)
+		{
+			if (InputBox.this.textboxes.get(i).getId() == id)
+			{
+				int next = (i + 1) % InputBox.this.textboxes.size();
+				InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
+				Logger.log(this, "i:" + i);
+				Logger.log(this, "tb id:" + id);
+				Logger.log(this, "size:" + InputBox.this.textboxes.size());
+				Logger.log(this, "next:" + next);
+			}
+		}
 	}
 
 	@Override

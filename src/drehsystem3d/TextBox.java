@@ -156,7 +156,8 @@ class TextBox extends TextView
 		}
 	}
 
-	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey)
+	@Override
+	public boolean onKeyPressed(int pressedKeyCode, char pressedKey)
 	{
 		if (this.clicked)
 		{
@@ -291,12 +292,12 @@ class TextBox extends TextView
 									Logger.log(this, e);
 									if (!(this.cursorPos == 0 && pressedKey == '-' && !this.input.contains("-")))
 									{
-										return;
+										break;
 									}
 								}
 								if (this.cursorPos == 0 && this.input.contains("-"))
 								{
-									return;
+									break;
 								}
 								addInputChar(this.cursorPos, pressedKey);
 								break;
@@ -311,7 +312,7 @@ class TextBox extends TextView
 									Logger.log(this, e);
 									if (!(!this.input.contains(".") && pressedKey == '.') && pressedKey != '-')
 									{
-										return;
+										break;
 									}
 								}
 								if (pressedKey == '-')
@@ -329,7 +330,7 @@ class TextBox extends TextView
 								{
 									if (this.cursorPos == 0 && this.input.contains("-"))
 									{
-										return;
+										break;
 									}
 									addInputChar(this.cursorPos, pressedKey);
 								}
@@ -360,8 +361,8 @@ class TextBox extends TextView
 			{
 				this.keyListener.onKeyPressed(pressedKeyCode, pressedKey);
 			}
-			// Logger.log("input:"+this.input);
 		}
+		return this.clicked;
 	}
 
 	public boolean keyIsPressed(int keyCode)
@@ -378,16 +379,18 @@ class TextBox extends TextView
 		return keyPressed;
 	}
 
-	public void handleKeyReleasedEvent(int releasedKeyCode, char releasedKey)
+	@Override
+	public boolean onKeyReleased(int releasedKeyCode, char releasedKey)
 	{
 		for (int i = 0; i < this.keysPressed.size(); i++)
 		{
 			if (this.keysPressed.get(i) == releasedKeyCode)
 			{
 				this.keysPressed.remove(i);
-				return;
+				break;
 			}
 		}
+		return super.onKeyReleased(releasedKeyCode, releasedKey);
 	}
 
 	public void addInputChar(int pos, char pressedKey)
@@ -505,7 +508,7 @@ class TextBox extends TextView
 		this.markedAreaLength = 0;
 		if (this.mListener != null)
 		{
-			this.mListener.textEdited(this.id, this.text);
+			this.mListener.textEditingFinished(this.id, this.text);
 		}
 	}
 
@@ -523,6 +526,15 @@ class TextBox extends TextView
 			{
 				this.outputText = this.hint;
 			}
+		}
+		else if (this.inputType == InputTypes.INTEGER || this.inputType == InputTypes.FLOAT)
+		{
+			
+		}
+		
+		if (this.mListener != null)
+		{
+			this.mListener.textEdited(this.id, outputText);
 		}
 		calcWidth();
 		calcHeight();
@@ -633,9 +645,6 @@ class TextBox extends TextView
 				min = dist;
 				idx = i;
 			}
-			Logger.log(this, "\ndist:" + dist);
-			Logger.log(this, "min:" + min);
-			Logger.log(this, "idx:" + idx);
 		}
 		return idx;
 	}
@@ -705,7 +714,7 @@ class TextBox extends TextView
 	@Override
 	public void draw()
 	{
-		super.draw();
+		//super.draw();
 		this.context.noFill();
 		this.context.stroke(255);
 		this.context.strokeWeight(1);

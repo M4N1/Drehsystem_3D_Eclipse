@@ -40,7 +40,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	protected boolean hovered = false;
 	protected int viewWidth = 0, viewHeight = 0;
 	protected final Spacing margin = new Spacing();
-	protected int backgroundColor = 0;
+	protected int[] backgroundColor = {0, 0, 0};
 	protected int backgroundAlpha = 255;
 	protected AlignmentHorizontal horizontalAlignment = AlignmentHorizontal.MANUALL;
 	protected AlignmentVertical verticalAlignment = AlignmentVertical.MANUALL;
@@ -147,8 +147,6 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 			setNewNeighbor(v, BOTTOM);
 		}
 		
-		
-		
 		public void setLeftNeighbor(View v)
 		{
 			setNewNeighbor(v, LEFT);
@@ -192,9 +190,15 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.pos = new PVector(pos.x, pos.y, pos.z);
 	}
 
-	public void setBackground(int background)
+	public void setBackgroundColor(int color)
 	{
-		this.backgroundColor = background;
+		this.backgroundColor = new int[] {color, color, color};
+	}
+	
+	public void setBackgroundColor(int[] color)
+	{
+		if (color.length != 3) return;
+		this.backgroundColor = color;
 	}
 
 	public void setBackgroundgAlpha(int alpha)

@@ -92,7 +92,7 @@ public class Button extends TextView
 		super.draw();
 		if (this.clickAnimationVisible)
 		{
-			this.context.fill(255 - this.backgroundColor, 255 - this.backgroundColor, 255 - this.backgroundColor, 100);
+			this.context.fill(255 - this.backgroundColor[0], 255 - this.backgroundColor[1], 255 - this.backgroundColor[2], 100);
 			this.context.noStroke();
 			boolean finished = true;
 			if (this.visible)
@@ -108,7 +108,6 @@ public class Button extends TextView
 						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
 						this.points.add(new PVector(x, y, 0));
 					}
-					//Logger.log("pos:" + this.pos);
 				}
 				int counter = 0;
 				for (float angle = 0; angle < TWO_PI; angle += PI / 32)

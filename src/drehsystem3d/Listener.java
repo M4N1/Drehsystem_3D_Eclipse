@@ -19,6 +19,8 @@ public class Listener
 
 	public interface TextBoxListener
 	{
+		public void textEditingFinished(int id, String text);
+		
 		public void textEdited(int id, String text);
 
 		public void previousTextBox(int id, int cursorPosX);

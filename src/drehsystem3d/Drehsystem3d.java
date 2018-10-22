@@ -151,7 +151,7 @@ public class Drehsystem3d extends PApplet
 
 		bReset = new Button(this, this.tbStartX - 40, this.tbStartY, 120, 50, "Remove All");
 		bReset.setMargin(10);
-		bReset.setBackground(0);
+		bReset.setBackgroundColor(0);
 		bReset.setTextColor(255);
 		bReset.setCornerRadius(15);
 		bReset.setStrokeWeight(2);
@@ -170,7 +170,7 @@ public class Drehsystem3d extends PApplet
 		bStart.setSize(120, 50);
 		bStart.setText("Start Pos");
 		bStart.setMargin(10);
-		bStart.setBackground(0);
+		bStart.setBackgroundColor(0);
 		bStart.setTextColor(255);
 		bStart.setCornerRadius(15);
 		bStart.setStrokeWeight(2);
@@ -189,7 +189,7 @@ public class Drehsystem3d extends PApplet
 		bClearPath.setSize(120, 50);
 		bClearPath.setText("Clear Path");
 		bClearPath.setMargin(10);
-		bClearPath.setBackground(0);
+		bClearPath.setBackgroundColor(0);
 		bClearPath.setTextColor(255);
 		bClearPath.setCornerRadius(15);
 		bClearPath.setStrokeWeight(2);
@@ -208,7 +208,7 @@ public class Drehsystem3d extends PApplet
 		bAlign.setSize(120, 50);
 		bAlign.setText("Align");
 		bAlign.setMargin(10);
-		bAlign.setBackground(0);
+		bAlign.setBackgroundColor(0);
 		bAlign.setTextColor(255);
 		bAlign.setCornerRadius(15);
 		bAlign.setStrokeWeight(2);
@@ -261,7 +261,7 @@ public class Drehsystem3d extends PApplet
 	private TextView getDummy(String text)
 	{
 		TextView textView = new TextView(this, width/2, 10);
-		textView.setBackground(255);
+		textView.setBackgroundColor(255);
 		textView.setTextColor(0);
 		textView.setText(text);
 		textView.setPadding(5);
@@ -856,6 +856,7 @@ public class Drehsystem3d extends PApplet
 			ib.setMaxLimits(maxLimits);
 			ib.setMinLimits(minLimits);
 			ib.setOnEditingFinishedListener(listener);
+			Logger.log(this, "Run input box");
 			ib.run();
 			Drehsystem3d.this.inputWindowOpened = true;
 		}
@@ -865,10 +866,9 @@ public class Drehsystem3d extends PApplet
 	{
 		if (!this.inputWindowOpened)
 		{
-			String[] values = new String[] { "r", "g", "b" };
 			float[] maxLimits = new float[] { 255, 255, 255 };
 			float[] minLimits = new float[] { 0, 0, 0 };
-			ColorInputBox ib = new ColorInputBox(name, values, standardValues);
+			ColorInputBox ib = new ColorInputBox(name, standardValues);
 			ib.setInputType(InputTypes.INTEGER);
 			ib.setMaxLimits(maxLimits);
 			ib.setMinLimits(minLimits);

@@ -17,23 +17,15 @@ public class Point
 {
 
 	private PApplet context;
-	Point parent = null;
 	private final int id;
 	private boolean newPosReceived = false;
-	PVector setPos;
 	private PVector absSetPos;
 	private PVector lastPos;
-	PVector pos;
 	private final int size = 10;
 	private PVector lastV = null;
-	PVector a = null;
-	PVector v = null;
-	PVector setW = null;
 	private PVector w = null;
 	private PVector wAbs = null;
-	float setAlpha = 0;
 	private float alpha = 0;
-	private float[] phi = new float[] { 0, 0, 0 };
 	private float drawSpeed = 1;
 	private long startTime = 0;
 	private long lastEllapsedTime = 0;
@@ -41,7 +33,6 @@ public class Point
 	private float scaleD = 40;
 	private boolean setup = true;
 	private boolean reset = false;
-	String name = "";
 	private boolean visibilityL = true;
 	private boolean visibilityV = true;
 	private boolean visibilityA = false;
@@ -51,6 +42,15 @@ public class Point
 	private ArrayList<PVector> path = new ArrayList<>();
 	private int[] pathColor = { 255, 255, 255 };
 	private int pathEntryCount = 0;
+	
+	public Point parent = null;
+	public PVector setPos;
+	public PVector pos;
+	public PVector a = null;
+	public PVector v = null;
+	public PVector setW = null;
+	public float setAlpha = 0;
+	public String name = "";
 
 	Point(PApplet context, int id, Point parent, float amp, float[] angle, PVector w, float alpha)
 	{

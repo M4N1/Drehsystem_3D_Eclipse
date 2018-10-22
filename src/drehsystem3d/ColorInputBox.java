@@ -42,24 +42,19 @@ public class ColorInputBox extends InputBox {
 	}
 	
 	@Override
-	public void textEdited(int id, String text)
+	public void textEdited(TextBox textBox, String text)
 	{
 		Logger.log(this, "Text edited");
-		super.textEdited(id, text);
+		super.textEdited(textBox, text);
 		int[] newColor = colorView.backgroundColor.clone();
-		for (int i = 0; i < newColor.length; i++)
+		int index = textBox.id - 1;
+		if (text.isEmpty())
 		{
-			if (i == id-1)
-			{
-				if (text.isEmpty())
-				{
-					newColor[i] = 0;
-				}
-				else
-				{
-					newColor[i] = Integer.parseInt(text);
-				}
-			}
+			newColor[index] = 0;
+		}
+		else
+		{
+			newColor[index] = Integer.parseInt(text);
 		}
 		colorView.setBackgroundColor(newColor);
 	}

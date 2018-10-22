@@ -19,13 +19,13 @@ public class Listener
 
 	public interface TextBoxListener
 	{
-		public void textEditingFinished(int id, String text);
+		public void textEditingFinished(TextBox textBox, String text);
 		
-		public void textEdited(int id, String text);
+		public void textEdited(TextBox textBox, String text);
 
-		public void previousTextBox(int id, int cursorPosX);
+		public void previousTextBox(TextBox textBox, int cursorPosX);
 
-		public void nextTextBox(int id, int cursorPosX);
+		public void nextTextBox(TextBox textBox, int cursorPosX);
 	}
 
 	public interface UIListener

@@ -225,7 +225,7 @@ class TextBox extends TextView
 					textEdited();
 					if (this.mListener != null)
 					{
-						this.mListener.previousTextBox(this.id, calcCharPos(this.cursorPos));
+						this.mListener.previousTextBox(this, calcCharPos(this.cursorPos));
 					}
 					break;
 
@@ -262,7 +262,7 @@ class TextBox extends TextView
 					textEdited();
 					if (this.mListener != null)
 					{
-						this.mListener.nextTextBox(this.id, calcCharPos(this.cursorPos));
+						this.mListener.nextTextBox(this, calcCharPos(this.cursorPos));
 					}
 					break;
 
@@ -508,7 +508,7 @@ class TextBox extends TextView
 		this.markedAreaLength = 0;
 		if (this.mListener != null)
 		{
-			this.mListener.textEditingFinished(this.id, this.text);
+			this.mListener.textEditingFinished(this, this.text);
 		}
 	}
 
@@ -534,7 +534,7 @@ class TextBox extends TextView
 		
 		if (this.mListener != null)
 		{
-			this.mListener.textEdited(this.id, outputText);
+			this.mListener.textEdited(this, outputText);
 		}
 		calcWidth();
 		calcHeight();

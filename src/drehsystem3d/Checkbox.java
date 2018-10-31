@@ -7,11 +7,15 @@ import processing.core.PApplet;
 public class Checkbox extends View
 {
 	ArrayList<Checkbox> group = new ArrayList<>();
-	private int size = 0;
 	private int padding = 4;
 	private boolean checked = false;
 	String text = "";
 
+	Checkbox(PApplet context, String text, ArrayList<Checkbox> group)
+	{
+		this(context, 0, 0, 0, text, group);
+	}
+	
 	Checkbox(PApplet context, int posX, int posY, int size)
 	{
 		this(context, posX, posY, size, "", null);
@@ -30,7 +34,6 @@ public class Checkbox extends View
 	Checkbox(PApplet context, int posX, int posY, int size, String text, ArrayList<Checkbox> group)
 	{
 		super(context, posX, posY, size, size);
-		this.size = size;
 		this.text = text;
 		if (group != null)
 		{
@@ -101,8 +104,8 @@ public class Checkbox extends View
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		if (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.size
-				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.size)
+		if (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.viewWidth
+				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.viewHeight)
 		{
 			this.checked = !this.checked;
 			if (this.group != null)
@@ -123,17 +126,17 @@ public class Checkbox extends View
 		this.context.noFill();
 		this.context.stroke(255);
 		this.context.strokeWeight(1);
-		this.context.textSize(this.size);
-		this.context.rect(this.pos.x, this.pos.y, this.size, this.size);
+		this.context.textSize(this.viewHeight);
+		this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
 		if (this.checked)
 		{
-			this.context.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.size - padding, this.pos.y + this.size - padding);
-			this.context.line(this.pos.x + padding, this.pos.y + this.size - padding, this.pos.x + this.size - padding, this.pos.y + padding);
+			this.context.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.viewWidth - padding, this.pos.y + this.viewHeight - padding);
+			this.context.line(this.pos.x + padding, this.pos.y + this.viewHeight - padding, this.pos.x + this.viewWidth - padding, this.pos.y + padding);
 		}
 		if (!this.text.equals(""))
 		{
 			this.context.fill(255);
-			this.context.text(this.text, this.pos.x + this.size + 10, this.pos.y + this.size);
+			this.context.text(this.text, this.pos.x + this.viewWidth + 10, this.pos.y + this.viewHeight);
 		}
 	}
 }

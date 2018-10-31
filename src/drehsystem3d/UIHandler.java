@@ -1,5 +1,6 @@
 package drehsystem3d;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,5 +100,44 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 		this.uiContents.forEach((k, v) -> {
 			v.onWindowResize(widthOld, heightOld, widthNew, heightNew);
 		});
+	}
+	
+	public Checkbox addCheckBox(String name, String desc)
+	{
+		return addCheckBox(name, desc, false, (ArrayList<Checkbox>) null);
+	}
+
+	public Checkbox addCheckBox(String name, String desc, boolean checked)
+	{
+		return addCheckBox(name, desc, checked, (ArrayList<Checkbox>) null);
+	}
+
+	public Checkbox addCheckBox(String name, String desc, Checkbox member)
+	{
+		ArrayList<Checkbox> group = new ArrayList<>();
+		group.add(member);
+		return addCheckBox(name, desc, false, group);
+	}
+
+	public Checkbox addCheckBox(String name, String desc, ArrayList<Checkbox> group)
+	{
+		return addCheckBox(name, desc, false, group);
+	}
+
+	public Checkbox addCheckBox(String name, String desc, boolean checked, Checkbox member)
+	{
+		ArrayList<Checkbox> group = new ArrayList<>();
+		group.add(member);
+		return addCheckBox(name, desc, checked, group);
+	}
+
+	public Checkbox addCheckBox(String name, String desc, boolean checked, ArrayList<Checkbox> group)
+	{
+		Checkbox c = new Checkbox(this.context, desc, group);
+		c.setChecked(checked);
+		c.setSize(20, 20);
+		c.setMargin(5);
+		this.addUiElement(name, c);
+		return c;
 	}
 }

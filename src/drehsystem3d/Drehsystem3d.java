@@ -27,24 +27,18 @@ public class Drehsystem3d extends PApplet
 	int currWindowHeight;
 	TextBoxListener textEditedListener;
 	MenuItem menuItem;
+	
+	ArrayList<Point> points = new ArrayList<>();
 	ArrayList<GraphApplet> applets;
 	UIHandler uiHandler;
-	int tbStartX;
-	int tbStartY;
-	int tbWidth;
 	InputHandler inputHandler;
-	ArrayList<Point> points = new ArrayList<>();
 	Point pointToAdd;
-	int nameCounter = 65;
 	PGraphics xySurface, yzSurface, xzSurface;
-	int checkBoxY = 140;
-	int checkBoxOffset = 30;
-	Checkbox cLines;
-	Checkbox cVelocity;
-	Checkbox cAcceleration;
-	Checkbox cOutput;
-	Checkbox cPath;
-	float size = 20;
+	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
+	
+	int bStartY;
+	int nameCounter = 'A';
+	int uiMarginX;
 	float scale = 0.2f;
 	float scaleD = 40;
 	long lastTime = 0;
@@ -52,7 +46,6 @@ public class Drehsystem3d extends PApplet
 	boolean setup = true;
 	boolean inputWindowOpened = false;
 
-	PVector mouseReference = new PVector(0, 0, 0);
 	boolean leftButtonPressed = false;
 	boolean centerButtonPressed = false;
 	boolean rightButtonPressed = false;
@@ -89,9 +82,8 @@ public class Drehsystem3d extends PApplet
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
 		this.surface.setResizable(true);
-		this.tbStartX = 50;
-		this.tbStartY = this.height - 450;
-		this.tbWidth = 120;
+		this.bStartY = this.height - 450;
+		this.uiMarginX = 20;
 		this.applets = new ArrayList<>();
 		this.cameraController = new CameraController(this, new float[] { 0, 0, 0 }, 1,
 				new PVector(this.width / 2, this.height / 2, 0));
@@ -135,21 +127,19 @@ public class Drehsystem3d extends PApplet
 
 	private void setupUI()
 	{
-		this.cLines = addCheckBox("lines", true);
-		this.cVelocity = addCheckBox("v", true);
-		this.cAcceleration = addCheckBox("acc", false);
-		this.cOutput = addCheckBox("out", false);
-		this.cPath = addCheckBox("path", true);
-
-		this.uiHandler.addUiElement("cLines", this.cLines);
-		this.uiHandler.addUiElement("cVelocity", this.cVelocity);
-		this.uiHandler.addUiElement("cAcceleration", this.cAcceleration);
-		this.uiHandler.addUiElement("cOutput", this.cOutput);
-		this.uiHandler.addUiElement("cPath", this.cPath);
+		this.cLines = this.uiHandler.addCheckBox("cLines", "connections", true);
+		this.cLines.setPos(new PVector(uiMarginX, 140));
+		this.cVelocity = this.uiHandler.addCheckBox("cVelocity", "v", true);
+		this.cVelocity.alignBottom(this.cLines);
+		this.cAcceleration = this.uiHandler.addCheckBox("cAcceleration", "acc", false);
+		this.cAcceleration.alignBottom(this.cVelocity);
+		//this.cOutput = this.uiHandler.addCheckBox("cOutput", "out", false);
+		this.cPath = this.uiHandler.addCheckBox("cPath", "path", true);
+		this.cPath.alignBottom(this.cAcceleration);
 
 		Button bReset, bStart, bClearPath, bAlign;
 
-		bReset = new Button(this, this.tbStartX - 40, this.tbStartY, 120, 50, "Remove All");
+		bReset = new Button(this, uiMarginX, this.bStartY, 120, 50, "Remove All");
 		bReset.setMargin(10);
 		bReset.setBackgroundColor(0);
 		bReset.setTextColor(255);
@@ -538,22 +528,21 @@ public class Drehsystem3d extends PApplet
 		fill(255);
 		stroke(255);
 		textSize(20);
-		text("X:" + this.mouseX, 40, this.height - 60);
-		text("Y:" + this.mouseY, 40, this.height - 40);
-		text("Elapsed time:" + (int) (this.ellapsedTime / 1000), 40, this.height - 20);
+		text("X:" + this.mouseX, uiMarginX, this.height - 60);
+		text("Y:" + this.mouseY, uiMarginX, this.height - 40);
+		text("Elapsed time:" + (int) (this.ellapsedTime / 1000), uiMarginX, this.height - 20);
 
-		textSize(25);
 		if (output)
 		{
 			fill(255);
 			stroke(255);
 
-			text("Scale:", 20, 40);
-			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", 120, 40);
+			text("Scale:", uiMarginX, 40);
+			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 100, 40);
 
 			if (this.stopped)
 			{
-				text("paused", 10, this.height - 100);
+				text("paused", uiMarginX, this.height - 100);
 			}
 
 			String speedOutput = "Speed: " + "x" + this.speed;
@@ -1306,44 +1295,6 @@ public class Drehsystem3d extends PApplet
 			this.nameCounter = 65;
 		}
 		return point;
-	}
-
-	public Checkbox addCheckBox(String title)
-	{
-		return addCheckBox(title, false, (ArrayList<Checkbox>) null);
-	}
-
-	public Checkbox addCheckBox(String title, boolean checked)
-	{
-		return addCheckBox(title, checked, (ArrayList<Checkbox>) null);
-	}
-
-	public Checkbox addCheckBox(String title, Checkbox member)
-	{
-		ArrayList<Checkbox> group = new ArrayList<>();
-		group.add(member);
-		return addCheckBox(title, false, group);
-	}
-
-	public Checkbox addCheckBox(String title, ArrayList<Checkbox> group)
-	{
-		return addCheckBox(title, false, group);
-	}
-
-	public Checkbox addCheckBox(String title, boolean checked, Checkbox member)
-	{
-		ArrayList<Checkbox> group = new ArrayList<>();
-		group.add(member);
-		return addCheckBox(title, checked, group);
-	}
-
-	public Checkbox addCheckBox(String title, boolean checked, ArrayList<Checkbox> group)
-	{
-		Checkbox c = new Checkbox(this, 20, this.checkBoxY, 20, title, group);
-		c.setChecked(checked);
-		// this.checkboxes.add(c);
-		this.checkBoxY += this.checkBoxOffset;
-		return c;
 	}
 
 	static public void main(String[] passedArgs)

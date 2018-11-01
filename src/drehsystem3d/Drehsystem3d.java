@@ -18,13 +18,10 @@ public class Drehsystem3d extends PApplet
 {
 
 	final static boolean output = true;
-	long startTime;
-	long ellapsedTime;
+	long startTime, ellapsedTime;
 	long time = 0;
 	boolean pressed = false;
-	long lastKeyEvent = 0;
-	int currWindowWidth;
-	int currWindowHeight;
+	int currWindowWidth, currWindowHeight;
 	TextBoxListener textEditedListener;
 	MenuItem menuItem;
 	
@@ -37,7 +34,6 @@ public class Drehsystem3d extends PApplet
 	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
 	
 	int bStartY;
-	int nameCounter = 'A';
 	int uiMarginX;
 	float scale = 0.2f;
 	float scaleD = 40;
@@ -45,6 +41,11 @@ public class Drehsystem3d extends PApplet
 	float speed = 1.0f;
 	boolean setup = true;
 	boolean inputWindowOpened = false;
+	
+	boolean removePoints = false;
+	boolean reset = false;
+	boolean stopped = false;
+	boolean clearPath = false;
 
 	boolean leftButtonPressed = false;
 	boolean centerButtonPressed = false;
@@ -54,18 +55,14 @@ public class Drehsystem3d extends PApplet
 	boolean translation = false;
 
 	CameraController cameraController;
-
-	boolean removePoints = false;
 	ArrayList<UserInputListener> userInputListeners;
 
 	HashMap<Integer, Integer[]> objects = new HashMap<>();
+	
 	int idCount = 0;
+	int nameCounter = 'A';
 	Integer[] colorCount = { 100, 0, 0 };
 	PGraphics detectionCanvas;
-
-	boolean reset = false;
-	boolean stopped = false;
-	boolean clearPath = false;
 
 	@Override
 	public void settings()
@@ -295,7 +292,7 @@ public class Drehsystem3d extends PApplet
 
 	private void handleKeyPressedPermanent()
 	{
-		if (this.keyPressed && (millis() - this.lastKeyEvent > 100)
+		if (this.keyPressed && (this.inputHandler.millisSinceLastKeyEvent() > 100)
 				&& (this.inputHandler.getLastKeyCode() == 139 || this.inputHandler.getLastKeyCode() == 93
 						|| this.inputHandler.getLastKeyCode() == 140 || this.inputHandler.getLastKeyCode() == 47))
 		{
@@ -565,7 +562,8 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void mousePressed()
 	{
-		Logger.log(this, "Mouse pressed : '" + this.mouseButton + "'");
+		String button = (this.mouseButton == LEFT ? "Left" : (this.mouseButton == RIGHT ? "Right" : "Mid"));
+		Logger.log(this, "Mouse pressed (" + button + ", " + this.mouseButton + ")");
 		boolean itemClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
@@ -1000,7 +998,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		Logger.log(this, "Key was pressed ('" + this.key + "', " + this.keyCode + ")");
+		Logger.log(this, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
 		boolean uiElementClicked = this.uiHandler.onKeyPressed(this.keyCode, this.key);
 		if (!uiElementClicked)
 		{
@@ -1014,7 +1012,6 @@ public class Drehsystem3d extends PApplet
 		{
 			l.onKeyPressed(this.keyCode, this.key);
 		}
-		this.lastKeyEvent = millis();
 		switch (pressedKeyCode)
 		{
 			case 139:

@@ -7,13 +7,16 @@ import processing.core.PApplet;
 
 public class InputHandler implements UserInputListener
 {
+	private PApplet context;
 	private ArrayList<Object> keys;
 	private ArrayList<Object> keyCodes;
 	private ArrayList<Object> mouseButtons;
 	private Key lastPressedKey;
+	private long lastKeyEvent = 0;
 
 	public InputHandler(PApplet context)
 	{
+		this.context = context;
 		this.keys = new ArrayList<>();
 		this.keyCodes = new ArrayList<>();
 		this.mouseButtons = new ArrayList<>();
@@ -29,10 +32,16 @@ public class InputHandler implements UserInputListener
 	{
 		return this.keys.contains(key);
 	}
+	
+	public long millisSinceLastKeyEvent()
+	{
+		return (this.context.millis() - this.lastKeyEvent);
+	}
 
 	@Override
 	public boolean onKeyPressed(int keyCode, char key)
 	{
+		this.lastKeyEvent = this.context.millis();
 		this.lastPressedKey = new Key(keyCode, key);
 		addItem(this.keyCodes, keyCode);
 		addItem(this.keys, key);

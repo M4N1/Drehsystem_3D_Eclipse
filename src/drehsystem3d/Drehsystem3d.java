@@ -130,9 +130,10 @@ public class Drehsystem3d extends PApplet
 		this.cVelocity.alignBottom(this.cLines);
 		this.cAcceleration = this.uiHandler.addCheckBox("cAcceleration", "acc", false);
 		this.cAcceleration.alignBottom(this.cVelocity);
-		//this.cOutput = this.uiHandler.addCheckBox("cOutput", "out", false);
+		this.cOutput = this.uiHandler.addCheckBox("cOutput", "out", false);
+		this.cOutput.alignBottom(this.cAcceleration);
 		this.cPath = this.uiHandler.addCheckBox("cPath", "path", true);
-		this.cPath.alignBottom(this.cAcceleration);
+		this.cPath.alignBottom(this.cOutput);
 
 		Button bReset, bStart, bClearPath, bAlign;
 
@@ -1289,7 +1290,7 @@ public class Drehsystem3d extends PApplet
 		}
 		if (this.nameCounter >= 91)
 		{
-			this.nameCounter = 65;
+			this.nameCounter = 'A';
 		}
 		return point;
 	}

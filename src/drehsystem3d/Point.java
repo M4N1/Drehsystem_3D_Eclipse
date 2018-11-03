@@ -156,28 +156,17 @@ public class Point
 
 	public void initPos(PVector pos)
 	{
+		this.absSetPos = pos.copy();
+		this.lastPos = pos.copy();
+		this.pos = pos.copy();
+		this.wAbs = this.w.copy();
+		
 		if (this.parent != null)
 		{
-			this.absSetPos = new PVector(pos.x + this.parent.pos.x, pos.y + this.parent.pos.y,
-					pos.z + this.parent.pos.z);
-		}
-		else
-		{
-			this.absSetPos = new PVector(pos.x, pos.y, pos.z);
-		}
-		this.lastPos = new PVector(pos.x, pos.y, pos.z);
-		this.pos = new PVector(pos.x, pos.y, pos.z);
-		if (this.parent != null)
-		{
-			PVector parentPos = new PVector(this.parent.pos.x, this.parent.pos.y, this.parent.pos.z);
-			this.lastPos.add(parentPos);
-			this.pos.add(parentPos);
-			this.wAbs = new PVector(this.parent.wAbs.x + this.w.x, this.parent.wAbs.y + this.w.y,
-					this.parent.wAbs.z + this.w.z);
-		}
-		else
-		{
-			this.wAbs = new PVector(this.w.x, this.w.y, this.w.z);
+			this.absSetPos.add(this.parent.pos);
+			this.lastPos.add(this.parent.pos);
+			this.pos.add(this.parent.pos);
+			this.wAbs.add(this.parent.wAbs);
 		}
 	}
 
@@ -308,7 +297,7 @@ public class Point
 			}
 			if (!this.setup && !this.reset)
 			{
-				PVector velocity = new PVector(this.v.x, this.v.y, this.v.z);
+				PVector velocity = this.v.copy();
 				PVector pos = this.pos.copy();
 				this.a = pos.sub(velocity).sub(this.lastPos.sub(this.lastV)).mult(1000 / dTime);
 				this.a.add(this.pos);
@@ -327,12 +316,12 @@ public class Point
 			boolean distanceCheck = false;
 			if (this.pathEntryCount < this.path.size())
 			{
-				this.path.set(this.pathEntryCount, new PVector(this.pos.x, this.pos.y, this.pos.z));
+				this.path.set(this.pathEntryCount, this.pos.copy());
 				Logger.log(this, "Override path entry");
 			}
 			else
 			{
-				this.path.add(new PVector(this.pos.x, this.pos.y, this.pos.z));
+				this.path.add(this.pos.copy());
 				final int minData = 100;
 				if (this.path.size() > 5000 || this.finishedPath)
 				{
@@ -346,7 +335,7 @@ public class Point
 						PVector p1 = this.path.get(this.path.size() - (minData / 2 - 1) - i);
 						PVector p2 = this.path.get(i);
 						float d = dist(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
-						if (d > 0.7f)
+						if (d > 0.5f)
 						{
 							distanceCheck = false;
 							break;
@@ -418,7 +407,6 @@ public class Point
 		}
 		if (DEBUG && this.parent != null)
 		{
-			context.stroke(51);
 			context.strokeWeight(4);
 			PVector start = this.parent.pos.copy();
 			context.stroke(255, 0, 0);
@@ -487,26 +475,15 @@ public class Point
 		PVector pn = cross(normalizedAxis, position);
 		pn = cross(normalizedAxis, pn).mult(-1);
 
-		if (DEBUG)
+		if (DEBUG && this.parent != null)
 		{
 			this.context.strokeWeight(2);
-
-			if (this.parent != null)
-			{
-				this.context.stroke(51);
-				this.context.line(this.parent.pos.x * this.scaleD, this.parent.pos.y * this.scaleD,
-						this.parent.pos.z * this.scaleD, (pn.x + this.parent.pos.x) * this.scaleD,
-						(pn.y + this.parent.pos.y) * this.scaleD, (pn.z + this.parent.pos.z) * this.scaleD);
-			}
-
-			if (this.parent != null)
-			{
-				this.context.stroke(51);
-				this.context.line(this.parent.pos.x * this.scaleD, this.parent.pos.y * this.scaleD,
-						this.parent.pos.z * this.scaleD, (axis.x + this.parent.pos.x) * this.scaleD,
-						(axis.y + this.parent.pos.y) * this.scaleD, (axis.z + this.parent.pos.z) * this.scaleD);
-			}
+			this.context.stroke(51);
+			this.context.line(this.parent.pos.x * this.scaleD, this.parent.pos.y * this.scaleD,
+					this.parent.pos.z * this.scaleD, (pn.x + this.parent.pos.x) * this.scaleD,
+					(pn.y + this.parent.pos.y) * this.scaleD, (pn.z + this.parent.pos.z) * this.scaleD);
 		}
+		
 		float angle = (float) (a.mag() * ellapsedTime / 1000 * PI / 180);
 
 		PVector offset = position.sub(pn);
@@ -516,12 +493,10 @@ public class Point
 		for (int i = 0; i < this.childs.size(); i++)
 		{
 			Point child = this.childs.get(i);
-			PVector startPos = child.absSetPos.copy();
 			PVector relPos = child.pos.copy();
 			if (this.parent != null)
 			{
 				relPos.sub(this.parent.pos);
-				startPos.sub(this.pos);
 			}
 			positions.add(relPos);
 		}
@@ -531,18 +506,8 @@ public class Point
 		rotatePointsVX(axis, pn, alphaX, positions);
 		rotatePointsVY(axis, pn, alphaY, positions);
 		
-		if (axis.z > 0)
-		{
-			angle *= -1;
-		}
-		pn = rotateVZ(pn, angle);
-
-		for (int i = 0; i < positions.size(); i++)
-		{
-			PVector childPos = positions.get(i);
-			positions.set(i, rotateVZ(childPos, angle));
-		}
-
+		rotatePointsVZ(axis, pn, angle, positions);
+				
 		rotatePointsVY(axis, pn, -alphaY, positions);
 		rotatePointsVX(axis, pn, -alphaX, positions);
 		result = pn.add(offset);
@@ -573,31 +538,46 @@ public class Point
 		}
 		return result;
 	}
+	
+	private void rotatePointsVZ(PVector axis, PVector pn, float angle, ArrayList<PVector> positions)
+	{
+		if (axis.z > 0)
+		{
+			angle *= -1;
+		}
+		pn = rotateVZ(pn, angle);
 
-	private void rotatePointsVX(PVector axis, PVector pn, float alpha, ArrayList<PVector> positions)
+		for (int i = 0; i < positions.size(); i++)
+		{
+			PVector childPos = positions.get(i);
+			positions.set(i, rotateVZ(childPos, angle));
+		}
+	}
+
+	private void rotatePointsVX(PVector axis, PVector pn, float angle, ArrayList<PVector> positions)
 	{
 		if (w.y != 0)
 		{
-			axis = rotateVX(axis, alpha);
-			pn = rotateVX(pn, alpha);
+			axis = rotateVX(axis, angle);
+			pn = rotateVX(pn, angle);
 			for (int i = 0; i < positions.size(); i++)
 			{
 				PVector childPos = positions.get(i);
-				positions.set(i, rotateVX(childPos, alpha));
+				positions.set(i, rotateVX(childPos, angle));
 			}
 		}
 	}
 
-	private void rotatePointsVY(PVector axis, PVector pn, float alpha, ArrayList<PVector> positions)
+	private void rotatePointsVY(PVector axis, PVector pn, float angle, ArrayList<PVector> positions)
 	{
 		if (w.x != 0)
 		{
-			axis = rotateVY(axis, alpha);
-			pn = rotateVY(pn, alpha);
+			axis = rotateVY(axis, angle);
+			pn = rotateVY(pn, angle);
 			for (int i = 0; i < positions.size(); i++)
 			{
 				PVector childPos = positions.get(i);
-				positions.set(i, rotateVY(childPos, alpha));
+				positions.set(i, rotateVY(childPos, angle));
 			}
 		}
 	}

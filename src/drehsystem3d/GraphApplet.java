@@ -135,10 +135,6 @@ public class GraphApplet extends PApplet
 			if (d.name.equals(dataSetName))
 			{
 				d.addPointToBuffer(point);
-				if (d.data.size() + 1 > this.maxSize)
-				{
-					this.maxSize = d.data.size() + 1;
-				}
 				return true;
 			}
 		}
@@ -168,11 +164,10 @@ public class GraphApplet extends PApplet
 			{
 				ds.addPointFromBuffer();
 			}
-			startIdx = ds.getDataSize() - floor((width - this.margin - 50 * this.dataSets.size()) / (this.dx));
-			if (startIdx > 0)
+			startIdx = ds.getDataSize() - floor((this.width - this.margin - 50 * this.dataSets.size()) / (this.dx));
+			for (int i = 0; i < startIdx; i++)
 			{
-				for (int i = 0; i < startIdx; i++)
-					ds.data.remove(0);
+				ds.data.remove(0);
 			}
 			if (ds.getDataSize() > this.maxSize)
 			{
@@ -201,25 +196,47 @@ public class GraphApplet extends PApplet
 			}
 		}
 
-		for (int i = 1; i < this.maxSize; i++)
+		float xStart = x;
+		Logger.log(this, "maxSize:\t" + this.maxSize);
+		for (DataSet d : this.dataSets)
 		{
-			for (DataSet d : this.dataSets)
+			strokeWeight(2);
+			stroke(d.r, d.g, d.b);
+			noFill();
+			beginShape();
+			for (int i = 0; i < this.maxSize; i++)
 			{
-				float p1 = 0;
-				float p2 = 0;
-				if (d.getDataSize() > i)
+				float pY = 0;
+				if (i < d.getDataSize())
 				{
-					p1 = d.getPoint(i - 1);
-					p2 = d.getPoint(i);
+					pY = d.getPoint(i);
 				}
-				p1 = map(p1, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
-				p2 = map(p2, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
-				stroke(d.r, d.g, d.b);
-				strokeWeight(2);
-				line(x, p1, x + this.dx, p2);
+				pY = map(pY, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
+				vertex(x, pY);
+				x += this.dx;
 			}
-			x += this.dx;
+			endShape();
+			x = xStart;
 		}
+//		for (int i = 1; i < this.maxSize; i++)
+//		{
+//			for (DataSet d : this.dataSets)
+//			{
+//				float p1 = 0;
+//				float p2 = 0;
+//				if (d.getDataSize() > i)
+//				{
+//					p1 = d.getPoint(i - 1);
+//					p2 = d.getPoint(i);
+//				}
+//				p1 = map(p1, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
+//				p2 = map(p2, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
+//				stroke(d.r, d.g, d.b);
+//				strokeWeight(2);
+//				line(x, p1, x + this.dx, p2);
+//			}
+//			x += this.dx;
+//		}
 
 	}
 

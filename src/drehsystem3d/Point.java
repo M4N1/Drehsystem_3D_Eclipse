@@ -21,7 +21,7 @@ public class Point
 	private final int id;
 	private boolean newPosReceived = false;
 	private PVector absSetPos;
-	private PVector lastPos;
+	private PVector lastAbsPos;
 	private final int size = 10;
 	private PVector lastV = null;
 	private PVector w = null;
@@ -47,6 +47,7 @@ public class Point
 	public Point parent = null;
 	public PVector setPos;
 	public PVector pos;
+	public PVector absPos;
 	public PVector a = null;
 	public PVector v = null;
 	public PVector setW = null;
@@ -83,8 +84,8 @@ public class Point
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
-		this.setPos = new PVector(pos.x, pos.y, pos.z);
-		this.setW = new PVector(w.x, w.y, w.z);
+		this.setPos = pos.copy();
+		this.setW = w.copy();
 		this.setAlpha = alpha;
 		this.lastV = new PVector(0, 0, 0);
 		this.v = new PVector(0, 0, 0);
@@ -157,15 +158,16 @@ public class Point
 	public void initPos(PVector pos)
 	{
 		this.absSetPos = pos.copy();
-		this.lastPos = pos.copy();
 		this.pos = pos.copy();
+		this.lastAbsPos = pos.copy();
+		this.absPos = pos.copy();
 		this.wAbs = this.w.copy();
 		
 		if (this.parent != null)
 		{
 			this.absSetPos.add(this.parent.pos);
-			this.lastPos.add(this.parent.pos);
-			this.pos.add(this.parent.pos);
+			this.lastAbsPos.add(this.parent.pos);
+			this.absPos.add(this.parent.pos);
 			this.wAbs.add(this.parent.wAbs);
 		}
 	}
@@ -175,7 +177,7 @@ public class Point
 		this.w = new PVector(this.setW.x, this.setW.y, this.setW.z);
 		this.alpha = this.setAlpha;
 		initPos(this.setPos);
-		update();
+		update(0, 0);
 		Logger.log(this, "Position calculation finished:" + this.pos);
 	}
 
@@ -233,14 +235,8 @@ public class Point
 		this.finishedPath = false;
 	}
 
-	public void update()
+	public void update(float dTime, double ellapsedTime)
 	{
-		update((this.context.millis() - this.startTime) * this.drawSpeed);
-	}
-
-	public void update(float dTime)
-	{
-		double ellapsedTime = (dTime + this.lastEllapsedTime);
 		if (this.setup || this.reset)
 		{
 			ellapsedTime = 0;
@@ -257,30 +253,30 @@ public class Point
 
 	private void calcNewPos(float dTime, double ellapsedTime)
 	{
-		this.lastPos = this.pos.copy();
+		this.lastAbsPos = this.absPos.copy();
 		this.lastV = this.v.copy();
 		this.w.x += this.alpha * this.drawSpeed;
 		this.w.y += this.alpha * this.drawSpeed;
 		this.w.z += this.alpha * this.drawSpeed;
-		PVector position = this.pos.copy();
 		if (this.parent != null)
 		{
 			this.wAbs = this.parent.wAbs.copy().add(this.w);
-			position = position.sub(this.parent.pos);
 		}
 		else
 		{
 			this.wAbs = this.w.copy();
 		}
 
-		this.pos = rotateV(this.w.copy(), position, ellapsedTime);
-
+		// Rotate relative position
+		this.pos = rotateV(this.w.copy(), this.pos.copy(), ellapsedTime);
+		this.absPos = this.pos.copy();
+		
 		if (this.parent != null)
 		{
-			PVector p = this.pos.copy().mult(-1);
-			this.v = this.w.cross(p);
-			this.pos = this.pos.add(this.parent.pos);
+			this.v = this.w.cross(this.pos.copy().mult(-1));
+			this.absPos.add(this.parent.pos);
 			Point lastParent = this.parent;
+			PVector p = this.absPos.copy();
 			for (;;)
 			{
 				Point parent = lastParent.parent;
@@ -290,17 +286,13 @@ public class Point
 				}
 				else
 				{
-					p = this.pos.copy();
-					this.v = this.v.add(lastParent.w.cross(p.sub(parent.pos).mult(-1)));
+					this.v.add(lastParent.w.cross(p.copy().sub(parent.pos).mult(-1)));
 					lastParent = parent;
 				}
 			}
 			if (!this.setup && !this.reset)
 			{
-				PVector velocity = this.v.copy();
-				PVector pos = this.pos.copy();
-				this.a = pos.sub(velocity).sub(this.lastPos.sub(this.lastV)).mult(1000 / dTime);
-				this.a.add(this.pos);
+				this.a = this.v.copy().sub(this.lastV).mult(1/dTime);
 			}
 			else
 			{
@@ -316,12 +308,12 @@ public class Point
 			boolean distanceCheck = false;
 			if (this.pathEntryCount < this.path.size())
 			{
-				this.path.set(this.pathEntryCount, this.pos.copy());
+				this.path.set(this.pathEntryCount, this.absPos.copy());
 				Logger.log(this, "Override path entry");
 			}
 			else
 			{
-				this.path.add(this.pos.copy());
+				this.path.add(this.absPos.copy());
 				final int minData = 100;
 				if (this.path.size() > 5000 || this.finishedPath)
 				{
@@ -378,14 +370,14 @@ public class Point
 		context.fill(255);
 		context.stroke(255);
 		context.strokeWeight(1);
-		PVector scaledPos = new PVector(this.pos.x, this.pos.y, this.pos.z);
+		PVector scaledPos = this.absPos.copy();
 		scaledPos = scaledPos.mult(this.scaleD);
 
 		if (this.visibilityL)
 		{
 			if (this.parent != null)
 			{
-				PVector scaledParentPos = new PVector(this.parent.pos.x, this.parent.pos.y, this.parent.pos.z);
+				PVector scaledParentPos = this.parent.absPos.copy();
 				scaledParentPos = scaledParentPos.mult(this.scaleD);
 				context.line(scaledParentPos.x, scaledParentPos.y, scaledParentPos.z, scaledPos.x, scaledPos.y,
 						scaledPos.z);

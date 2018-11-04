@@ -18,7 +18,7 @@ public class Drehsystem3d extends PApplet
 {
 
 	final static boolean output = true;
-	long startTime, ellapsedTime;
+	double startTime, ellapsedTime;
 	long time = 0;
 	boolean pressed = false;
 	int currWindowWidth, currWindowHeight;
@@ -284,7 +284,7 @@ public class Drehsystem3d extends PApplet
 			}
 			for (Point p : this.points)
 			{
-				p.update();
+				p.update(dTime, this.ellapsedTime);
 			}
 			updateGraphApplets();
 			this.lastTime = millis();
@@ -338,6 +338,9 @@ public class Drehsystem3d extends PApplet
 
 		if (this.reset)
 		{
+			this.ellapsedTime = 0;
+			this.startTime = 0;
+			this.lastTime = 0;
 			resetToStartPosition();
 		}
 
@@ -484,7 +487,7 @@ public class Drehsystem3d extends PApplet
 		this.cameraController.adjustCamera(this.detectionCanvas);
 		this.detectionCanvas.noStroke();
 		this.detectionCanvas.pushMatrix();
-		this.detectionCanvas.translate(p.pos.x * this.scaleD, p.pos.y * this.scaleD, p.pos.z * this.scaleD);
+		this.detectionCanvas.translate(p.absPos.x * this.scaleD, p.absPos.y * this.scaleD, p.absPos.z * this.scaleD);
 		this.detectionCanvas.sphere(10);
 		this.detectionCanvas.popMatrix();
 		this.detectionCanvas.endDraw();
@@ -502,17 +505,19 @@ public class Drehsystem3d extends PApplet
 			if (p.getPathVisibility())
 			{
 				int[] c = p.getPathColor();
+				strokeWeight(2);
 				stroke(c[0], c[1], c[2]);
 				ArrayList<PVector> path = p.getPath();
 				if (path != null && path.size() > 1)
 				{
-					for (int i = 0; i < path.size() - 1; i++)
+					noFill();
+					beginShape();
+					for (int i = 0; i < path.size(); i++)
 					{
-						PVector lastPos = path.get(i);
-						PVector pos = path.get(i + 1);
-						line(lastPos.x * this.scaleD, lastPos.y * this.scaleD, lastPos.z * this.scaleD,
-								pos.x * this.scaleD, pos.y * this.scaleD, pos.z * this.scaleD);
+						PVector pos = path.get(i).copy().mult(this.scaleD);
+						curveVertex(pos.x, pos.y, pos.z);
 					}
+					endShape();
 				}
 			}
 		}
@@ -685,7 +690,7 @@ public class Drehsystem3d extends PApplet
 	private PVector getScreenPos(Point point)
 	{
 		PVector pos = new PVector(0, 0, 0);
-		PVector scaledPos = new PVector(point.pos.x, point.pos.y, point.pos.z);
+		PVector scaledPos = point.absPos.copy();
 		scaledPos = scaledPos.mult(this.scaleD);
 
 		pushMatrix();

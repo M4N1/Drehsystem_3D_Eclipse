@@ -91,12 +91,12 @@ public class Point
 		this.v = new PVector(0, 0, 0);
 		this.a = new PVector(0, 0, 0);
 
-		Logger.log(this, "Created point '" + name + "'\n");
+		Logger.log(this, "Created point '" + name + "'");
 		Logger.log(this, "Parent object:\t\t" + (parent == null ? "null" : "'" + parent.name + "'"));
 		Logger.log(this, "Initial position:\t" + setPos);
 		Logger.log(this, "Initial omega:\t\t" + setW);
 		Logger.log(this, "Initial alpha:\t\t" + setAlpha);
-		calcPos();
+		setup();
 	}
 
 	public int getId()
@@ -172,21 +172,21 @@ public class Point
 		}
 	}
 
-	public void calcPos()
+	public void setup()
 	{
 		this.w = new PVector(this.setW.x, this.setW.y, this.setW.z);
 		this.alpha = this.setAlpha;
 		initPos(this.setPos);
 		update(0, 0);
-		Logger.log(this, "Position calculation finished:" + this.pos);
+		Logger.log(this, "Point '" + this.name + "' finished setup!\n\n");
 	}
 
 	public void moveToStart()
 	{
 		this.reset = true;
 		this.pathEntryCount = 0;
-		resetTime();
-		calcPos();
+		restartTimer();
+		setup();
 	}
 
 	public void reset()
@@ -446,7 +446,7 @@ public class Point
 		this.startTime = this.context.millis();
 	}
 
-	public void resetTime()
+	public void restartTimer()
 	{
 		this.lastEllapsedTime = 0;
 		startTime();

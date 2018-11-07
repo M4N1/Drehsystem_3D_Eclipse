@@ -16,7 +16,6 @@ import processing.core.PVector;
 
 public class Drehsystem3d extends PApplet
 {
-
 	final static boolean output = true;
 	double startTime, ellapsedTime;
 	long time = 0;
@@ -73,8 +72,8 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void setup()
 	{
-		Logger.setLogStatus(true);
-		Logger.setLogStoreStatus(false);
+		processArguments();
+		
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
@@ -120,6 +119,49 @@ public class Drehsystem3d extends PApplet
 		this.ellapsedTime = 0;
 		this.stopped = true;
 		this.setup = false;
+	}
+	
+	private void processArguments()
+	{
+		printSeparator(60);
+		System.out.println("# Settings status :");
+		System.out.println("#");
+		
+		Global.DEBUG = getModeState("DEBUG", "Debug mode");
+		Logger.setLogStatus(getModeState("LOG", "Log"));
+		Logger.setLogStoreStatus(getModeState("STORE_LOG", "Store log"));
+		printSeparator(60);
+		System.out.print("\n");
+	}
+	
+	private void printSeparator(int count)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			System.out.print("#");
+		}
+		System.out.print("\n");
+	}
+	
+	private boolean getModeState(String identificator)
+	{
+		return getModeState(identificator, identificator);
+	}
+	
+	private boolean getModeState(String identificator, String messageSignature)
+	{
+		boolean status = containsArgument(this.args, identificator);
+		System.out.format("# %-16s:\t %s\n", messageSignature, (status ? "active" : "inactive"));
+		return status;
+	}
+	
+	private boolean containsArgument(String[] arr, String arg)
+	{
+		for (String s : arr)
+		{
+			if (s.equals(arg)) return true;
+		}
+		return false;
 	}
 
 	private void setupUI()
@@ -1302,7 +1344,7 @@ public class Drehsystem3d extends PApplet
 
 	static public void main(String[] passedArgs)
 	{
-		String[] appletArgs = new String[] { "drehsystem3d.Drehsystem3d" };
+		String[] appletArgs = new String[] { Drehsystem3d.class.getName() };
 		if (passedArgs != null)
 		{
 			PApplet.main(concat(appletArgs, passedArgs));

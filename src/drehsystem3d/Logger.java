@@ -22,12 +22,10 @@ public final class Logger {
 	
 	public static void log(Object sender, Object message)
 	{
-		String logMessage = sender.toString() + ":\t" + message;
-		if (!log)
-		{
-			return;
-		}
-		System.out.println(logMessage);
+		if (!log) return;
+		
+		String logMessage = String.format("%-40s" + message + "\n", (sender.toString() + ":"));
+		System.out.format(logMessage);
 		if (storeLog)
 		{
 			PrintWriter writer = null;

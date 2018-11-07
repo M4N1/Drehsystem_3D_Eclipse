@@ -17,6 +17,9 @@ import processing.core.PVector;
 public class Point
 {
 
+	private static boolean restrictPathLength = true;
+	private static int maxPathLength = 5000;
+	
 	private PApplet context;
 	private final int id;
 	private boolean newPosReceived = false;
@@ -97,6 +100,21 @@ public class Point
 		Logger.log(this, "Initial omega:\t\t" + setW);
 		Logger.log(this, "Initial alpha:\t\t" + setAlpha);
 		setup();
+	}
+	
+	public static void restrictPathLength(boolean state)
+	{
+		Point.restrictPathLength = state;
+	}
+	
+	public static void restrictPathLength(int amount)
+	{
+		Point.maxPathLength = amount;
+	}
+	
+	public static boolean IspathRestricted()
+	{
+		return Point.restrictPathLength;
 	}
 
 	public int getId()
@@ -315,7 +333,7 @@ public class Point
 			{
 				this.path.add(this.absPos.copy());
 				final int minData = 100;
-				if (this.path.size() > 5000 || this.finishedPath)
+				if ((this.path.size() > Point.maxPathLength && Point.restrictPathLength) || this.finishedPath)
 				{
 					this.path.remove(0);
 				}

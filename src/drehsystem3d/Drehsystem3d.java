@@ -124,12 +124,16 @@ public class Drehsystem3d extends PApplet
 	private void processArguments()
 	{
 		printSeparator(60);
-		System.out.println("# Settings status :");
+		System.out.format("# %-20s:\n", "Settings status");
+		System.out.println("#");
 		System.out.println("#");
 		
 		Global.DEBUG = getModeState("DEBUG", "Debug mode");
 		Logger.setLogStatus(getModeState("LOG", "Log"));
 		Logger.setLogStoreStatus(getModeState("STORE_LOG", "Store log"));
+		Point.restrictPathLength(!getModeState("FULL_PATH", "Show endless path"));
+		
+		System.out.println("#");
 		printSeparator(60);
 		System.out.print("\n");
 	}
@@ -151,7 +155,7 @@ public class Drehsystem3d extends PApplet
 	private boolean getModeState(String identificator, String messageSignature)
 	{
 		boolean status = containsArgument(this.args, identificator);
-		System.out.format("# %-16s:\t %s\n", messageSignature, (status ? "active" : "inactive"));
+		System.out.format("# %-20s:\t %s\n", messageSignature, (status ? "active" : "inactive"));
 		return status;
 	}
 	

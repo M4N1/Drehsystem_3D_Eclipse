@@ -10,6 +10,7 @@ import static processing.core.PConstants.ENABLE_DEPTH_TEST;
 import static processing.core.PConstants.PI;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -46,6 +47,7 @@ public class Point
 	private ArrayList<PVector> path = new ArrayList<>();
 	private int[] pathColor = { 255, 255, 255 };
 	private int pathEntryCount = 0;
+	private String logPrefix = "";
 
 	public Point parent = null;
 	public PVector setPos;
@@ -86,6 +88,7 @@ public class Point
 		this.context = context;
 		this.id = id;
 		this.name = name;
+		this.logPrefix = "(Point " + name + ") ";
 		this.parent = parent;
 		this.setPos = pos.copy();
 		this.setW = w.copy();
@@ -94,11 +97,11 @@ public class Point
 		this.v = new PVector(0, 0, 0);
 		this.a = new PVector(0, 0, 0);
 
-		Logger.log(this, "Created point '" + name + "'");
-		Logger.log(this, "Parent object:\t\t" + (parent == null ? "null" : "'" + parent.name + "'"));
-		Logger.log(this, "Initial position:\t" + setPos);
-		Logger.log(this, "Initial omega:\t\t" + setW);
-		Logger.log(this, "Initial alpha:\t\t" + setAlpha);
+		Global.logger.log(Level.FINER, logPrefix + "Created point");
+		Global.logger.log(Level.FINER, logPrefix + "Parent object", (parent == null ? "null" : "'" + parent.name + "'"));
+		Global.logger.log(Level.FINER, logPrefix + "Initial position", setPos);
+		Global.logger.log(Level.FINER, logPrefix + "Initial omega", setW);
+		Global.logger.log(Level.FINER, logPrefix + "Initial alpha", setAlpha);
 		setup();
 	}
 	
@@ -183,20 +186,23 @@ public class Point
 		
 		if (this.parent != null)
 		{
-			this.absSetPos.add(this.parent.pos);
-			this.lastAbsPos.add(this.parent.pos);
-			this.absPos.add(this.parent.pos);
+			this.absSetPos.add(this.parent.absPos);
+			this.lastAbsPos.add(this.parent.absPos);
+			this.absPos.add(this.parent.absPos);
 			this.wAbs.add(this.parent.wAbs);
 		}
 	}
 
 	public void setup()
 	{
-		this.w = new PVector(this.setW.x, this.setW.y, this.setW.z);
+		this.w = this.setW.copy();
 		this.alpha = this.setAlpha;
+		
 		initPos(this.setPos);
 		update(0, 0);
-		Logger.log(this, "Point '" + this.name + "' finished setup!\n\n");
+		Global.logger.log(Level.FINEST, logPrefix + "Abs. set pos", this.absSetPos);
+		Global.logger.log(Level.FINEST, logPrefix + "Abs. pos", this.absPos);
+		Global.logger.log(Level.FINE, logPrefix + "Finished setup!\n\n");
 	}
 
 	public void moveToStart()
@@ -292,7 +298,7 @@ public class Point
 		if (this.parent != null)
 		{
 			this.v = this.w.cross(this.pos.copy().mult(-1));
-			this.absPos.add(this.parent.pos);
+			this.absPos.add(this.parent.absPos);
 			Point lastParent = this.parent;
 			PVector p = this.absPos.copy();
 			for (;;)
@@ -327,7 +333,7 @@ public class Point
 			if (this.pathEntryCount < this.path.size())
 			{
 				this.path.set(this.pathEntryCount, this.absPos.copy());
-				Logger.log(this, "Override path entry");
+				Global.logger.log(Level.FINER, "Override path entry");
 			}
 			else
 			{
@@ -418,11 +424,11 @@ public class Point
 		if (DEBUG && this.parent != null)
 		{
 			context.strokeWeight(4);
-			PVector start = this.parent.pos.copy();
+			PVector scaledStart = this.parent.absPos.copy().mult(this.scaleD);
 			context.stroke(255, 0, 0);
-			context.line(start.x * this.scaleD, start.y * this.scaleD, start.z * this.scaleD,
-					start.x * this.scaleD + this.w.x, start.y * this.scaleD + this.w.y,
-					start.z * this.scaleD + this.w.z);
+			context.line(scaledStart.x, scaledStart.y, scaledStart.z,
+					scaledStart.x + this.w.x, scaledStart.y + this.w.y,
+					scaledStart.z + this.w.z);
 		}
 		context.pushMatrix();
 		context.translate(scaledPos.x, scaledPos.y, scaledPos.z);
@@ -489,9 +495,12 @@ public class Point
 		{
 			this.context.strokeWeight(2);
 			this.context.stroke(51);
-			this.context.line(this.parent.pos.x * this.scaleD, this.parent.pos.y * this.scaleD,
-					this.parent.pos.z * this.scaleD, (pn.x + this.parent.pos.x) * this.scaleD,
-					(pn.y + this.parent.pos.y) * this.scaleD, (pn.z + this.parent.pos.z) * this.scaleD);
+			PVector absPosParent = this.parent.absPos.copy();
+			PVector scaledAbsPosParent = absPosParent.copy().mult(this.scaleD);
+			PVector scaledPn = absPosParent.copy().add(pn).mult(this.scaleD);
+			this.context.line(scaledAbsPosParent.x, scaledAbsPosParent.y,
+					scaledAbsPosParent.z, scaledPn.x,
+					scaledPn.y, scaledPn.y);
 		}
 		
 		float angle = (float) (a.mag() * ellapsedTime / 1000 * PI / 180);
@@ -536,14 +545,21 @@ public class Point
 			if (this.parent != null)
 			{
 				this.context.strokeWeight(4);
-				PVector start = this.parent.pos.copy();
 				this.context.stroke(51);
-				this.context.line(start.x * this.scaleD, start.y * this.scaleD, start.z * this.scaleD,
-						(start.x + offset.x) * this.scaleD, (start.y + offset.y) * this.scaleD,
-						(start.z + offset.z) * this.scaleD);
-				this.context.line((start.x + offset.x) * this.scaleD, (start.y + offset.y) * this.scaleD,
-						(start.z + offset.z) * this.scaleD, (start.x + pn.x) * this.scaleD,
-						(start.y + pn.y) * this.scaleD, (start.z + pn.z) * this.scaleD);
+				
+				PVector start = this.parent.absPos.copy();
+				PVector scaledOffsetStart = start.copy().mult(this.scaleD);
+				PVector scaledOffsetEnd = start.copy().add(offset).mult(this.scaleD);
+				
+				this.context.line(scaledOffsetStart.x, scaledOffsetStart.y, scaledOffsetStart.z,
+						scaledOffsetEnd.x, scaledOffsetEnd.y,
+						scaledOffsetEnd.z);
+				
+				PVector scaledPnStart = start.copy().add(offset).mult(this.scaleD);
+				PVector scaledPnEnd = start.copy().add(pn).mult(this.scaleD);
+				this.context.line(scaledPnStart.x, scaledPnStart.y, scaledPnStart.z,
+						scaledPnEnd.x, scaledPnEnd.y,
+						scaledPnEnd.z);
 			}
 		}
 		return result;

@@ -1,6 +1,7 @@
 package drehsystem3d;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.TextBoxListener;
@@ -289,7 +290,7 @@ class TextBox extends TextView
 								}
 								catch (NumberFormatException e)
 								{
-									Logger.log(this, e);
+									Global.logger.log(Level.SEVERE, e.getStackTrace().toString());
 									if (!(this.cursorPos == 0 && pressedKey == '-' && !this.input.contains("-")))
 									{
 										break;
@@ -309,7 +310,7 @@ class TextBox extends TextView
 								}
 								catch (NumberFormatException e)
 								{
-									Logger.log(this, e);
+									Global.logger.log(Level.SEVERE, e.getStackTrace().toString());
 									if (!(!this.input.contains(".") && pressedKey == '.') && pressedKey != '-')
 									{
 										break;

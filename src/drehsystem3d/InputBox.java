@@ -1,6 +1,7 @@
 package drehsystem3d;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.KeyListener;
@@ -92,7 +93,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void setup()
 	{
-		Logger.log(this, "Input box setup");
+		Global.logger.log(Level.INFO, "Input box setup");
 		this.surface.setTitle(this.title);
 		for (String value : this.values)
 		{
@@ -249,10 +250,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 								return true;
 							}
 							InputBox.this.textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorPos));
-							Logger.log(this, "i:" + i);
-							Logger.log(this, "tb id:" + id);
-							Logger.log(this, "size:" + InputBox.this.textboxes.size());
-							Logger.log(this, "next:" + next);
+							Global.logger.log(Level.INFO, "i:" + i);
+							Global.logger.log(Level.INFO, "tb id:" + id);
+							Global.logger.log(Level.INFO, "size:" + InputBox.this.textboxes.size());
+							Global.logger.log(Level.INFO, "next:" + next);
 							break;
 						}
 					}
@@ -409,11 +410,11 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void textEdited(TextBox textBox, String text)
 	{
-		Logger.log(this, "text:'" + text + "'");
-		Logger.log(this, "text length: " + text.length());
+		Global.logger.log(Level.INFO, "text:'" + text + "'");
+		Global.logger.log(Level.INFO, "text length: " + text.length());
 		if (text.isEmpty())
 		{
-			Logger.log(this, "Returning because text is empty");
+			Global.logger.log(Level.INFO, "Returning because text is empty");
 			return;
 		}
 		trimTextBoxContents(textBox, text);
@@ -445,7 +446,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			}
 			catch (NumberFormatException e)
 			{
-				Logger.log(this, e);
+				Global.logger.log(Level.SEVERE, e.getStackTrace().toString());
 				textBox.setText(Float.toString(InputBox.this.limitsMax[textBox.id - 1]));
 			}
 		}
@@ -473,7 +474,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			}
 			catch (NumberFormatException e)
 			{
-				Logger.log(this, e);
+				Global.logger.log(Level.SEVERE, e.getStackTrace().toString());
 				textBox.setText(Integer.toString((int) InputBox.this.limitsMax[textBox.id - 1]));
 			}
 		}
@@ -501,10 +502,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			{
 				int next = (i + 1) % InputBox.this.textboxes.size();
 				InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
-				Logger.log(this, "i:" + i);
-				Logger.log(this, "tb id:" + textBox.id);
-				Logger.log(this, "size:" + InputBox.this.textboxes.size());
-				Logger.log(this, "next:" + next);
+				Global.logger.log(Level.INFO, "i:" + i);
+				Global.logger.log(Level.INFO, "tb id:" + textBox.id);
+				Global.logger.log(Level.INFO, "size:" + InputBox.this.textboxes.size());
+				Global.logger.log(Level.INFO, "next:" + next);
 			}
 		}
 	}

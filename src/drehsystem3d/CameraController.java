@@ -1,5 +1,7 @@
 package drehsystem3d;
 
+import java.util.logging.Level;
+
 import drehsystem3d.Listener.WindowResizeListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -59,10 +61,10 @@ public class CameraController implements WindowResizeListener
 		this.pos = this.initialPos.copy();
 		this.lastSetPos = this.initialPos.copy();
 		
-		Logger.log(this, "\nCamera reset:");
-		Logger.log(this, "angle: " + this.angle[0] + ", " + this.angle[1]);
-		Logger.log(this, "zoom: " + this.zoom);
-		Logger.log(this, "pos: " + this.pos);
+		Global.logger.log(Level.INFO, "\nCamera reset:");
+		Global.logger.log(Level.INFO, "angle: " + this.angle[0] + ", " + this.angle[1]);
+		Global.logger.log(Level.INFO, "zoom: " + this.zoom);
+		Global.logger.log(Level.INFO, "pos: " + this.pos);
 	}
 
 	@Override

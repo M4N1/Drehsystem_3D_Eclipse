@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 
 import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.OnClickListener;
@@ -72,7 +73,14 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void setup()
 	{
-		processArguments();
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() { 
+            @Override
+			public void uncaughtException(Thread t, Throwable e) { 
+            	Global.logger.log(Level.SEVERE, "Uncaught exception", e);
+            }
+        });
+		
+		Settings.setup(this.args);
 		
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
 		this.currWindowWidth = this.width;
@@ -111,6 +119,7 @@ public class Drehsystem3d extends PApplet
 		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 50), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(0, 150, 0), 0);
 
 		setupUI();
 
@@ -119,53 +128,6 @@ public class Drehsystem3d extends PApplet
 		this.ellapsedTime = 0;
 		this.stopped = true;
 		this.setup = false;
-	}
-	
-	private void processArguments()
-	{
-		printSeparator(60);
-		System.out.format("# %-20s:\n", "Settings status");
-		System.out.println("#");
-		System.out.println("#");
-		
-		Global.DEBUG = getModeState("DEBUG", "Debug mode");
-		Logger.setLogStatus(getModeState("LOG", "Log"));
-		Logger.setLogStoreStatus(getModeState("STORE_LOG", "Store log"));
-		Point.restrictPathLength(!getModeState("FULL_PATH", "Show endless path"));
-		
-		System.out.println("#");
-		printSeparator(60);
-		System.out.print("\n");
-	}
-	
-	private void printSeparator(int count)
-	{
-		for (int i = 0; i < count; i++)
-		{
-			System.out.print("#");
-		}
-		System.out.print("\n");
-	}
-	
-	private boolean getModeState(String identificator)
-	{
-		return getModeState(identificator, identificator);
-	}
-	
-	private boolean getModeState(String identificator, String messageSignature)
-	{
-		boolean status = containsArgument(this.args, identificator);
-		System.out.format("# %-20s:\t %s\n", messageSignature, (status ? "active" : "inactive"));
-		return status;
-	}
-	
-	private boolean containsArgument(String[] arr, String arg)
-	{
-		for (String s : arr)
-		{
-			if (s.equals(arg)) return true;
-		}
-		return false;
 	}
 
 	private void setupUI()
@@ -304,7 +266,7 @@ public class Drehsystem3d extends PApplet
 			
 			@Override
 			public void onClick(int id) {
-				Logger.log(this, "'" + text + "' clicked");		
+				Global.logger.log(Level.INFO, "'" + text + "' clicked");		
 			}
 		});
 		this.uiHandler.addUiElement(text + "View", textView);
@@ -318,7 +280,7 @@ public class Drehsystem3d extends PApplet
 		{
 			if (this.reset)
 			{
-				Logger.log(this, "reset update");
+				Global.logger.log(Level.FINE, "reset update");
 			}
 			float dTime = (millis() - this.lastTime);
 
@@ -615,7 +577,7 @@ public class Drehsystem3d extends PApplet
 	public void mousePressed()
 	{
 		String button = (this.mouseButton == LEFT ? "Left" : (this.mouseButton == RIGHT ? "Right" : "Mid"));
-		Logger.log(this, "Mouse pressed (" + button + ", " + this.mouseButton + ")");
+		Global.logger.log(Level.FINE, "Mouse pressed (" + button + ", " + this.mouseButton + ")");
 		boolean itemClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
@@ -703,7 +665,7 @@ public class Drehsystem3d extends PApplet
 			{
 				if (p.getId() == objectId)
 				{
-					Logger.log(this, "point " + p.getName() + " pressed");
+					Global.logger.log(Level.FINE, "point " + p.getName() + " pressed");
 					openMenuContext(p);
 				}
 			}
@@ -895,7 +857,6 @@ public class Drehsystem3d extends PApplet
 			ib.setMaxLimits(maxLimits);
 			ib.setMinLimits(minLimits);
 			ib.setOnEditingFinishedListener(listener);
-			Logger.log(this, "Run input box");
 			ib.run();
 			Drehsystem3d.this.inputWindowOpened = true;
 		}
@@ -1050,7 +1011,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		Logger.log(this, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
+		Global.logger.log(Level.FINE, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
 		boolean uiElementClicked = this.uiHandler.onKeyPressed(this.keyCode, this.key);
 		if (!uiElementClicked)
 		{

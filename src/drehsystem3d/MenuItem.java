@@ -1,6 +1,7 @@
 package drehsystem3d;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
@@ -75,7 +76,7 @@ public class MenuItem extends View
 				@Override
 				public void onClick(int id)
 				{
-					Logger.log(this, "clicked on menu item " + id);
+					Global.logger.log(Level.INFO, "clicked on menu item " + id);
 					if (MenuItem.this.context.mouseButton == Drehsystem3d.LEFT)
 					{
 						if (MenuItem.this.visible)
@@ -148,9 +149,9 @@ public class MenuItem extends View
 	{
 		for (TextView tv : this.textviews)
 		{
-			Logger.log(this, "\nprevious pos:" + tv.pos);
+			Global.logger.log(Level.INFO, "previous pos:" + tv.pos);
 			tv.setPos(new PVector(tv.pos.x + offsetX, tv.pos.y + offsetY, 0));
-			Logger.log(this, "pos update:" + tv.pos);
+			Global.logger.log(Level.INFO, "pos update:" + tv.pos);
 		}
 	}
 

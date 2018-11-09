@@ -1,7 +1,5 @@
 package drehsystem3d;
 
-import java.util.logging.Level;
-
 public class ColorInputBox extends InputBox {
 	
 	TextView colorView;
@@ -46,7 +44,6 @@ public class ColorInputBox extends InputBox {
 	@Override
 	public void textEdited(TextBox textBox, String text)
 	{
-		Global.logger.log(Level.FINE, "Text edited");
 		super.textEdited(textBox, text);
 		int[] newColor = colorView.backgroundColor.clone();
 		int index = textBox.id - 1;

@@ -143,15 +143,15 @@ public class Drehsystem3d extends PApplet
 		this.cPath = this.uiHandler.addCheckBox("cPath", "path", true);
 		this.cPath.alignBottom(this.cOutput);
 
-		Button bReset, bStart, bClearPath, bAlign;
+		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
 
-		bReset = new Button(this, uiMarginX, this.bStartY, 120, 50, "Remove All");
-		bReset.setMargin(10);
-		bReset.setBackgroundColor(0);
-		bReset.setTextColor(255);
-		bReset.setCornerRadius(15);
-		bReset.setStrokeWeight(2);
-		bReset.setOnClickListener(new OnClickListener()
+		bRemovePoints = new Button(this, uiMarginX, this.bStartY, 120, 50, "Remove All");
+		bRemovePoints.setMargin(10);
+		bRemovePoints.setBackgroundColor(0);
+		bRemovePoints.setTextColor(255);
+		bRemovePoints.setCornerRadius(15);
+		bRemovePoints.setStrokeWeight(2);
+		bRemovePoints.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -159,18 +159,18 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.removePoints = true;
 			}
 		});
-		this.uiHandler.addUiElement("bReset", bReset);
+		this.uiHandler.addUiElement("bReset", bRemovePoints);
 
-		bStart = new Button(this);
-		bStart.alignBottom(bReset);
-		bStart.setSize(120, 50);
-		bStart.setText("Start Pos");
-		bStart.setMargin(10);
-		bStart.setBackgroundColor(0);
-		bStart.setTextColor(255);
-		bStart.setCornerRadius(15);
-		bStart.setStrokeWeight(2);
-		bStart.setOnClickListener(new OnClickListener()
+		bMoveToStart = new Button(this);
+		bMoveToStart.alignBottom(bRemovePoints);
+		bMoveToStart.setSize(120, 50);
+		bMoveToStart.setText("Start Pos");
+		bMoveToStart.setMargin(10);
+		bMoveToStart.setBackgroundColor(0);
+		bMoveToStart.setTextColor(255);
+		bMoveToStart.setCornerRadius(15);
+		bMoveToStart.setStrokeWeight(2);
+		bMoveToStart.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -178,10 +178,10 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.reset = true;
 			}
 		});
-		this.uiHandler.addUiElement("bStart", bStart);
+		this.uiHandler.addUiElement("bStart", bMoveToStart);
 
 		bClearPath = new Button(this);
-		bClearPath.alignBottom(bStart);
+		bClearPath.alignBottom(bMoveToStart);
 		bClearPath.setSize(120, 50);
 		bClearPath.setText("Clear Path");
 		bClearPath.setMargin(10);
@@ -199,16 +199,16 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement("bClearPath", bClearPath);
 
-		bAlign = new Button(this);
-		bAlign.alignBottom(bClearPath);
-		bAlign.setSize(120, 50);
-		bAlign.setText("Align");
-		bAlign.setMargin(10);
-		bAlign.setBackgroundColor(0);
-		bAlign.setTextColor(255);
-		bAlign.setCornerRadius(15);
-		bAlign.setStrokeWeight(2);
-		bAlign.setOnClickListener(new OnClickListener()
+		bAlignCamera = new Button(this);
+		bAlignCamera.alignBottom(bClearPath);
+		bAlignCamera.setSize(120, 50);
+		bAlignCamera.setText("Align");
+		bAlignCamera.setMargin(10);
+		bAlignCamera.setBackgroundColor(0);
+		bAlignCamera.setTextColor(255);
+		bAlignCamera.setCornerRadius(15);
+		bAlignCamera.setStrokeWeight(2);
+		bAlignCamera.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(int id)
@@ -216,8 +216,8 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.cameraController.resetCamera();
 			}
 		});
-		bAlign.setId(1);
-		this.uiHandler.addUiElement("bAlign", bAlign);
+		bAlignCamera.setId(1);
+		this.uiHandler.addUiElement("bAlign", bAlignCamera);
 		
 		Toast toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
 		this.uiHandler.addUiElement("WelcomeToast", toast);
@@ -278,10 +278,6 @@ public class Drehsystem3d extends PApplet
 		handleKeyPressedPermanent();
 		if (!this.setup)
 		{
-			if (this.reset)
-			{
-				Global.logger.log(Level.FINE, "reset update");
-			}
 			float dTime = (millis() - this.lastTime);
 
 			this.ellapsedTime += dTime * this.speed;
@@ -350,10 +346,7 @@ public class Drehsystem3d extends PApplet
 
 		if (this.reset)
 		{
-			this.ellapsedTime = 0;
-			this.startTime = 0;
-			this.lastTime = 0;
-			resetToStartPosition();
+			reset();
 		}
 
 		setButtonVisibility();
@@ -372,6 +365,17 @@ public class Drehsystem3d extends PApplet
 		// translate(0, 0, 0);
 		// image(this.detectionCanvas, 0, 0);
 		// }
+	}
+	
+	private void reset()
+	{
+		Global.logger.log(Level.FINE, "Global pos reset");
+		this.ellapsedTime = 0;
+		this.startTime = 0;
+		this.lastTime = 0;
+		resetToStartPosition();
+		this.stopped = true;
+		this.reset = false;
 	}
 	
 	private void setButtonVisibility()
@@ -416,8 +420,6 @@ public class Drehsystem3d extends PApplet
 		{
 			p.moveToStart();
 		}
-		this.stopped = true;
-		this.reset = false;
 	}
 
 	private void addBufferedPoint()
@@ -1150,7 +1152,7 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	public void updateDrawSpeed()
+	private void updateDrawSpeed()
 	{
 		for (Point p : this.points)
 		{
@@ -1158,7 +1160,7 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	public void updateDrawScale()
+	private void updateDrawScale()
 	{
 		for (Point p : this.points)
 		{
@@ -1166,7 +1168,7 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	public void updateDrawScaleD()
+	private void updateDrawScaleD()
 	{
 		for (Point p : this.points)
 		{
@@ -1174,7 +1176,7 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	public void stopOrResume()
+	private void stopOrResume()
 	{
 		this.stopped = !this.stopped;
 		Global.logger.log(Level.FINE, (this.stopped ? "Animation stopped" : "Animation started"));
@@ -1186,11 +1188,11 @@ public class Drehsystem3d extends PApplet
 		this.startTime = millis();
 	}
 
-	public void erasePath()
+	private void erasePath()
 	{
 	}
 
-	public Point getPoint(int idx)
+	private Point getPoint(int idx)
 	{
 		if (idx < 0 || idx > this.points.size())
 		{
@@ -1199,7 +1201,7 @@ public class Drehsystem3d extends PApplet
 		return this.points.get(idx);
 	}
 
-	public Point getLastPoint()
+	private Point getLastPoint()
 	{
 		if (this.points.size() == 0)
 		{
@@ -1208,7 +1210,7 @@ public class Drehsystem3d extends PApplet
 		return this.points.get(this.points.size() - 1);
 	}
 
-	public Point getPreviousPoint(Point p)
+	private Point getPreviousPoint(Point p)
 	{
 		if (this.points.size() == 0)
 		{
@@ -1224,7 +1226,7 @@ public class Drehsystem3d extends PApplet
 		return null;
 	}
 
-	public Point getNextPoint(Point p)
+	private Point getNextPoint(Point p)
 	{
 		if (this.points.size() == 0)
 		{
@@ -1240,7 +1242,7 @@ public class Drehsystem3d extends PApplet
 		return null;
 	}
 
-	public Point addNewPoint(Point parent, float a, float[] angle, PVector w, float alpha)
+	private Point addNewPoint(Point parent, float a, float[] angle, PVector w, float alpha)
 	{
 		this.points.add(
 				new Point(this, this.idCount, "" + PApplet.parseChar(this.nameCounter++), parent, a, angle, w, alpha));
@@ -1268,7 +1270,7 @@ public class Drehsystem3d extends PApplet
 		return point;
 	}
 
-	public Point addNewPoint(Point parent, PVector pos, PVector w, float alpha)
+	private Point addNewPoint(Point parent, PVector pos, PVector w, float alpha)
 	{
 		this.points
 				.add(new Point(this, this.idCount, "" + PApplet.parseChar(this.nameCounter++), parent, pos, w, alpha));

@@ -413,7 +413,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		Global.logger.log(Level.FINER, "text length: " + text.length());
 		if (text.isEmpty())
 		{
-			Global.logger.log(Level.FINE, "Returning because text is empty");
+			Global.logger.log(Level.FINER, "Returning because text is empty");
 			return;
 		}
 		trimTextBoxContents(textBox, text);

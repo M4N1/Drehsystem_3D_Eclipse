@@ -207,6 +207,8 @@ public class Point
 		{
 			System.out.print("\n\n");
 		}
+		this.reset = false;
+		this.setup = false;
 	}
 
 	public void moveToStart()
@@ -264,18 +266,8 @@ public class Point
 
 	public void update(float dTime, double ellapsedTime)
 	{
-		if (this.setup || this.reset)
-		{
-			ellapsedTime = 0;
-		}
-		if (ellapsedTime != 0 || this.setup || this.reset)
-		{
-			calcNewPos(dTime, ellapsedTime);
-			updatePath();
-
-			this.setup = false;
-			this.reset = false;
-		}
+		calcNewPos(dTime, ellapsedTime);
+		updatePath();
 	}
 
 	private void calcNewPos(float dTime, double ellapsedTime)

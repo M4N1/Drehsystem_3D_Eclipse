@@ -61,10 +61,10 @@ public class CameraController implements WindowResizeListener
 		this.pos = this.initialPos.copy();
 		this.lastSetPos = this.initialPos.copy();
 		
-		Global.logger.log(Level.INFO, "\nCamera reset:");
-		Global.logger.log(Level.INFO, "angle: " + this.angle[0] + ", " + this.angle[1]);
-		Global.logger.log(Level.INFO, "zoom: " + this.zoom);
-		Global.logger.log(Level.INFO, "pos: " + this.pos);
+		Global.logger.log(Level.FINE, "\nCamera reset:");
+		Global.logger.log(Level.FINE, "angle: " + this.angle[0] + ", " + this.angle[1]);
+		Global.logger.log(Level.FINE, "zoom: " + this.zoom);
+		Global.logger.log(Level.FINE, "pos: " + this.pos);
 	}
 
 	@Override

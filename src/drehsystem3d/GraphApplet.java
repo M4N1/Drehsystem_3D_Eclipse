@@ -198,7 +198,7 @@ public class GraphApplet extends PApplet
 		}
 
 		float xStart = x;
-		Global.logger.log(Level.INFO, "maxSize:\t" + this.maxSize);
+		Global.logger.log(Level.FINE, "maxSize:\t" + this.maxSize);
 		for (DataSet d : this.dataSets)
 		{
 			strokeWeight(2);

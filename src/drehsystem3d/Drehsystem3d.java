@@ -117,9 +117,9 @@ public class Drehsystem3d extends PApplet
 
 		// Point point;
 		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
-		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 50), 0);
-		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(400, 0, 0), 0);
-		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(0, 150, 0), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 25), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(200, 0, 0), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(0, 100, 0), 0);
 
 		setupUI();
 
@@ -293,6 +293,10 @@ public class Drehsystem3d extends PApplet
 			for (Point p : this.points)
 			{
 				p.update(dTime, this.ellapsedTime);
+			}
+			if (Global.logger.isLoggable(Level.FINEST))
+			{
+				System.out.print("\n");
 			}
 			updateGraphApplets();
 			this.lastTime = millis();
@@ -665,7 +669,7 @@ public class Drehsystem3d extends PApplet
 			{
 				if (p.getId() == objectId)
 				{
-					Global.logger.log(Level.FINE, "point " + p.getName() + " pressed");
+					Global.logger.log(Level.FINE, "Point '" + p.getName() + "' pressed");
 					openMenuContext(p);
 				}
 			}
@@ -1173,24 +1177,13 @@ public class Drehsystem3d extends PApplet
 	public void stopOrResume()
 	{
 		this.stopped = !this.stopped;
+		Global.logger.log(Level.FINE, (this.stopped ? "Animation stopped" : "Animation started"));
 		if (this.stopped)
 		{
 			this.ellapsedTime += (millis() - this.lastTime) * this.speed;
 		}
 		this.lastTime = millis();
 		this.startTime = millis();
-		for (Point p : this.points)
-		{
-			if (this.stopped)
-			{
-				p.stopTime();
-			}
-			else
-			{
-				p.startTime();
-			}
-
-		}
 	}
 
 	public void erasePath()

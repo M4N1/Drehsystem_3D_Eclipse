@@ -93,7 +93,6 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void setup()
 	{
-		Global.logger.log(Level.INFO, "Input box setup");
 		this.surface.setTitle(this.title);
 		for (String value : this.values)
 		{
@@ -250,10 +249,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 								return true;
 							}
 							InputBox.this.textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorPos));
-							Global.logger.log(Level.INFO, "i:" + i);
-							Global.logger.log(Level.INFO, "tb id:" + id);
-							Global.logger.log(Level.INFO, "size:" + InputBox.this.textboxes.size());
-							Global.logger.log(Level.INFO, "next:" + next);
+							Global.logger.log(Level.FINER, "i:" + i);
+							Global.logger.log(Level.FINER, "tb id:" + id);
+							Global.logger.log(Level.FINER, "size:" + InputBox.this.textboxes.size());
+							Global.logger.log(Level.FINE, "next:" + next);
 							break;
 						}
 					}
@@ -410,11 +409,11 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	@Override
 	public void textEdited(TextBox textBox, String text)
 	{
-		Global.logger.log(Level.INFO, "text:'" + text + "'");
-		Global.logger.log(Level.INFO, "text length: " + text.length());
+		Global.logger.log(Level.FINER, "text:'" + text + "'");
+		Global.logger.log(Level.FINER, "text length: " + text.length());
 		if (text.isEmpty())
 		{
-			Global.logger.log(Level.INFO, "Returning because text is empty");
+			Global.logger.log(Level.FINE, "Returning because text is empty");
 			return;
 		}
 		trimTextBoxContents(textBox, text);
@@ -502,10 +501,10 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 			{
 				int next = (i + 1) % InputBox.this.textboxes.size();
 				InputBox.this.textboxes.get(next).setClicked(true, cursorPosX);
-				Global.logger.log(Level.INFO, "i:" + i);
-				Global.logger.log(Level.INFO, "tb id:" + textBox.id);
-				Global.logger.log(Level.INFO, "size:" + InputBox.this.textboxes.size());
-				Global.logger.log(Level.INFO, "next:" + next);
+				Global.logger.log(Level.FINER, "i:" + i);
+				Global.logger.log(Level.FINER, "tb id:" + textBox.id);
+				Global.logger.log(Level.FINER, "size:" + InputBox.this.textboxes.size());
+				Global.logger.log(Level.FINE, "next:" + next);
 			}
 		}
 	}

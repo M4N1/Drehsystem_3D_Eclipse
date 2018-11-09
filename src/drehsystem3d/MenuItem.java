@@ -76,7 +76,7 @@ public class MenuItem extends View
 				@Override
 				public void onClick(int id)
 				{
-					Global.logger.log(Level.INFO, "clicked on menu item " + id);
+					Global.logger.log(Level.FINE, "Clicked on menu item " + id);
 					if (MenuItem.this.context.mouseButton == Drehsystem3d.LEFT)
 					{
 						if (MenuItem.this.visible)
@@ -149,9 +149,9 @@ public class MenuItem extends View
 	{
 		for (TextView tv : this.textviews)
 		{
-			Global.logger.log(Level.INFO, "previous pos:" + tv.pos);
+			Global.logger.log(Level.FINE, "Previous pos:" + tv.pos);
 			tv.setPos(new PVector(tv.pos.x + offsetX, tv.pos.y + offsetY, 0));
-			Global.logger.log(Level.INFO, "pos update:" + tv.pos);
+			Global.logger.log(Level.FINE, "Pos update:" + tv.pos);
 		}
 	}
 

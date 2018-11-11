@@ -12,7 +12,7 @@ public class InputHandler implements UserInputListener
 	private ArrayList<Object> keyCodes;
 	private ArrayList<Object> mouseButtons;
 	private Key lastPressedKey;
-	private long lastKeyEvent = 0;
+	private long millisOflastKeyEvent = 0;
 
 	public InputHandler(PApplet context)
 	{
@@ -35,13 +35,18 @@ public class InputHandler implements UserInputListener
 	
 	public long millisSinceLastKeyEvent()
 	{
-		return (this.context.millis() - this.lastKeyEvent);
+		return (this.context.millis() - this.millisOflastKeyEvent);
+	}
+	
+	public boolean millisSinceLastKeyEventElapsed(long elapsed)
+	{
+		return (millisSinceLastKeyEvent() >= elapsed);
 	}
 
 	@Override
 	public boolean onKeyPressed(int keyCode, char key)
 	{
-		this.lastKeyEvent = this.context.millis();
+		this.millisOflastKeyEvent = this.context.millis();
 		this.lastPressedKey = new Key(keyCode, key);
 		addItem(this.keyCodes, keyCode);
 		addItem(this.keys, key);
@@ -51,9 +56,9 @@ public class InputHandler implements UserInputListener
 	@Override
 	public boolean onKeyReleased(int keyCode, char key)
 	{
-		this.lastPressedKey = getPreviousLastKey();
 		removeItem(this.keyCodes, keyCode);
 		removeItem(this.keys, key);
+		this.lastPressedKey = getPreviousLastKey();
 		return false;
 	}
 
@@ -95,8 +100,10 @@ public class InputHandler implements UserInputListener
 
 	private Key getPreviousLastKey()
 	{
-		if (this.keyCodes.size() == 0)
+		if (this.keyCodes.size() == 0 || this.keys.size() == 0)
 		{
+			this.keyCodes.clear();
+			this.keys.clear();
 			return new Key(-1, ' ');
 		}
 		int keyCode = (int) getLastElement(this.keyCodes);
@@ -106,6 +113,7 @@ public class InputHandler implements UserInputListener
 
 	private Object getLastElement(ArrayList<?> list)
 	{
+		if (list.size() == 0) return null;
 		return list.get(list.size() - 1);
 	}
 
@@ -128,6 +136,14 @@ public class InputHandler implements UserInputListener
 		{
 			this.code = code;
 			this.key = key;
+		}
+		
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj.getClass() != this.getClass()) return false;
+			Key other = (Key) obj;
+			return (other.code == this.code && other.key == this.key);
 		}
 	}
 }

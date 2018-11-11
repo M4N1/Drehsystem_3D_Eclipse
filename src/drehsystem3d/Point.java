@@ -1,7 +1,6 @@
 package drehsystem3d;
 
 import static drehsystem3d.Global.DEBUG;
-import static processing.core.PApplet.atan;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.dist;
 import static processing.core.PApplet.sin;
@@ -308,7 +307,7 @@ public class Point
 		
 		if (this.parent != null)
 		{
-			this.v = this.w.cross(this.pos.copy().mult(-1));
+			this.v = this.w.copy().cross(this.pos.copy());
 			
 			Point lastParent = this.parent;
 			PVector p = this.absPos.copy();
@@ -321,22 +320,22 @@ public class Point
 				}
 				else
 				{
-					this.v.add(lastParent.w.cross(p.copy().sub(parent.pos).mult(-1)));
+					this.v.add(lastParent.w.cross(p.copy().sub(parent.absPos)));
 					lastParent = parent;
 				}
 			}
 			if (!this.setup && !this.reset)
 			{
-				this.a = this.v.copy().sub(this.lastV).mult(1/dTime);
+				this.a = this.v.copy().sub(this.lastV).mult(1000/dTime);
 			}
 			else
 			{
 				this.a = new PVector(0, 0, 0);
 			}
 		}
-		Global.logger.log(Level.FINEST, logPrefix + "Pos", this.pos);
-		Global.logger.log(Level.FINEST, logPrefix + "Mag", this.pos.mag());
-		Global.logger.log(Level.FINEST, logPrefix + "Abs. Pos", this.absPos);
+		Global.logger.log(Level.FINEST, logPrefix + "Pos", new Object[] {this.pos.mag(), this.pos});
+		Global.logger.log(Level.FINEST, logPrefix + "Abs. Pos", new Object[] {this.absPos.mag(), this.absPos});
+		Global.logger.log(Level.FINEST, logPrefix + "Acceleration", new Object[] {this.a.mag(), this.a});
 	}
 
 	private void updatePath()
@@ -502,23 +501,37 @@ public class Point
 		this.name = name;
 	}
 
-	private PVector rotateV(PVector a, PVector vector, double ellapsedTime, boolean store)
+	/**
+	 * 
+	 * @param a Axis and angular velocity to turn vector around
+	 * @param vector Vector to turn
+	 * @param elapsedTime Time elapsed since starting to turn from the initial position
+	 * @param store Specifies if the variables used for the calculation should be stored,
+	 * to be able to use them for a later draw event
+	 * @return The rotated vector
+	 */
+	private PVector rotateV(PVector a, PVector vector, double elapsedTime, boolean store)
 	{
 		PVector result = new PVector(0, 0, 0);
 		PVector position = vector.copy();
 		PVector axis = a.copy();
 
-		PVector normalizedAxis = a.copy().normalize();
+		// Calc normal vector from axis and vector.
+		PVector normalizedAxis = axis.copy().normalize();
 		PVector pn = cross(normalizedAxis, position);
 		pn = cross(normalizedAxis, pn).mult(-1);
 
-		float angle = (float) (a.mag() * ellapsedTime / 1000 * PI / 180);
+		
+		// Get the angle as radiant from the angular velocity axis.
+		float angle = (float) (axis.mag() * elapsedTime / 1000 * PI / 180);
 
+		// Get the distance between the normal vector pn and the actual vector to turn vector.
 		PVector offset = position.sub(pn);
 		position = vector.copy();
 
-		float alphaX = atan(this.w.y / this.w.z);
-		float alphaY = -atan(axis.x / axis.z);
+		// Turn everything to get the axis to align with the z-axis.
+		float alphaX = PApplet.atan2(axis.y, axis.z);
+		float alphaY = -PApplet.atan2(axis.x, axis.z);
 		
 		rotatePointsVX(axis, pn, alphaX);
 		rotatePointsVY(axis, pn, alphaY);
@@ -527,7 +540,7 @@ public class Point
 				
 		rotatePointsVY(axis, pn, -alphaY);
 		rotatePointsVX(axis, pn, -alphaX);
-		result = pn.add(offset);
+		result = pn.copy().add(offset);
 
 		if (store)
 		{
@@ -539,10 +552,6 @@ public class Point
 	
 	private void rotatePointsVZ(PVector axis, PVector pn, float angle)
 	{
-		if (axis.z > 0)
-		{
-			angle *= -1;
-		}
 		pn = rotateVZ(pn, angle);
 	}
 

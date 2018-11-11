@@ -17,14 +17,18 @@ import processing.core.PVector;
 
 public class Drehsystem3d extends PApplet
 {
-	final static boolean output = true;
-	double startTime, ellapsedTime;
+	final static boolean TEXT_OUTPUT = true;
+	final static int TIME_UNTIL_NEXT_POS_UPDATE = 50;
+	final static int MAX_SPEED = 15;
+
+	double startTime, elapsedTime;
 	long time = 0;
 	boolean pressed = false;
+	boolean keyPressedPermanent = false;
 	int currWindowWidth, currWindowHeight;
 	TextBoxListener textEditedListener;
 	MenuItem menuItem;
-	
+
 	ArrayList<Point> points = new ArrayList<>();
 	ArrayList<GraphApplet> applets;
 	UIHandler uiHandler;
@@ -32,7 +36,7 @@ public class Drehsystem3d extends PApplet
 	Point pointToAdd;
 	PGraphics xySurface, yzSurface, xzSurface;
 	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
-	
+
 	int bStartY;
 	int uiMarginX;
 	float scale = 0.2f;
@@ -41,7 +45,7 @@ public class Drehsystem3d extends PApplet
 	float speed = 1.0f;
 	boolean setup = true;
 	boolean inputWindowOpened = false;
-	
+
 	boolean removePoints = false;
 	boolean reset = false;
 	boolean stopped = false;
@@ -58,7 +62,7 @@ public class Drehsystem3d extends PApplet
 	ArrayList<UserInputListener> userInputListeners;
 
 	HashMap<Integer, Integer[]> objects = new HashMap<>();
-	
+
 	int idCount = 0;
 	int nameCounter = 'A';
 	Integer[] colorCount = { 100, 0, 0 };
@@ -73,15 +77,17 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void setup()
 	{
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() { 
-            @Override
-			public void uncaughtException(Thread t, Throwable e) { 
-            	Global.logger.log(Level.SEVERE, "Uncaught exception", e);
-            }
-        });
-		
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+		{
+			@Override
+			public void uncaughtException(Thread t, Throwable e)
+			{
+				Global.logger.log(Level.SEVERE, "Uncaught exception", e);
+			}
+		});
+
 		Settings.setup(this.args);
-		
+
 		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
@@ -115,17 +121,16 @@ public class Drehsystem3d extends PApplet
 		this.xzSurface.background(255, 0, 0, 50);
 		this.xzSurface.endDraw();
 
-		// Point point;
 		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -3, 0), new PVector(0, 0, 25), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(200, 0, 0), 0);
-		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(0, 100, 0), 0);
+		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(0, 100, 0), 0).drawPath();
 
 		setupUI();
 
 		this.lastTime = millis();
 		this.startTime = millis();
-		this.ellapsedTime = 0;
+		this.elapsedTime = 0;
 		this.stopped = true;
 		this.setup = false;
 	}
@@ -218,55 +223,48 @@ public class Drehsystem3d extends PApplet
 		});
 		bAlignCamera.setId(1);
 		this.uiHandler.addUiElement("bAlign", bAlignCamera);
-		
+
 		Toast toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
 		this.uiHandler.addUiElement("WelcomeToast", toast);
-		
-		/*TextView testView = new TextView(this, width/2, height/2);
-		testView.setBackground(255);
-		testView.setTextColor(0);
-		testView.setText("Hello World!");
-		testView.setPaddingY(20);
-		testView.setMargin(20);
-		testView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(int id) {
-				Logger.log("Hello World clicked!");				
-			}
-		});
-		this.uiHandler.addUiElement("testView", testView);
-		
-		View view = getDummy("Left");
-		view.alignLeft(testView);
-		view.setVerticalAlignment(View.AlignmentVertical.BOTTOM);
-		
-		view = getDummy("Right");
-		view.alignRight(testView);
-		view.setVerticalAlignment(View.AlignmentVertical.TOP);
-		
-		view = getDummy("Top");
-		view.alignTop(testView);
-		view.setHorizontalAlignment(View.AlignmentHorizontal.LEFT);
-		
-		view = getDummy("Bottom");
-		view.alignBottom(testView);
-		view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);*/
+
+		/*
+		 * TextView testView = new TextView(this, width/2, height/2);
+		 * testView.setBackground(255); testView.setTextColor(0);
+		 * testView.setText("Hello World!"); testView.setPaddingY(20);
+		 * testView.setMargin(20); testView.setOnClickListener(new OnClickListener() {
+		 * 
+		 * @Override public void onClick(int id) { Logger.log("Hello World clicked!"); }
+		 * }); this.uiHandler.addUiElement("testView", testView);
+		 * 
+		 * View view = getDummy("Left"); view.alignLeft(testView);
+		 * view.setVerticalAlignment(View.AlignmentVertical.BOTTOM);
+		 * 
+		 * view = getDummy("Right"); view.alignRight(testView);
+		 * view.setVerticalAlignment(View.AlignmentVertical.TOP);
+		 * 
+		 * view = getDummy("Top"); view.alignTop(testView);
+		 * view.setHorizontalAlignment(View.AlignmentHorizontal.LEFT);
+		 * 
+		 * view = getDummy("Bottom"); view.alignBottom(testView);
+		 * view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);
+		 */
 	}
-	
+
 	private TextView getDummy(String text)
 	{
-		TextView textView = new TextView(this, width/2, 10);
+		TextView textView = new TextView(this, width / 2, 10);
 		textView.setBackgroundColor(255);
 		textView.setTextColor(0);
 		textView.setText(text);
 		textView.setPadding(5);
 		textView.setMargin(20);
-		textView.setOnClickListener(new OnClickListener() {
-			
+		textView.setOnClickListener(new OnClickListener()
+		{
+
 			@Override
-			public void onClick(int id) {
-				Global.logger.log(Level.INFO, "'" + text + "' clicked");		
+			public void onClick(int id)
+			{
+				Global.logger.log(Level.INFO, "'" + text + "' clicked");
 			}
 		});
 		this.uiHandler.addUiElement(text + "View", textView);
@@ -275,25 +273,43 @@ public class Drehsystem3d extends PApplet
 
 	public void update()
 	{
-		handleKeyPressedPermanent();
 		if (!this.setup)
 		{
-			float dTime = (millis() - this.lastTime);
+			float dTimeTotal = (millis() - this.lastTime) * this.speed;
 
-			this.ellapsedTime += dTime * this.speed;
-
-			for (Point p : this.points)
+			float dTime;
+			while (dTimeTotal > 0)
 			{
-				p.initPos(p.setPos);
+				if (dTimeTotal > Drehsystem3d.TIME_UNTIL_NEXT_POS_UPDATE)
+				{
+					dTime = Drehsystem3d.TIME_UNTIL_NEXT_POS_UPDATE;
+					dTimeTotal -= Drehsystem3d.TIME_UNTIL_NEXT_POS_UPDATE;
+				}
+				else
+				{
+					dTime = dTimeTotal;
+					dTimeTotal = 0;
+				}
+				this.elapsedTime += dTime;
+				for (Point p : this.points)
+				{
+					p.initPos(p.setPos);
+				}
+				for (Point p : this.points)
+				{
+					p.update(dTime, this.elapsedTime);
+					if (Global.logger.isLoggable(Level.FINEST))
+					{
+						System.out.print("\n");
+					}
+				}
+				if (Global.logger.isLoggable(Level.FINEST))
+				{
+					System.out.print("\n\n");
+				}
 			}
-			for (Point p : this.points)
-			{
-				p.update(dTime, this.ellapsedTime);
-			}
-			if (Global.logger.isLoggable(Level.FINEST))
-			{
-				System.out.print("\n");
-			}
+			Global.logger.log(Level.FINEST, "dTime", dTimeTotal);
+			Global.logger.log(Level.FINEST, "elapsed time", this.elapsedTime);
 			updateGraphApplets();
 			this.lastTime = millis();
 		}
@@ -301,11 +317,19 @@ public class Drehsystem3d extends PApplet
 
 	private void handleKeyPressedPermanent()
 	{
-		if (this.keyPressed && (this.inputHandler.millisSinceLastKeyEvent() > 100)
-				&& (this.inputHandler.getLastKeyCode() == 139 || this.inputHandler.getLastKeyCode() == 93
-						|| this.inputHandler.getLastKeyCode() == 140 || this.inputHandler.getLastKeyCode() == 47))
+		int lastKeyCode = this.inputHandler.getLastKeyCode();
+		if (this.keyPressed && (lastKeyCode == 139 || lastKeyCode == 93 || lastKeyCode == 140 || lastKeyCode == 47))
 		{
-			handleKeyPressedEvent(this.inputHandler.getLastKeyCode(), this.inputHandler.getLastKey());
+			if (this.inputHandler.millisSinceLastKeyEventElapsed(500)
+					|| (this.keyPressedPermanent && this.inputHandler.millisSinceLastKeyEventElapsed(100)))
+			{
+				this.keyPressedPermanent = true;
+				handleKeyPressedEvent(this.inputHandler.getLastKeyCode(), this.inputHandler.getLastKey());
+			}
+		}
+		else
+		{
+			this.keyPressedPermanent = false;
 		}
 	}
 
@@ -331,6 +355,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void draw()
 	{
+		handleKeyPressedPermanent();
 		addBufferedPoint();
 		handlePathUpdates();
 		noLights();
@@ -350,7 +375,7 @@ public class Drehsystem3d extends PApplet
 		}
 
 		setButtonVisibility();
-		
+
 		this.uiHandler.draw();
 
 		drawSimulation();
@@ -366,27 +391,24 @@ public class Drehsystem3d extends PApplet
 		// image(this.detectionCanvas, 0, 0);
 		// }
 	}
-	
+
 	private void reset()
 	{
 		Global.logger.log(Level.FINE, "Global pos reset");
-		this.ellapsedTime = 0;
+		this.elapsedTime = 0;
 		this.startTime = 0;
 		this.lastTime = 0;
 		resetToStartPosition();
 		this.stopped = true;
 		this.reset = false;
 	}
-	
+
 	private void setButtonVisibility()
 	{
 		Button align = (Button) uiHandler.getUiElement("bAlign");
-		boolean bAlignVisible = !(
-					cameraController.getAngle()[0] == 0 
-				&& 	cameraController.getAngle()[1] == 0 
-				&& 	cameraController.getPos().x == width/2 
-				&&  cameraController.getPos().y == height/2
-		);
+		boolean bAlignVisible = !(cameraController.getAngle()[0] == 0 && cameraController.getAngle()[1] == 0
+				&& cameraController.getPos().x == width / 2 && cameraController.getPos().y == height / 2
+				&& cameraController.getZoom() == 1);
 		align.setVisibility(bAlignVisible);
 	}
 
@@ -453,7 +475,7 @@ public class Drehsystem3d extends PApplet
 	private void handleWindowResizeEvent()
 	{
 		this.cameraController.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
-		this.cameraController.setInitPos(width/2, height/2);
+		this.cameraController.setInitPos(width / 2, height / 2);
 		this.uiHandler.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
@@ -509,10 +531,7 @@ public class Drehsystem3d extends PApplet
 
 	private void drawPointPaths()
 	{
-		if (!this.cPath.isChecked() || this.points.size() <= 1)
-		{
-			return;
-		}
+		if (!this.cPath.isChecked() || this.points.size() <= 1) { return; }
 
 		for (Point p : this.points)
 		{
@@ -547,9 +566,9 @@ public class Drehsystem3d extends PApplet
 		textSize(20);
 		text("X:" + this.mouseX, uiMarginX, this.height - 60);
 		text("Y:" + this.mouseY, uiMarginX, this.height - 40);
-		text("Elapsed time:" + (int) (this.ellapsedTime / 1000), uiMarginX, this.height - 20);
+		text("Elapsed time:" + (int) (this.elapsedTime / 1000), uiMarginX, this.height - 20);
 
-		if (output)
+		if (TEXT_OUTPUT)
 		{
 			fill(255);
 			stroke(255);
@@ -562,7 +581,8 @@ public class Drehsystem3d extends PApplet
 				text("paused", uiMarginX, this.height - 100);
 			}
 
-			String speedOutput = "Speed: " + "x" + this.speed;
+			String speed = "" + (this.speed < 0 ? "(" + this.speed + ")" : this.speed);
+			String speedOutput = "Speed: *" + speed;
 			text(speedOutput, this.width / 2 - textWidth(speedOutput) / 2, this.height - 20);
 		}
 		popMatrix();
@@ -594,11 +614,8 @@ public class Drehsystem3d extends PApplet
 			itemClicked = itemClicked || this.menuItem.onMousePressed(this.mouseButton);
 		}
 
-		if (itemClicked)
-		{
-			return;
-		}
-		
+		if (itemClicked) { return; }
+
 		if (this.mouseButton == LEFT)
 		{
 			this.leftButtonPressed = true;
@@ -738,7 +755,7 @@ public class Drehsystem3d extends PApplet
 			// Add point.
 			if (item.equals(this.possibleValues[0]))
 			{
-				openInputWindow("Input", inputBoxValues, getPointValuesAsString(), InputTypes.FLOAT, maxLimits,
+				openInputWindow("New Point", inputBoxValues, getPointValuesAsString(), InputTypes.FLOAT, maxLimits,
 						minLimits, new InputBoxListener()
 						{
 							@Override
@@ -807,26 +824,25 @@ public class Drehsystem3d extends PApplet
 			{
 				standardValues[i] = Integer.toString(c[i]);
 			}
-			openColorInputWindow("Pathcolor " + this.point.getName(), standardValues,
-					new InputBoxListener()
-					{
-						@Override
-						public void finishedEditing(String... data)
-						{
-							Drehsystem3d.this.inputWindowOpened = false;
-							int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
-							int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
-							int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
-							PointMenuItemClickListener.this.point.setPathColor(new int[] { r, g, b });
-							PointMenuItemClickListener.this.point.drawPath();
-						}
+			openColorInputWindow("Pathcolor " + this.point.getName(), standardValues, new InputBoxListener()
+			{
+				@Override
+				public void finishedEditing(String... data)
+				{
+					Drehsystem3d.this.inputWindowOpened = false;
+					int r = data[0] == "" ? 0 : Integer.parseInt(data[0]);
+					int g = data[1] == "" ? 0 : Integer.parseInt(data[1]);
+					int b = data[2] == "" ? 0 : Integer.parseInt(data[2]);
+					PointMenuItemClickListener.this.point.setPathColor(new int[] { r, g, b });
+					PointMenuItemClickListener.this.point.drawPath();
+				}
 
-						@Override
-						public void onExit()
-						{
-							Drehsystem3d.this.inputWindowOpened = false;
-						}
-					});
+				@Override
+				public void onExit()
+				{
+					Drehsystem3d.this.inputWindowOpened = false;
+				}
+			});
 		}
 
 		private void openGraphContext(Point point)
@@ -867,7 +883,7 @@ public class Drehsystem3d extends PApplet
 			Drehsystem3d.this.inputWindowOpened = true;
 		}
 	}
-	
+
 	private void openColorInputWindow(String name, String[] standardValues, InputBoxListener listener)
 	{
 		if (!this.inputWindowOpened)
@@ -896,10 +912,7 @@ public class Drehsystem3d extends PApplet
 
 	private String[] getPointValuesAsString(Point point)
 	{
-		if (point == null)
-		{
-			return null;
-		}
+		if (point == null) { return null; }
 		return new String[] { Float.toString(point.setPos.x), Float.toString(point.setPos.y * -1),
 				Float.toString(point.setPos.z), Float.toString(point.setW.x), Float.toString(point.setW.y),
 				Float.toString(point.setW.z), Float.toString(point.setAlpha) };
@@ -914,10 +927,7 @@ public class Drehsystem3d extends PApplet
 
 	private boolean changePoint(Point point, String... data)
 	{
-		if (data.length != 7)
-		{
-			return false;
-		}
+		if (data.length != 7) { return false; }
 
 		float x = getValueOrZero(data[0]);
 		float y = getValueOrZero(data[1]) * -1;
@@ -1029,85 +1039,28 @@ public class Drehsystem3d extends PApplet
 	{
 		for (UserInputListener l : this.userInputListeners)
 		{
-			l.onKeyPressed(this.keyCode, this.key);
+			l.onKeyPressed(pressedKeyCode, pressedKey);
 		}
 		switch (pressedKeyCode)
 		{
 			case 139:
 			case 93:
-				if (this.inputHandler.isKeyPressed(16) && this.inputHandler.isKeyPressed(17))
-				{
-					this.scale += 0.2f;
-					updateDrawScale();
-				}
-				else if (this.inputHandler.isKeyPressed(17))
-				{
-					this.scaleD++;
-					updateDrawScaleD();
-				}
-				else
-				{
-					if ((Math.abs(this.speed) >= 0 && Math.abs(this.speed) < 1))
-					{
-						this.speed = this.speed + 0.5f;
-					}
-					else
-					{
-						this.speed++;
-					}
-					updateDrawSpeed();
-				}
+				changeDimensions(true);
 				break;
 
 			case 140:
 			case 47:
-				if (this.inputHandler.isKeyPressed(16) && this.inputHandler.isKeyPressed(17))
-				{
-					if (this.scale > 0)
-					{
-						if (this.scale <= 0.2f)
-						{
-							this.scale -= 0.1f;
-						}
-						else
-						{
-							this.scale -= 0.2f;
-						}
-						updateDrawScale();
-					}
-				}
-				else if (this.inputHandler.isKeyPressed(17))
-				{
-					if (this.scaleD > 0)
-					{
-						this.scaleD--;
-						updateDrawScaleD();
-					}
-				}
-				else
-				{
-					if ((Math.abs(this.speed) >= 0 && Math.abs(this.speed) < 1))
-					{
-						this.speed = this.speed - 0.5f;
-					}
-					else
-					{
-						this.speed--;
-					}
-					updateDrawSpeed();
-				}
+				changeDimensions(false);
 				break;
 		}
 		switch (pressedKey)
 		{
 			case '1':
-				this.speed = 1;
-				updateDrawSpeed();
+				updateDrawSpeed(1);
 				break;
 
 			case '0':
-				this.speed = 1;
-				updateDrawSpeed();
+				updateDrawSpeed(1);
 				break;
 
 			case 'p':
@@ -1133,6 +1086,44 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
+	private void changeDimensions(boolean up)
+	{
+		int dir = up ? 1 : -1;
+		if (this.inputHandler.isKeyPressed(16) && this.inputHandler.isKeyPressed(17))
+		{
+			float limit = 0.2f;
+			float newScale = this.scale;
+			if (Math.abs(this.scale) < limit || this.scale == -(limit * dir))
+			{
+				newScale += 0.1f * dir;
+			}
+			else
+			{
+				newScale += 0.2f * dir;
+			}
+			updateDrawScale(newScale);
+		}
+		else if (this.inputHandler.isKeyPressed(17))
+		{
+			updateDrawScaleD(this.scaleD + dir);
+		}
+		else
+		{
+			float limit = 1;
+			float newSpeed = this.speed;
+			if (Math.abs(this.speed) < 1 || this.speed == -(limit * dir))
+			{
+				newSpeed += 0.5f * dir;
+			}
+			else
+			{
+				newSpeed += dir;
+			}
+			if (Math.abs(newSpeed) > MAX_SPEED) return;
+			updateDrawSpeed(newSpeed);
+		}
+	}
+
 	@Override
 	public void keyReleased()
 	{
@@ -1152,24 +1143,36 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	private void updateDrawSpeed()
+	private void updateDrawSpeed(float newSpeed)
 	{
+		if (newSpeed == 0.0)
+		{
+			this.speed *= -1;
+		}
+		else
+		{
+			this.speed = newSpeed;
+		}
 		for (Point p : this.points)
 		{
 			p.setDrawSpeed(this.speed);
 		}
 	}
 
-	private void updateDrawScale()
+	private void updateDrawScale(float newScale)
 	{
+		if (newScale < 0) return;
+		this.scale = (float) (Math.round(newScale * 100.0) / 100.0);
 		for (Point p : this.points)
 		{
 			p.setScale(this.scale);
 		}
 	}
 
-	private void updateDrawScaleD()
+	private void updateDrawScaleD(float newScale)
 	{
+		if (newScale < 1) return;
+		this.scaleD = (float) (Math.round(newScale * 100.0) / 100.0);
 		for (Point p : this.points)
 		{
 			p.setScaleD(this.scaleD);
@@ -1182,7 +1185,7 @@ public class Drehsystem3d extends PApplet
 		Global.logger.log(Level.FINE, (this.stopped ? "Animation stopped" : "Animation started"));
 		if (this.stopped)
 		{
-			this.ellapsedTime += (millis() - this.lastTime) * this.speed;
+			this.elapsedTime += (millis() - this.lastTime) * this.speed;
 		}
 		this.lastTime = millis();
 		this.startTime = millis();
@@ -1194,50 +1197,32 @@ public class Drehsystem3d extends PApplet
 
 	private Point getPoint(int idx)
 	{
-		if (idx < 0 || idx > this.points.size())
-		{
-			return null;
-		}
+		if (idx < 0 || idx > this.points.size()) { return null; }
 		return this.points.get(idx);
 	}
 
 	private Point getLastPoint()
 	{
-		if (this.points.size() == 0)
-		{
-			return null;
-		}
+		if (this.points.size() == 0) { return null; }
 		return this.points.get(this.points.size() - 1);
 	}
 
 	private Point getPreviousPoint(Point p)
 	{
-		if (this.points.size() == 0)
-		{
-			return null;
-		}
+		if (this.points.size() == 0) { return null; }
 		for (int i = 0; i < this.points.size(); i++)
 		{
-			if (this.points.get(i) == p)
-			{
-				return getPoint(i - 1);
-			}
+			if (this.points.get(i) == p) { return getPoint(i - 1); }
 		}
 		return null;
 	}
 
 	private Point getNextPoint(Point p)
 	{
-		if (this.points.size() == 0)
-		{
-			return null;
-		}
+		if (this.points.size() == 0) { return null; }
 		for (int i = 0; i < this.points.size(); i++)
 		{
-			if (this.points.get(i) == p)
-			{
-				return getPoint(i + 1);
-			}
+			if (this.points.get(i) == p) { return getPoint(i + 1); }
 		}
 		return null;
 	}

@@ -3,7 +3,6 @@ package drehsystem3d;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import processing.core.PApplet;
 
@@ -198,7 +197,6 @@ public class GraphApplet extends PApplet
 		}
 
 		float xStart = x;
-		Global.logger.log(Level.FINE, "maxSize:\t" + this.maxSize);
 		for (DataSet d : this.dataSets)
 		{
 			strokeWeight(2);
@@ -219,26 +217,6 @@ public class GraphApplet extends PApplet
 			endShape();
 			x = xStart;
 		}
-//		for (int i = 1; i < this.maxSize; i++)
-//		{
-//			for (DataSet d : this.dataSets)
-//			{
-//				float p1 = 0;
-//				float p2 = 0;
-//				if (d.getDataSize() > i)
-//				{
-//					p1 = d.getPoint(i - 1);
-//					p2 = d.getPoint(i);
-//				}
-//				p1 = map(p1, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
-//				p2 = map(p2, -d.yMax, d.yMax, height - this.margin / 2, this.margin / 2);
-//				stroke(d.r, d.g, d.b);
-//				strokeWeight(2);
-//				line(x, p1, x + this.dx, p2);
-//			}
-//			x += this.dx;
-//		}
-
 	}
 
 	private class DataSet

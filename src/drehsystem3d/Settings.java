@@ -1,6 +1,7 @@
 package drehsystem3d;
 
 import java.io.IOException;
+
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -9,18 +10,23 @@ public class Settings
 {
 	private static String[] args;
 	private static int optionLength = 25;
-	private static int statusLength = 10;
+	private static int statusLength = 15;
 	private static int totalLength = 60;
 	private static int spaces = (Settings.totalLength - Settings.optionLength - Settings.statusLength) - 4;
+	private static boolean printColored = false;
 	
 	public static void setup(String[] args)
 	{
 		Settings.args = args;
+		System.out.println(System.getProperty("os.name"));
+		Settings.printColored = Global.isUnix;
 		printSeparatorLine();
 		printColored(String.format("# %-" + Settings.optionLength + "s:%-" + (Settings.totalLength - Settings.optionLength - 4) + "s#\n", "Settings status", ""));
 		printSeparatorLine();
 		printEmptyInfoLine();
 		
+		
+		printModeState("OS", Global.OS);
 		Global.DEBUG = getAndPrintModeState("DEBUG", "Debug mode");
 		Point.restrictPathLength(!getAndPrintModeState("FULL_PATH", "Show endless path"));
 		setLogLevel();
@@ -32,7 +38,10 @@ public class Settings
 	
 	private static void printColored(String message)
 	{
-		System.out.print(LogFormatter.ANSI_YELLOW + message + LogFormatter.ANSI_RESET);
+		if (printColored)
+			System.out.print(LogFormatter.ANSI_YELLOW + message + LogFormatter.ANSI_RESET);
+		else
+			System.out.print(message);
 	}
 	
 	private static void printSeparatorLine()
@@ -106,13 +115,11 @@ public class Settings
 	private static boolean getModeState(String[] identificators)
 	{
 		if (Settings.args == null) return false;
-		boolean state = false;
 		for (String identificator : identificators)
 		{
-			state = state || containsArgument(Settings.args, identificator);
-			if (state) break;
+			if (containsArgument(Settings.args, identificator)) return true;
 		}
-		return state;
+		return false;
 	}
 	
 	private static boolean getAndPrintModeState(String identificator)
@@ -145,5 +152,10 @@ public class Settings
 			if (s.equals(arg)) return true;
 		}
 		return false;
+	}
+	
+	public static boolean printColored()
+	{
+		return Settings.printColored;
 	}
 }

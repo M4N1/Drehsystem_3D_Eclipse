@@ -28,7 +28,7 @@ public class LogFormatter extends Formatter
 	
 	public LogFormatter(boolean colorOutput, boolean debug)
 	{
-		this.colorOutput = colorOutput;
+		this.colorOutput = colorOutput && Settings.printColored();
 		
 		if (debug)
 			ANSI_RED = "\033[38;2;235;50;70m";

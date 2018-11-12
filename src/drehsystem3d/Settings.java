@@ -1,7 +1,6 @@
 package drehsystem3d;
 
 import java.io.IOException;
-
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -18,7 +17,6 @@ public class Settings
 	public static void setup(String[] args)
 	{
 		Settings.args = args;
-		System.out.println(System.getProperty("os.name"));
 		Settings.printColored = Global.isUnix;
 		printSeparatorLine();
 		printColored(String.format("# %-" + Settings.optionLength + "s:%-" + (Settings.totalLength - Settings.optionLength - 4) + "s#\n", "Settings status", ""));
@@ -26,9 +24,11 @@ public class Settings
 		printEmptyInfoLine();
 		
 		
-		printModeState("OS", Global.OS);
-		Global.DEBUG = getAndPrintModeState("DEBUG", "Debug mode");
-		Point.restrictPathLength(!getAndPrintModeState("FULL_PATH", "Show endless path"));
+		printState("Version", Global.VERSION);
+		printEmptyInfoLine();
+		printState("OS", Global.OS);
+		Global.DEBUG = getAndPrintState("DEBUG", "Debug mode");
+		Point.restrictPathLength(!getAndPrintState("FULL_PATH", "Show endless path"));
 		setLogLevel();
 		
 		printEmptyInfoLine();
@@ -103,7 +103,7 @@ public class Settings
 		else if (getModeState("LOG_ERROR")) level = Level.SEVERE;
 		else if (getModeState("LOG_WARNING")) level = Level.WARNING;
 		
-		printModeState("Log level", level.getName());
+		printState("Log level", level.getName());
 		return level;
 	}
 	
@@ -122,24 +122,24 @@ public class Settings
 		return false;
 	}
 	
-	private static boolean getAndPrintModeState(String identificator)
+	private static boolean getAndPrintState(String identificator)
 	{
-		return getAndPrintModeState(identificator, identificator);
+		return getAndPrintState(identificator, identificator);
 	}
 	
-	private static boolean getAndPrintModeState(String identificator, String messageSignature)
+	private static boolean getAndPrintState(String identificator, String messageSignature)
 	{
-		return getAndPrintModeState(new String[] { identificator }, messageSignature);
+		return getAndPrintState(new String[] { identificator }, messageSignature);
 	}
 	
-	private static boolean getAndPrintModeState(String[] identificators, String messageSignature)
+	private static boolean getAndPrintState(String[] identificators, String messageSignature)
 	{
 		boolean state = getModeState(identificators);
-		printModeState(messageSignature, (state ? "active" : "inactive"));
+		printState(messageSignature, (state ? "active" : "inactive"));
 		return state;
 	}
 	
-	private static void printModeState(String messageSignature, String state)
+	private static void printState(String messageSignature, String state)
 	{
 		String out = "# %-" + Settings.optionLength + "s:%3$-" + (spaces/2.0+0.5) + "s%-" + Settings.statusLength + "s%-" + (spaces/2) + "s#\n";
 		printColored(String.format(out, messageSignature, state, ""));

@@ -43,7 +43,7 @@ public class Point
 	boolean visibilityPath = false;
 	private boolean finishedPath = false;
 	private ArrayList<Point> childs = new ArrayList<>();
-	private ArrayList<PVector> path = new ArrayList<>();
+	private ArrayList<ArrayList<PVector>> paths = new ArrayList<>();
 	private int[] pathColor = { 255, 255, 255 };
 	private int pathEntryCount = 0;
 	private String logPrefix = "";
@@ -194,6 +194,7 @@ public class Point
 
 	public void setup()
 	{
+		this.paths.add(0, new ArrayList<>());
 		this.w = this.setW.copy();
 		this.alpha = this.setAlpha;
 		
@@ -213,7 +214,6 @@ public class Point
 	public void moveToStart()
 	{
 		this.reset = true;
-		this.pathEntryCount = 0;
 		setup();
 	}
 
@@ -222,8 +222,7 @@ public class Point
 		initPos(this.setPos);
 		this.newPosReceived = false;
 		moveToStart();
-		this.path = new ArrayList<>();
-		this.finishedPath = false;
+		clearPath();
 	}
 
 	public void setDrawSpeed(float speed)
@@ -258,8 +257,8 @@ public class Point
 
 	public void clearPath()
 	{
-		this.path = new ArrayList<>();
-		this.pathEntryCount = 0;
+		this.paths.clear();
+		this.paths.add(new ArrayList<>());
 		this.finishedPath = false;
 	}
 
@@ -269,11 +268,12 @@ public class Point
 		updatePath();
 	}
 
-	private void calcNewPos(float dTime, double ellapsedTime)
+	private void calcNewPos(float dTime, double elapsedTime)
 	{
 		this.lastAbsPos = this.absPos.copy();
 		this.lastV = this.v.copy();
-		float speedIncrease = this.alpha * this.drawSpeed;
+		float speedIncrease = (float) (this.alpha * elapsedTime);
+		this.w = this.setW.copy();
 		this.w.x += speedIncrease;
 		this.w.y += speedIncrease;
 		this.w.z += speedIncrease;
@@ -289,40 +289,50 @@ public class Point
 		PVector absPosParent = this.parent == null ? new PVector(0, 0, 0) : this.parent.absPos.copy();
 		
 		// Rotate relative position
-		this.pos = rotateV(this.w.copy(), this.pos.copy(), ellapsedTime, true);
+		this.pos = rotateV(this.w.copy(), this.pos.copy(), elapsedTime, true);
 		this.absPos = this.pos.copy().add(absPosParent);
+		rotateChildren(absPosParent, elapsedTime);
 		
+		calcVelocity(dTime);
+		
+		Global.logger.log(Level.FINEST, logPrefix + "Pos", new Object[] {this.pos.mag(), this.pos});
+		Global.logger.log(Level.FINEST, logPrefix + "Abs. Pos", new Object[] {this.absPos.mag(), this.absPos});
+		Global.logger.log(Level.FINEST, logPrefix + "Velocity", new Object[] {this.v.mag(), this.v});
+		Global.logger.log(Level.FINEST, logPrefix + "Acceleration", new Object[] {this.a.mag(), this.a});
+	}
+	
+	private void rotateChildren(PVector rotationPoint, double elapsedTime)
+	{
 		for (int i = 0; i < this.childs.size(); i++)
 		{
 			Point child = this.childs.get(i);
-			PVector pos = child.absPos.copy().sub(absPosParent);
-			child.absPos = rotateV(this.w.copy(), pos.copy(), ellapsedTime, false);
-			child.absPos.add(absPosParent);
+			PVector pos = child.absPos.copy().sub(rotationPoint);
+			child.absPos = rotateV(this.w.copy(), pos.copy(), elapsedTime, false);
+			child.absPos.add(rotationPoint);
 			child.pos = child.absPos.copy();
 			if (child.parent != null)
 			{
 				child.pos.sub(child.parent.absPos);
 			}			
 		}
-		
+	}
+	
+	private void calcVelocity(float dTime)
+	{
 		if (this.parent != null)
 		{
-			this.v = this.w.copy().cross(this.pos.copy());
+			//this.v = this.w.copy().cross(this.pos);
 			
-			Point lastParent = this.parent;
+			Point point = this;
+			Point parent = this.parent;
 			PVector p = this.absPos.copy();
-			for (;;)
+			
+			this.v = new PVector(0, 0, 0);
+			while (parent != null)
 			{
-				Point parent = lastParent.parent;
-				if (parent == null)
-				{
-					break;
-				}
-				else
-				{
-					this.v.add(lastParent.w.cross(p.copy().sub(parent.absPos)));
-					lastParent = parent;
-				}
+				this.v.add(point.w.copy().cross(p.copy().sub(parent.absPos)));
+				point = parent;
+				parent = point.parent;
 			}
 			if (!this.setup && !this.reset)
 			{
@@ -333,51 +343,44 @@ public class Point
 				this.a = new PVector(0, 0, 0);
 			}
 		}
-		Global.logger.log(Level.FINEST, logPrefix + "Pos", new Object[] {this.pos.mag(), this.pos});
-		Global.logger.log(Level.FINEST, logPrefix + "Abs. Pos", new Object[] {this.absPos.mag(), this.absPos});
-		Global.logger.log(Level.FINEST, logPrefix + "Acceleration", new Object[] {this.a.mag(), this.a});
 	}
 
 	private void updatePath()
 	{
-		if (this.visibilityPath && !this.reset)
-		{
-			boolean distanceCheck = false;
-			if (this.pathEntryCount < this.path.size())
+		if (!this.reset)
+		{	
+			final int minData = 100;
+			if ((getPath().size() > Point.maxPathLength && Point.restrictPathLength))
 			{
-				this.path.set(this.pathEntryCount, this.absPos.copy());
-				Global.logger.log(Level.FINER, "Override path entry");
+				getPath().remove(0);
 			}
-			else
+			
+			if (getPath().size() > 1)
 			{
-				this.path.add(this.absPos.copy());
-				final int minData = 100;
-				if ((this.path.size() > Point.maxPathLength && Point.restrictPathLength) || this.finishedPath)
+				Global.logger.log(Level.FINEST, "Abs. pos", this.absPos);
+				Global.logger.log(Level.FINEST, "First path entry", getPath().get(0));
+			}
+			if (!this.finishedPath)
+			{
+				if (this.pathEntryCount >= getPath().size())
 				{
-					this.path.remove(0);
-				}
-				if (this.path.size() > minData)
-				{
-					distanceCheck = true;
-					for (int i = 0; i < 6; i++)
+					getPath().add(this.absPos.copy());
+					
+					float diff = dist(this.absPos.x, this.absPos.y, this.absPos.z, getPath().get(0).x, getPath().get(0).y, getPath().get(0).z);
+					if (getPath().size() > minData && diff < 0.2f)
 					{
-						PVector p1 = this.path.get(this.path.size() - (minData / 2 - 1) - i);
-						PVector p2 = this.path.get(i);
-						float d = dist(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
-						if (d > 0.5f)
-						{
-							distanceCheck = false;
-							break;
-						}
+						this.finishedPath = true;
+						Global.logger.log(Level.FINE, "Finished path", diff);
 					}
 				}
-				if (distanceCheck)
-				{
-					this.finishedPath = true;
-				}
-			}
-			this.pathEntryCount++;
+				this.pathEntryCount++;
+			}			
 		}
+	}
+	
+	private ArrayList<PVector> getPath()
+	{
+		return this.paths.get(0);
 	}
 
 	public boolean mousePressedEvent(float mX, float mY)
@@ -387,9 +390,9 @@ public class Point
 		return false;
 	}
 
-	public ArrayList<PVector> getPath()
+	public ArrayList<ArrayList<PVector>> getPaths()
 	{
-		return this.path;
+		return this.paths;
 	}
 
 	public void draw()
@@ -650,5 +653,15 @@ public class Point
 	public PVector getPos()
 	{
 		return this.pos;
+	}
+	
+	public boolean finishedPath()
+	{
+		return this.finishedPath;
+	}
+	
+	public int getPathEntryCount()
+	{
+		return this.pathEntryCount;
 	}
 }

@@ -16,6 +16,7 @@ public class Toast extends View
 	static final int DURATION_LONG = 1;
 	static final int DURATION_INFINITE = 2;
 	private PVector mousePosDiff = new PVector(0, 0, 0);
+	private boolean destroy = false;
 	long startTime = 0;
 	long lastTime = 0;
 	int duration = 2000;
@@ -124,9 +125,18 @@ public class Toast extends View
 			float x, y;
 			if (!this.clicked)
 			{
-				update();
-				x = this.pos.x;
-				y = this.pos.y;
+				if (this.destroy) 
+				{
+					this.destroy = false;
+					this.visible = false;
+					return;
+				}
+				else
+				{
+					update();
+					x = this.pos.x;
+					y = this.pos.y;					
+				}
 			}
 			else
 			{
@@ -140,18 +150,16 @@ public class Toast extends View
 				else if (x - getWidth() < 0)
 				{
 					x -= getWidth() / 2;
+					destroy = true;
 				}
 				else if (x + 2 * getWidth() > this.context.width)
 				{
 					x += getWidth() / 2;
+					destroy = true;
 				}
-				else if (y - getWidth() < 0)
+				else
 				{
-					y -= getWidth() / 2;
-				}
-				else if (y + getHeight() + getWidth() > this.context.height)
-				{
-					y += getWidth() / 2;
+					destroy = false;
 				}
 			}
 

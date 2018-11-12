@@ -47,6 +47,7 @@ public class Drehsystem3d extends PApplet
 	boolean inputWindowOpened = false;
 
 	boolean removePoints = false;
+	boolean moveToStart = false;
 	boolean reset = false;
 	boolean stopped = false;
 	boolean clearPath = false;
@@ -180,7 +181,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(int id)
 			{
-				Drehsystem3d.this.reset = true;
+				Drehsystem3d.this.moveToStart = true;
 			}
 		});
 		this.uiHandler.addUiElement("bStart", bMoveToStart);
@@ -369,9 +370,17 @@ public class Drehsystem3d extends PApplet
 
 		background(0);
 
-		if (this.reset)
+		if (this.moveToStart)
 		{
-			reset();
+			moveToStartPosition();
+			resetTime();
+			this.moveToStart = false;
+		}
+		else if (this.reset)
+		{
+			resetPoints();
+			resetTime();
+			this.reset = false;
 		}
 
 		setButtonVisibility();
@@ -392,15 +401,13 @@ public class Drehsystem3d extends PApplet
 		// }
 	}
 
-	private void reset()
+	private void resetTime()
 	{
 		Global.logger.log(Level.FINE, "Global pos reset");
 		this.elapsedTime = 0;
 		this.startTime = 0;
 		this.lastTime = 0;
-		resetToStartPosition();
-		this.stopped = true;
-		this.reset = false;
+		this.stopped = true;		
 	}
 
 	private void setButtonVisibility()
@@ -436,7 +443,7 @@ public class Drehsystem3d extends PApplet
 		popMatrix();
 	}
 
-	private void resetToStartPosition()
+	private void moveToStartPosition()
 	{
 		for (Point p : this.points)
 		{
@@ -540,17 +547,24 @@ public class Drehsystem3d extends PApplet
 				int[] c = p.getPathColor();
 				strokeWeight(2);
 				stroke(c[0], c[1], c[2]);
-				ArrayList<PVector> path = p.getPath();
-				if (path != null && path.size() > 1)
+				ArrayList<ArrayList<PVector>> paths = p.getPaths();
+				for (int i = 0; i < paths.size(); i++)
 				{
-					noFill();
-					beginShape();
-					for (int i = 0; i < path.size(); i++)
+					ArrayList<PVector> path = paths.get(i);
+					if (path != null && path.size() > 1)
 					{
-						PVector pos = path.get(i).copy().mult(this.scaleD);
-						curveVertex(pos.x, pos.y, pos.z);
+						noFill();
+						beginShape();
+						for (int j = 0; j < path.size(); j++)
+						{
+							PVector pos = path.get(j).copy().mult(this.scaleD);
+							curveVertex(pos.x, pos.y, pos.z);
+						}
+						if (p.finishedPath() && (i == 0))
+							endShape(CLOSE);
+						else
+							endShape();
 					}
-					endShape();
 				}
 			}
 		}
@@ -582,7 +596,7 @@ public class Drehsystem3d extends PApplet
 			}
 
 			String speed = "" + (this.speed < 0 ? "(" + this.speed + ")" : this.speed);
-			String speedOutput = "Speed: *" + speed;
+			String speedOutput = "Speed: x" + speed;
 			text(speedOutput, this.width / 2 - textWidth(speedOutput) / 2, this.height - 20);
 		}
 		popMatrix();
@@ -943,7 +957,7 @@ public class Drehsystem3d extends PApplet
 			return false;
 		}
 		Drehsystem3d.this.reset = true;
-		resetPoints();
+		//resetPoints();
 		point.setPos(new PVector(x, y, z));
 		point.setW(new PVector(wx, wy, wz));
 		point.setAlpha(alpha);

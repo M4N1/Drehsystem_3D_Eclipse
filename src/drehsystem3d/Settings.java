@@ -16,24 +16,35 @@ public class Settings
 	
 	public static void setup(String[] args)
 	{
+		StringBuilder settings = new StringBuilder();
 		Settings.args = args;
-		Settings.printColored = Global.isUnix;
-		printSeparatorLine();
-		printColored(String.format("# %-" + Settings.optionLength + "s:%-" + (Settings.totalLength - Settings.optionLength - 4) + "s#\n", "Settings status", ""));
-		printSeparatorLine();
-		printEmptyInfoLine();
+		
+		Global.DEBUG = getModeState("DEBUG");
+		Point.restrictPathLength(!getModeState("FULL_PATH"));
+		
+//		Settings.printColored = !Global.DEBUG;
+		Settings.printColored = true;
+		
+		settings.append(getSeparatorLine());
+		settings.append(String.format("# %-" + Settings.optionLength + "s:%-" + (Settings.totalLength - Settings.optionLength - 4) + "s#\n", "Settings status", ""));
+		settings.append(getSeparatorLine());
+		settings.append(getEmptyInfoLine());		
+		
+		settings.append(getStateString("Version", Global.VERSION));
+		settings.append(getEmptyInfoLine());
+		settings.append(getStateString("OS", Global.OS));
+		
+		settings.append(getStateString("Debug mode", Global.DEBUG));
+		
+		settings.append(getStateString("Show endless path", !Point.pathRestricted()));
+		settings.append(setLogLevel());
+		
+		settings.append(getEmptyInfoLine());
+		settings.append(getSeparatorLine());
+		settings.append("\n");
 		
 		
-		printState("Version", Global.VERSION);
-		printEmptyInfoLine();
-		printState("OS", Global.OS);
-		Global.DEBUG = getAndPrintState("DEBUG", "Debug mode");
-		Point.restrictPathLength(!getAndPrintState("FULL_PATH", "Show endless path"));
-		setLogLevel();
-		
-		printEmptyInfoLine();
-		printSeparatorLine();
-		System.out.print("\n");
+		printColored(settings.toString());
 	}
 	
 	private static void printColored(String message)
@@ -44,23 +55,28 @@ public class Settings
 			System.out.print(message);
 	}
 	
-	private static void printSeparatorLine()
+	private static String getSeparatorLine()
 	{
+		StringBuilder line = new StringBuilder();
 		for (int i = 0; i < Settings.totalLength; i++)
 		{
-			printColored("#");
+			line.append('#');
 		}
-		System.out.print("\n");
+		line.append("\n");
+		return line.toString();
 	}
 	
-	private static void printEmptyInfoLine()
+	private static String getEmptyInfoLine()
 	{
-		printColored(String.format("#%-" + (Settings.totalLength - 2) + "s#\n", ""));
+		return String.format("#%-" + (Settings.totalLength - 2) + "s#\n", "");
 	}
 	
-	private static void setLogLevel()
+	private static String setLogLevel()
 	{
+		StringBuilder status = new StringBuilder();
+		
 		Level level = getLogLevel();
+		status.append(getStateString("Log level", level.getName()));
 		
 		Global.logger.setUseParentHandlers(false);
 		ConsoleHandler handler = new ConsoleHandler();
@@ -71,7 +87,9 @@ public class Settings
 		Global.logger.setLevel(level);
 		Global.logger.addHandler(handler);
 		
-		if (getModeState("STORE_LOG"))
+		boolean storeLog = getModeState("STORE_LOG");
+		status.append(getStateString("Save log", storeLog));
+		if (storeLog)
 		{
 			try
 			{
@@ -88,8 +106,8 @@ public class Settings
 			{
 				e.printStackTrace();
 			}
-			
 		}
+		return status.toString();
 	}
 	
 	private static Level getLogLevel()
@@ -103,7 +121,6 @@ public class Settings
 		else if (getModeState("LOG_ERROR")) level = Level.SEVERE;
 		else if (getModeState("LOG_WARNING")) level = Level.WARNING;
 		
-		printState("Log level", level.getName());
 		return level;
 	}
 	
@@ -122,27 +139,15 @@ public class Settings
 		return false;
 	}
 	
-	private static boolean getAndPrintState(String identificator)
+	private static String getStateString(String messageSignature, boolean state)
 	{
-		return getAndPrintState(identificator, identificator);
+		return getStateString(messageSignature, (state ? "active" : "inactive"));
 	}
 	
-	private static boolean getAndPrintState(String identificator, String messageSignature)
-	{
-		return getAndPrintState(new String[] { identificator }, messageSignature);
-	}
-	
-	private static boolean getAndPrintState(String[] identificators, String messageSignature)
-	{
-		boolean state = getModeState(identificators);
-		printState(messageSignature, (state ? "active" : "inactive"));
-		return state;
-	}
-	
-	private static void printState(String messageSignature, String state)
+	private static String getStateString(String messageSignature, String state)
 	{
 		String out = "# %-" + Settings.optionLength + "s:%3$-" + (spaces/2.0+0.5) + "s%-" + Settings.statusLength + "s%-" + (spaces/2) + "s#\n";
-		printColored(String.format(out, messageSignature, state, ""));
+		return String.format(out, messageSignature, state, "");
 	}
 	
 	private static boolean containsArgument(String[] arr, String arg)

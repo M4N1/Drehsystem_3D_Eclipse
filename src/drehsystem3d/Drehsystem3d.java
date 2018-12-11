@@ -138,8 +138,14 @@ public class Drehsystem3d extends PApplet
 
 	private void setupUI()
 	{
+		Menubar menuBar = new Menubar(this);
+		menuBar.addMenuItem("File", null);
+		menuBar.addMenuItem("About", null);
+		menuBar.addMenuItem("Help", null);
+		this.uiHandler.addUiElement("Menubar", menuBar);
+		
 		this.cLines = this.uiHandler.addCheckBox("cLines", "connections", true);
-		this.cLines.setPos(new PVector(uiMarginX, 140));
+		this.cLines.setPos(new PVector(uiMarginX, 180));
 		this.cVelocity = this.uiHandler.addCheckBox("cVelocity", "v", true);
 		this.cVelocity.alignBottom(this.cLines);
 		this.cAcceleration = this.uiHandler.addCheckBox("cAcceleration", "acc", false);
@@ -587,8 +593,8 @@ public class Drehsystem3d extends PApplet
 			fill(255);
 			stroke(255);
 
-			text("Scale:", uiMarginX, 40);
-			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 100, 40);
+			text("Scale:", uiMarginX, 80);
+			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 100, 80);
 
 			if (this.stopped)
 			{

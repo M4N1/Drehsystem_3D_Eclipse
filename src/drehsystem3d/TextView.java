@@ -213,6 +213,11 @@ class TextView extends View
 		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
 				&& mY <= this.pos.y + this.viewHeight);
 	}
+	
+	public void highlightOnHover(int[] color)
+	{
+		
+	}
 
 	@Override
 	public void draw()

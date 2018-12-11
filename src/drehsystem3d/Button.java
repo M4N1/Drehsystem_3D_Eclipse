@@ -200,13 +200,9 @@ public class Button extends TextView
 				return new PVector(xMax, y);
 			}
 			xOff = x - (xMax - this.cornerRadius);
-			// Logger.log("xOff:"+xOff);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
-			// Logger.log("f:"+f);
 			yMin = this.pos.y + f;
 			yMax = this.pos.y + this.viewHeight - f;
-			// Logger.log("yMin:"+yMin);
-			// Logger.log("yMax:"+yMax);
 			if (y < yMin)
 			{
 				return new PVector(x, yMin);
@@ -265,24 +261,17 @@ public class Button extends TextView
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		if (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + this.viewHeight)
+		super.onMousePressed(mouseButton);
+		if (this.clicked)
 		{
-			this.clicked = true;
 			this.clickAnimationVisible = true;
-			this.clickAnimationPos = new PVector(mX, mY, 0);
+			this.clickAnimationPos = new PVector(this.context.mouseX, this.context.mouseY, 0);
 			this.clickAnimationStartTime = this.context.millis();
 			this.clickAnimationLastTime = this.context.millis();
 			if (this.onClickListener != null)
 			{
 				this.onClickListener.onClick(this.id);
 			}
-		}
-		else
-		{
-			this.clicked = false;
 		}
 		return this.clicked;
 	}

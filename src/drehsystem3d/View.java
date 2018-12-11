@@ -31,9 +31,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	}
 	
 	protected int id = -1;
+	protected String name;
 	protected OnClickListener onClickListener;
 	protected OnHoverListener onHoverListener;
 	protected Runnable onHoverAction;
+	protected Runnable onHoverEndAction;
 	protected PVector pos;
 	protected boolean clicked = false;
 	protected boolean visible = true;
@@ -118,8 +120,6 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 			return y;
 		}
 	}
-	
-	
 	
 	protected class Neighbor
 	{
@@ -219,6 +219,12 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public void setHeight(int h)
 	{
+		this.viewHeight = h;
+	}
+	
+	public void setDimensions(int w, int h)
+	{
+		this.viewWidth = w;
 		this.viewHeight = h;
 	}
 
@@ -390,6 +396,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		this.onHoverAction = action;
 	}
+	
+	public void setOnHoverEndAction(Runnable action)
+	{
+		this.onHoverEndAction = action;
+	}
 
 	public abstract boolean isClicked();
 
@@ -445,6 +456,16 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		return this.viewHeight;
 	}
 	
+	public int getMarginX()
+	{
+		return this.margin.getSpacingX();
+	}
+	
+	public int getMarginY()
+	{
+		return this.margin.getSpacingY();
+	}
+	
 	@Override
 	public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew) {
 		this.pos.x = this.pos.x * widthNew / widthOld;
@@ -455,6 +476,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		calcPosX();
 		calcPosY();
+		boolean previouslyHovered = this.hovered;
 		this.hovered = isHovered();
 		if (this.hovered)
 		{
@@ -466,6 +488,10 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 			{
 				this.onHoverAction.run();
 			}
+		}
+		else if (previouslyHovered && this.onHoverEndAction != null)
+		{
+			this.onHoverEndAction.run();
 		}
 	}
 }

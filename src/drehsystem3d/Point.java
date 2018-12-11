@@ -114,7 +114,7 @@ public class Point
 		Point.maxPathLength = amount;
 	}
 	
-	public static boolean IspathRestricted()
+	public static boolean pathRestricted()
 	{
 		return Point.restrictPathLength;
 	}
@@ -464,7 +464,7 @@ public class Point
 			
 			// Draw normal vector from w
 			PVector scaledPnStart = start.copy().add(offset).mult(this.scaleD);
-			PVector scaledPnEnd = start.copy().add(pn).mult(this.scaleD);
+			PVector scaledPnEnd = start.copy().add(offset).add(pn).mult(this.scaleD);
 			this.context.line(scaledPnStart.x, scaledPnStart.y, scaledPnStart.z,
 					scaledPnEnd.x, scaledPnEnd.y,
 					scaledPnEnd.z);

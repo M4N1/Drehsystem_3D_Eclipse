@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 public class Global
 {
-	public static final String VERSION = "0.0.2";
+	public static final String VERSION = "0.0.3";
 	public static final String OS = System.getProperty("os.name");
 	private static final String os = OS.toLowerCase();
 	public static final boolean isUnix = os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0;

@@ -3,6 +3,7 @@ package drehsystem3d;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import drehsystem3d.Listener.UserInputListener;
 import drehsystem3d.Listener.WindowResizeListener;
@@ -74,7 +75,14 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 		boolean uiElementClicked = false;
 		for (Map.Entry<String, View> entry : this.uiContents.entrySet())
 		{
-			uiElementClicked = uiElementClicked || entry.getValue().onMousePressed(mouseButton);
+			View element = entry.getValue();
+			boolean elementClicked = element.onMousePressed(mouseButton);
+			if (elementClicked)
+			{
+				Global.logger.log(Level.FINE, "View item clicked", new Object[] {entry.getKey(), element.id, element.getClass().getName()});
+			}
+			
+			uiElementClicked = uiElementClicked || elementClicked;
 		}
 		return uiElementClicked;
 	}

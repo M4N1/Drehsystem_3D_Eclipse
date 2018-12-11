@@ -25,57 +25,57 @@ public class Button extends TextView
 	long clickAnimationLastTime = 0;
 	int clickAnimationSize = 0;
 
-	Button(PApplet context)
+	Button(PApplet context, String name)
 	{
-		super(context);
+		super(context, name);
 		init();
 	}
 	
-	Button(PApplet context, float x, float y)
+	Button(PApplet context, String name, float x, float y)
 	{
-		super(context, x, y);
+		super(context, name, x, y);
 		init();
 	}
 
-	Button(PApplet context, float x, float y, int width, int height)
+	Button(PApplet context, String name, float x, float y, int width, int height)
 	{
-		super(context, x, y, width, height);
+		super(context, name, x, y, width, height);
 		init();
 	}
 
-	Button(PApplet context, PVector pos)
+	Button(PApplet context, String name, PVector pos)
 	{
-		super(context, pos);
+		super(context, name, pos);
 		init();
 	}
 
-	Button(PApplet context, PVector pos, int width, int height)
+	Button(PApplet context, String name, PVector pos, int width, int height)
 	{
-		super(context, pos, width, height);
+		super(context, name, pos, width, height);
 		init();
 	}
 
-	Button(PApplet context, float x, float y, String text)
+	Button(PApplet context, String name, float x, float y, String text)
 	{
-		super(context, x, y, text);
+		super(context, name, x, y, text);
 		init();
 	}
 
-	Button(PApplet context, float x, float y, int width, int height, String text)
+	Button(PApplet context, String name, float x, float y, int width, int height, String text)
 	{
-		super(context, x, y, width, height, text);
+		super(context, name, x, y, width, height, text);
 		init();
 	}
 
-	Button(PApplet context, PVector pos, String text)
+	Button(PApplet context, String name, PVector pos, String text)
 	{
-		super(context, pos, text);
+		super(context, name, pos, text);
 		init();
 	}
 
-	Button(PApplet context, PVector pos, int width, int height, String text)
+	Button(PApplet context, String name, PVector pos, int width, int height, String text)
 	{
-		super(context, pos, width, height, text);
+		super(context, name, pos, width, height, text);
 		init();
 	}
 

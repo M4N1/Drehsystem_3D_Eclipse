@@ -11,29 +11,29 @@ public class Checkbox extends View
 	private boolean checked = false;
 	String text = "";
 
-	Checkbox(PApplet context, String text, ArrayList<Checkbox> group)
+	Checkbox(PApplet context, String name, String text, ArrayList<Checkbox> group)
 	{
-		this(context, 0, 0, 0, text, group);
+		this(context, name, 0, 0, 0, text, group);
 	}
 	
-	Checkbox(PApplet context, int posX, int posY, int size)
+	Checkbox(PApplet context, String name, int posX, int posY, int size)
 	{
-		this(context, posX, posY, size, "", null);
+		this(context, name, posX, posY, size, "", null);
 	}
 
-	Checkbox(PApplet context, int posX, int posY, int size, String text)
+	Checkbox(PApplet context, String name, int posX, int posY, int size, String text)
 	{
-		this(context, posX, posY, size, text, null);
+		this(context, name, posX, posY, size, text, null);
 	}
 
-	Checkbox(PApplet context, int posX, int posY, int size, ArrayList<Checkbox> group)
+	Checkbox(PApplet context, String name, int posX, int posY, int size, ArrayList<Checkbox> group)
 	{
-		this(context, posX, posY, size, "", group);
+		this(context, name, posX, posY, size, "", group);
 	}
 
-	Checkbox(PApplet context, int posX, int posY, int size, String text, ArrayList<Checkbox> group)
+	Checkbox(PApplet context, String name, int posX, int posY, int size, String text, ArrayList<Checkbox> group)
 	{
-		super(context, posX, posY, size, size);
+		super(context, name, posX, posY, size, size);
 		this.text = text;
 		if (group != null)
 		{

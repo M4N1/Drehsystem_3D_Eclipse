@@ -22,8 +22,7 @@ public class Settings
 		Global.DEBUG = getModeState("DEBUG");
 		Point.restrictPathLength(!getModeState("FULL_PATH"));
 		
-//		Settings.printColored = !Global.DEBUG;
-		Settings.printColored = true;
+		Settings.printColored = Global.isUnix || Global.DEBUG;
 		
 		settings.append(getSeparatorLine());
 		settings.append(String.format("# %-" + Settings.optionLength + "s:%-" + (Settings.totalLength - Settings.optionLength - 4) + "s#\n", "Settings status", ""));

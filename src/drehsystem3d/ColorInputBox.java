@@ -2,7 +2,7 @@ package drehsystem3d;
 
 public class ColorInputBox extends InputBox {
 	
-	TextView colorView;
+	private TextView colorView;
 	
 	public ColorInputBox(String title, String[] standardValues) {
 		this(title, standardValues, true);
@@ -14,7 +14,7 @@ public class ColorInputBox extends InputBox {
 		
 		int colorViewWidth = 30;
 		increaseStartX(colorViewWidth + this.padding);
-		colorView = new TextView(this, this.padding, this.padding, colorViewWidth, this.height);
+		this.colorView = new TextView(this, title + "_tv_" + (itemCount++), this.padding, this.padding, colorViewWidth, this.height);
 		int[] initialColor = new int[3];
 		if (stdValue)
 		{

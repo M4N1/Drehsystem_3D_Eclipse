@@ -141,7 +141,7 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 
 	public Checkbox addCheckBox(String name, String desc, boolean checked, ArrayList<Checkbox> group)
 	{
-		Checkbox c = new Checkbox(this.context, desc, group);
+		Checkbox c = new Checkbox(this.context, name, desc, group);
 		c.setChecked(checked);
 		c.setSize(20, 20);
 		c.setMargin(5);

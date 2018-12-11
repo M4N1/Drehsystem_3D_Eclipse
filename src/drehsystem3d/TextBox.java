@@ -31,25 +31,25 @@ class TextBox extends TextView
 	int cursorTimer = 0;
 	boolean cursorVisible = false;
 
-	TextBox(PApplet context, int posX, int posY)
+	TextBox(PApplet context, String name, int posX, int posY)
 	{
-		super(context, posX, posY);
+		super(context, name, posX, posY);
 	}
 
-	TextBox(PApplet context, int posX, int posY, int w, int h)
+	TextBox(PApplet context, String name, int posX, int posY, int w, int h)
 	{
-		super(context, posX, posY, w, h);
+		super(context, name, posX, posY, w, h);
 		calcWidth();
 	}
 
-	TextBox(PApplet context, PVector pos)
+	TextBox(PApplet context, String name, PVector pos)
 	{
-		super(context, pos);
+		super(context, name, pos);
 	}
 
-	TextBox(PApplet context, PVector pos, int w, int h)
+	TextBox(PApplet context, String name, PVector pos, int w, int h)
 	{
-		super(context, pos, w, h);
+		super(context, name, pos, w, h);
 		calcWidth();
 	}
 

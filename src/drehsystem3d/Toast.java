@@ -24,9 +24,9 @@ public class Toast extends View
 	String text = "";
 	int state = Toast.STATE_ENTER;
 
-	Toast(Drehsystem3d drehsystem3d, PApplet context, String text, int duration)
+	Toast(PApplet context, String name, String text, int duration)
 	{
-		super(context, context.width / 2 - standardWidth / 2, context.height);
+		super(context, name, context.width / 2 - standardWidth / 2, context.height);
 		this.context = context;
 		this.text = text;
 		switch (duration)

@@ -13,35 +13,36 @@ import processing.core.PApplet;
 public class InputBox extends PApplet implements TextBoxListener, OnClickListener, OnAnimationFinishedListener
 {
 	
-	ArrayList<TextView> textviews = new ArrayList<>();
-	ArrayList<TextBox> textboxes = new ArrayList<>();
-	ArrayList<View> contents = new ArrayList<>();
-	Button bSubmit;
-	String[] values;
-	String[] standardValues;
-	String[] hintValues;
-	float[] limitsMax;
-	float[] limitsMin;
-	boolean visible = true;
-	boolean exit = false;
-	String title = "";
-	int windowWidth;
-	int windowHeight;
-	int xStart = 0;
-	int yStart = 0;
-	int xMax = 0;
-	int yMax = 0;
-	int padding = 10;
-	int tvWidth = 100;
-	int tvHeight = 50;
-	int tbWidth = 150;
-	int tbHeight = 50;
-	int tvWidthMax = 0;
-	int tbWidthMax = 0;
-	int counter = 1;
-	int minInputBoxWidth = 200;
-	int inputType = InputTypes.FLOAT;
-	InputBoxListener mListener;
+	protected int itemCount = 0;
+	protected ArrayList<TextView> textviews = new ArrayList<>();
+	protected ArrayList<TextBox> textboxes = new ArrayList<>();
+	protected ArrayList<View> contents = new ArrayList<>();
+	protected Button bSubmit;
+	protected String[] values;
+	protected String[] standardValues;
+	protected String[] hintValues;
+	protected float[] limitsMax;
+	protected float[] limitsMin;
+	protected boolean visible = true;
+	protected boolean exit = false;
+	protected String title = "";
+	protected int windowWidth;
+	protected int windowHeight;
+	protected int xStart = 0;
+	protected int yStart = 0;
+	protected int xMax = 0;
+	protected int yMax = 0;
+	protected int padding = 10;
+	protected int tvWidth = 100;
+	protected int tvHeight = 50;
+	protected int tbWidth = 150;
+	protected int tbHeight = 50;
+	protected int tvWidthMax = 0;
+	protected int tbWidthMax = 0;
+	protected int counter = 1;
+	protected int minInputBoxWidth = 200;
+	protected int inputType = InputTypes.FLOAT;
+	protected InputBoxListener mListener;
 
 	InputBox(String title, String[] values)
 	{
@@ -107,7 +108,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			tb.setWidth(this.tbWidthMax);
 		}
-		this.bSubmit = new Button(this, this.xStart, this.yStart, 100, 50, "Submit");
+		this.bSubmit = new Button(this, title + "_b_submit", this.xStart, this.yStart, 100, 50, "Submit");
 		this.bSubmit.setBackgroundColor(255);
 		this.bSubmit.setCornerRadius(5);
 		this.bSubmit.setTextColor(0);
@@ -191,7 +192,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 
 	private void addTextView(String text)
 	{
-		TextView tv = new TextView(this, this.xStart, this.yStart, this.tvWidth, this.tvHeight);
+		TextView tv = new TextView(this, title + "_tv_" + (itemCount++), this.xStart, this.yStart, this.tvWidth, this.tvHeight);
 		tv.setMarginY(5);
 		tv.setPadding(0);
 		tv.setText(text);
@@ -211,7 +212,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 
 	private void addTextBox()
 	{
-		final TextBox tb = new TextBox(this, this.xStart + this.tvWidth, this.yStart, this.tbWidth, this.tbHeight);
+		final TextBox tb = new TextBox(this, title + "_tv_" + (itemCount++), this.xStart + this.tvWidth, this.yStart, this.tbWidth, this.tbHeight);
 		tb.setMarginY(5);
 		tb.setPadding(5);
 		tb.setTextSize(30);

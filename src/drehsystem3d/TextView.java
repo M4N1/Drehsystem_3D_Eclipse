@@ -12,6 +12,7 @@ class TextView extends View
 		CENTER
 	}
 
+	public static int instanceCounter = 0;
 	String text = "";
 	protected final Spacing padding = new Spacing();
 	int textSize = 20;
@@ -21,53 +22,62 @@ class TextView extends View
 	int cornerRadius = 0;
 	TextAlignment textAlignment = TextAlignment.LEFT;
 
-	TextView(PApplet context)
+	TextView(PApplet context, String name)
 	{
-		super(context);
+		super(context, name);
+		TextView.instanceCounter++;
 	}
 	
-	TextView(PApplet context, float x, float y)
+	TextView(PApplet context, String name, float x, float y)
 	{
-		super(context, x, y);
+		super(context, name, x, y);
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, float x, float y, int w, int h)
+	TextView(PApplet context, String name, float x, float y, int w, int h)
 	{
-		super(context, x, y, w, h);
+		super(context, name, x, y, w, h);
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, PVector pos)
+	TextView(PApplet context, String name, PVector pos)
 	{
-		super(context, pos);
+		super(context, name, pos);
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, PVector pos, int w, int h)
+	TextView(PApplet context, String name, PVector pos, int w, int h)
 	{
-		super(context, pos, w, h);
+		super(context, name, pos, w, h);
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, float x, float y, String text)
+	TextView(PApplet context, String name, float x, float y, String text)
 	{
-		super(context, x, y);
+		super(context, name, x, y);
 		this.text = text;
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, float x, float y, int w, int h, String text)
+	TextView(PApplet context, String name, float x, float y, int w, int h, String text)
 	{
-		super(context, x, y, w, h);
+		super(context, name, x, y, w, h);
 		this.text = text;
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, PVector pos, String text)
+	TextView(PApplet context, String name, PVector pos, String text)
 	{
-		super(context, pos);
+		super(context, name, pos);
 		this.text = text;
+		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, PVector pos, int w, int h, String text)
+	TextView(PApplet context, String name, PVector pos, int w, int h, String text)
 	{
-		super(context, pos, w, h);
+		super(context, name, pos, w, h);
 		this.text = text;
+		TextView.instanceCounter++;
 	}
 
 	@Override

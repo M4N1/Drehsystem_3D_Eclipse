@@ -10,7 +10,7 @@ import processing.core.PVector;
 
 public class MenuItem extends View
 {
-	
+	public static int instanceCount = 0;
 	static final int standardWidth = 120;
 	static final int standardHeight = 200;
 	static final int standardOffset = 15;
@@ -25,14 +25,14 @@ public class MenuItem extends View
 	String title = "";
 	boolean visible = true;
 
-	MenuItem(PApplet context, float x, float y, String title, String[] values)
+	MenuItem(PApplet context, String name, float x, float y, String title, String[] values)
 	{
-		this(context, x + standardOffset, y + standardOffset, standardWidth, standardHeight, title, values);
+		this(context, name, x + standardOffset, y + standardOffset, standardWidth, standardHeight, title, values);
 	}
 
-	MenuItem(PApplet context, float x, float y, int w, int h, String title, String[] values)
+	MenuItem(PApplet context, String name, float x, float y, int w, int h, String title, String[] values)
 	{
-		super(context, x + standardOffset, y + standardOffset, w, h);
+		super(context, name, x + standardOffset, y + standardOffset, w, h);
 		init(title, values);
 	}
 
@@ -60,7 +60,7 @@ public class MenuItem extends View
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
 		{
-			final TextView tv = new TextView(this.context, this.startPosX, this.startPosY, this.tvWidth, this.tvHeight);
+			final TextView tv = new TextView(this.context, this.name + "_tv_" + i, this.startPosX, this.startPosY, this.tvWidth, this.tvHeight);
 			tv.setText(this.values[i]);
 			tv.setTextAlignment(TextView.TextAlignment.CENTER);
 			tv.setTextSize(15);

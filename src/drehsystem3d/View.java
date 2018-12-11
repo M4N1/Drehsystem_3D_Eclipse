@@ -1,6 +1,8 @@
 package drehsystem3d;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import drehsystem3d.Listener.KeyListener;
@@ -30,6 +32,8 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		BOTTOM
 	}
 	
+	private static List<View> viewInstances = new ArrayList<View>();
+	public static int instanceCounter = 0;
 	protected int id = -1;
 	protected String name;
 	protected OnClickListener onClickListener;
@@ -49,38 +53,113 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	protected PApplet context = null;
 	protected Neighbor neighbor = new Neighbor();
 
-	View(PApplet context)
+	View(PApplet context, String name)
 	{
 		this.context = context;
+		this.name = name;
 		this.pos = new PVector(0, 0, 0);
+		
+		View.registerInstance(this);
 	}
 	
-	View(PApplet context, float x, float y)
+	View(PApplet context, String name, float x, float y)
 	{
 		this.context = context;
+		this.name = name;
 		this.pos = new PVector(x, y, 0);
+		
+		View.registerInstance(this);
 	}
 
-	View(PApplet context, float x, float y, int w, int h)
+	View(PApplet context, String name, float x, float y, int w, int h)
 	{
 		this.context = context;
+		this.name = name;
 		this.pos = new PVector(x, y, 0);
 		this.viewWidth = w;
 		this.viewHeight = h;
+		
+		View.registerInstance(this);
 	}
 
-	View(PApplet context, PVector pos)
+	View(PApplet context, String name, PVector pos)
 	{
 		this.context = context;
+		this.name = name;
 		this.pos = new PVector(pos.x, pos.y, pos.z);
+		
+		View.registerInstance(this);
 	}
 
-	View(PApplet context, PVector pos, int w, int h)
+	View(PApplet context, String name, PVector pos, int w, int h)
 	{
 		this.context = context;
+		this.name = name;
 		this.pos = new PVector(pos.x, pos.y, pos.z);
 		this.viewWidth = w;
 		this.viewHeight = h;
+		
+		View.registerInstance(this);
+	}
+	
+	private static void registerInstance(View newInstance)
+	{
+//		if (nameExists(newInstance.name))
+//		{
+//			int counter = 0;
+//			String name;
+//			do
+//			{
+//				name = newInstance.name + "_" + (++counter);
+//			} while (nameExists(name));
+//			newInstance.name = name;
+//		}
+		View.viewInstances.add(newInstance);
+	}
+	
+	private static boolean nameExists(String name)
+	{
+		for (View v : View.viewInstances)
+		{
+			if (v.name.equals(name)) return true;
+		}
+		return false;
+	}
+	
+	public static boolean unregisterInstance(String name)
+	{
+		for (View v : View.viewInstances)
+		{
+			if (v.name.equals(name)) 
+			{
+				View.viewInstances.remove(v);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean unregisterInstance(View instanceToRemove)
+	{
+		return View.viewInstances.remove(instanceToRemove);
+	}
+	
+	public static View getViewByName(String name)
+	{
+		for (View v : viewInstances)
+		{
+			if (v.name.equals(name)) return v;
+		}
+		return null;
+	}
+	
+	public static View getViewById(int id)
+	{
+		for (View v : viewInstances)
+		{
+			if (v.id == id) return v;
+		}
+		return null;
 	}
 	
 	protected class Spacing

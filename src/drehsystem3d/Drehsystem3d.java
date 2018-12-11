@@ -138,7 +138,7 @@ public class Drehsystem3d extends PApplet
 
 	private void setupUI()
 	{
-		Menubar menuBar = new Menubar(this);
+		Menubar menuBar = new Menubar(this, "MainMenuBar");
 		menuBar.addMenuItem("File", null);
 		menuBar.addMenuItem("About", null);
 		menuBar.addMenuItem("Help", null);
@@ -157,7 +157,7 @@ public class Drehsystem3d extends PApplet
 
 		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
 
-		bRemovePoints = new Button(this, uiMarginX, this.bStartY, 120, 50, "Remove All");
+		bRemovePoints = new Button(this, "bReset", uiMarginX, this.bStartY, 120, 50, "Remove All");
 		bRemovePoints.setMargin(10);
 		bRemovePoints.setBackgroundColor(0);
 		bRemovePoints.setTextColor(255);
@@ -173,7 +173,7 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement("bReset", bRemovePoints);
 
-		bMoveToStart = new Button(this);
+		bMoveToStart = new Button(this, "bStart");
 		bMoveToStart.alignBottom(bRemovePoints);
 		bMoveToStart.setSize(120, 50);
 		bMoveToStart.setText("Start Pos");
@@ -192,7 +192,7 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement("bStart", bMoveToStart);
 
-		bClearPath = new Button(this);
+		bClearPath = new Button(this, "bClearPath");
 		bClearPath.alignBottom(bMoveToStart);
 		bClearPath.setSize(120, 50);
 		bClearPath.setText("Clear Path");
@@ -211,7 +211,7 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement("bClearPath", bClearPath);
 
-		bAlignCamera = new Button(this);
+		bAlignCamera = new Button(this, "bAlign");
 		bAlignCamera.alignBottom(bClearPath);
 		bAlignCamera.setSize(120, 50);
 		bAlignCamera.setText("Align");
@@ -231,7 +231,7 @@ public class Drehsystem3d extends PApplet
 		bAlignCamera.setId(1);
 		this.uiHandler.addUiElement("bAlign", bAlignCamera);
 
-		Toast toast = new Toast(this, this, "Welcome!", Toast.DURATION_LONG);
+		Toast toast = new Toast(this, "WelcomeToast", "Welcome!", Toast.DURATION_LONG);
 		this.uiHandler.addUiElement("WelcomeToast", toast);
 
 		/*
@@ -259,7 +259,7 @@ public class Drehsystem3d extends PApplet
 
 	private TextView getDummy(String text)
 	{
-		TextView textView = new TextView(this, width / 2, 10);
+		TextView textView = new TextView(this, "Dummy", width / 2, 10);
 		textView.setBackgroundColor(255);
 		textView.setTextColor(0);
 		textView.setText(text);
@@ -734,7 +734,8 @@ public class Drehsystem3d extends PApplet
 
 		PVector screenPos = getScreenPos(point);
 
-		this.menuItem = new MenuItem(this, screenPos.x, screenPos.y, "Title", values);
+		View.unregisterInstance("PointMenu");
+		this.menuItem = new MenuItem(this, "PointMenu", screenPos.x, screenPos.y, "Title", values);
 		this.menuItem.setOnItemClickListener(new PointMenuItemClickListener(point, possibleValues));
 	}
 

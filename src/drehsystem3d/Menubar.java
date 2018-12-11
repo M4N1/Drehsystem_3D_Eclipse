@@ -16,16 +16,16 @@ public class Menubar extends View
 	private int[] menuColor = new int[] {255, 255, 255};
 	private int[] itemHoveredColor = new int[] {200, 200, 200};
 
-	Menubar(PApplet context)
+	Menubar(PApplet context, String name)
 	{
-		super(context);
+		super(context, name);
 		this.setWidth(this.context.displayWidth);
 		this.backgroundColor = menuColor;
 	}
 	
 	public void addMenuItem(String title, Action clickEvent)
 	{
-		Button b = new Button(this.context);
+		Button b = new Button(this.context, this.name + "_b_" + this.menuItems.size());
 		b.setText(title);
 		b.setCornerRadius(0);
 		b.setPaddingX(15);

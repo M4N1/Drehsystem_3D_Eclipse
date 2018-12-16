@@ -18,7 +18,7 @@ class TextView extends View
 	int textSize = 20;
 	int strokeColor = 255;
 	int strokeWeight = 1;
-	int textColor = 255;
+	Color textColor = new Color(255);
 	int cornerRadius = 0;
 	TextAlignment textAlignment = TextAlignment.LEFT;
 
@@ -107,8 +107,13 @@ class TextView extends View
 		calcWidth();
 		calcHeight();
 	}
-
-	public void setTextColor(int textColor)
+	
+	public void setTextColor(int color)
+	{
+		this.textColor = new Color(color);
+	}
+	
+	public void setTextColor(Color textColor)
 	{
 		this.textColor = textColor;
 	}
@@ -246,7 +251,8 @@ class TextView extends View
 			}
 			this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
-			this.context.fill(this.textColor);
+			
+			this.context.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
 			this.context.textSize(this.textSize);
 			calcWidth();
 			calcHeight();

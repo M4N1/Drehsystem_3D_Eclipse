@@ -37,7 +37,7 @@ public class Drehsystem3d extends PApplet
 	PGraphics xySurface, yzSurface, xzSurface;
 	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
 
-	private final int menuBarLeft_Width = 230;
+	private final int menuBarLeft_Width = 240;
 	int bStartY;
 	int uiMarginX;
 	float scale = 0.2f;
@@ -59,6 +59,8 @@ public class Drehsystem3d extends PApplet
 	boolean rotation = false;
 	boolean zooming = false;
 	boolean translation = false;
+	
+	Color menuBackground = new Color(42, 121, 249);
 
 	CameraController cameraController;
 	ArrayList<UserInputListener> userInputListeners;
@@ -110,7 +112,7 @@ public class Drehsystem3d extends PApplet
 		this.userInputListeners.add(this.inputHandler);
 		this.userInputListeners.add(this.uiHandler);
 
-		background(0);
+		background(this.menuBackground.r, this.menuBackground.g, this.menuBackground.b, this.menuBackground.a);
 
 		this.xySurface = createGraphics(100, 100, P2D);
 		this.xySurface.beginDraw();
@@ -178,9 +180,12 @@ public class Drehsystem3d extends PApplet
 
 		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
 
-		bRemovePoints = new Button(this, "bReset", uiMarginX, this.bStartY, 120, 50, "Remove All");
+		bRemovePoints = setupButton("bReset");
+		bRemovePoints.setPos(new PVector(uiMarginX, this.bStartY, 0));
+		bRemovePoints.setDimensions(120, 50);
+		bRemovePoints.setText("Remove All");
 		bRemovePoints.setMargin(10);
-		bRemovePoints.setBackgroundColor(0);
+		bRemovePoints.setBackgroundColor(this.menuBackground);
 		bRemovePoints.setTextColor(255);
 		bRemovePoints.setCornerRadius(15);
 		bRemovePoints.setStrokeWeight(2);
@@ -194,12 +199,12 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement(bRemovePoints);
 
-		bMoveToStart = new Button(this, "bStart");
+		bMoveToStart = setupButton("bStart");
 		bMoveToStart.alignBottom(bRemovePoints);
 		bMoveToStart.setSize(120, 50);
 		bMoveToStart.setText("Start Pos");
 		bMoveToStart.setMargin(10);
-		bMoveToStart.setBackgroundColor(0);
+		bMoveToStart.setBackgroundColor(this.menuBackground);
 		bMoveToStart.setTextColor(255);
 		bMoveToStart.setCornerRadius(15);
 		bMoveToStart.setStrokeWeight(2);
@@ -213,12 +218,12 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement(bMoveToStart);
 
-		bClearPath = new Button(this, "bClearPath");
+		bClearPath = setupButton("bClearPath");
 		bClearPath.alignBottom(bMoveToStart);
 		bClearPath.setSize(120, 50);
 		bClearPath.setText("Clear Path");
 		bClearPath.setMargin(10);
-		bClearPath.setBackgroundColor(0);
+		bClearPath.setBackgroundColor(this.menuBackground);
 		bClearPath.setTextColor(255);
 		bClearPath.setCornerRadius(15);
 		bClearPath.setStrokeWeight(2);
@@ -232,12 +237,12 @@ public class Drehsystem3d extends PApplet
 		});
 		this.uiHandler.addUiElement(bClearPath);
 
-		bAlignCamera = new Button(this, "bAlign");
+		bAlignCamera = setupButton("bAlign");
 		bAlignCamera.alignBottom(bClearPath);
 		bAlignCamera.setSize(120, 50);
 		bAlignCamera.setText("Align");
 		bAlignCamera.setMargin(10);
-		bAlignCamera.setBackgroundColor(0);
+		bAlignCamera.setBackgroundColor(this.menuBackground);
 		bAlignCamera.setTextColor(255);
 		bAlignCamera.setCornerRadius(15);
 		bAlignCamera.setStrokeWeight(2);
@@ -278,6 +283,30 @@ public class Drehsystem3d extends PApplet
 		 * view = getDummy("Bottom"); view.alignBottom(testView);
 		 * view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);
 		 */
+	}
+	
+	private Button setupButton(String title)
+	{
+		Button b = new Button(this, title);
+		b.setOnHoverAction(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				b.setBackgroundColor(new Color(255));
+				b.setTextColor(Drehsystem3d.this.menuBackground);
+			}
+		});
+		b.setOnHoverEndAction(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				b.setBackgroundColor(Drehsystem3d.this.menuBackground);
+				b.setTextColor(255);
+			}
+		});
+		return b;
 	}
 
 	private TextView getDummy(String text)
@@ -397,7 +426,7 @@ public class Drehsystem3d extends PApplet
 
 		this.cameraController.calcCameraAdjustment();
 
-		background(0);
+		background(this.menuBackground.r, this.menuBackground.g, this.menuBackground.b, this.menuBackground.a);
 
 		if (this.moveToStart)
 		{
@@ -423,10 +452,7 @@ public class Drehsystem3d extends PApplet
 		popMatrix();
 		
 		hint(DISABLE_DEPTH_TEST);
-		stroke(255);
-		line(this.menuBarLeft_Width, 0, this.menuBarLeft_Width, this.height);
 
-		
 		drawTextElements();
 		drawMenuItem();
 		

@@ -277,7 +277,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	
 	public void setBackgroundColor(Color color)
 	{
-		this.backgroundColor = color;
+		this.backgroundColor = color.clone();
 	}
 
 	public void setBackgroundgAlpha(int alpha)

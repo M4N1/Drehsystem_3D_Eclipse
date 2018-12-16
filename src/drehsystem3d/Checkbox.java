@@ -92,20 +92,22 @@ public class Checkbox extends View
 	@Override
 	public boolean isClicked()
 	{
-		return false;
+		return (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.viewWidth
+				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.viewHeight);
 	}
 
 	@Override
 	public boolean isHovered()
 	{
-		return false;
+		return (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.viewWidth
+				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.viewHeight);
 	}
 
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		if (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.viewWidth
-				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.viewHeight)
+		super.onMousePressed(mouseButton);
+		if (this.clicked)
 		{
 			this.checked = !this.checked;
 			if (this.group != null)
@@ -123,11 +125,13 @@ public class Checkbox extends View
 	@Override
 	public void draw()
 	{
+		super.draw();
 		this.context.noFill();
 		this.context.stroke(255);
-		this.context.strokeWeight(1);
+		this.context.strokeWeight(this.hovered ? 2 : 1);
 		this.context.textSize(this.viewHeight);
 		this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
+		this.context.strokeWeight(1);
 		if (this.checked)
 		{
 			this.context.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.viewWidth - padding, this.pos.y + this.viewHeight - padding);

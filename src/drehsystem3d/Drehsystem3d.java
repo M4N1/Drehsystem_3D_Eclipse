@@ -138,12 +138,6 @@ public class Drehsystem3d extends PApplet
 
 	private void setupUI()
 	{
-		Menubar menuBar = new Menubar(this, "MainMenuBar");
-		menuBar.addMenuItem("File", null);
-		menuBar.addMenuItem("About", null);
-		menuBar.addMenuItem("Help", null);
-		this.uiHandler.addUiElement("Menubar", menuBar);
-		
 		this.cLines = this.uiHandler.addCheckBox("cLines", "connections", true);
 		this.cLines.setPos(new PVector(uiMarginX, 180));
 		this.cVelocity = this.uiHandler.addCheckBox("cVelocity", "v", true);
@@ -166,12 +160,12 @@ public class Drehsystem3d extends PApplet
 		bRemovePoints.setOnClickListener(new OnClickListener()
 		{
 			@Override
-			public void onClick(int id)
+			public void onClick(View v)
 			{
 				Drehsystem3d.this.removePoints = true;
 			}
 		});
-		this.uiHandler.addUiElement("bReset", bRemovePoints);
+		this.uiHandler.addUiElement(bRemovePoints);
 
 		bMoveToStart = new Button(this, "bStart");
 		bMoveToStart.alignBottom(bRemovePoints);
@@ -185,12 +179,12 @@ public class Drehsystem3d extends PApplet
 		bMoveToStart.setOnClickListener(new OnClickListener()
 		{
 			@Override
-			public void onClick(int id)
+			public void onClick(View v)
 			{
 				Drehsystem3d.this.moveToStart = true;
 			}
 		});
-		this.uiHandler.addUiElement("bStart", bMoveToStart);
+		this.uiHandler.addUiElement(bMoveToStart);
 
 		bClearPath = new Button(this, "bClearPath");
 		bClearPath.alignBottom(bMoveToStart);
@@ -204,12 +198,12 @@ public class Drehsystem3d extends PApplet
 		bClearPath.setOnClickListener(new OnClickListener()
 		{
 			@Override
-			public void onClick(int id)
+			public void onClick(View v)
 			{
 				Drehsystem3d.this.clearPath = true;
 			}
 		});
-		this.uiHandler.addUiElement("bClearPath", bClearPath);
+		this.uiHandler.addUiElement(bClearPath);
 
 		bAlignCamera = new Button(this, "bAlign");
 		bAlignCamera.alignBottom(bClearPath);
@@ -223,17 +217,32 @@ public class Drehsystem3d extends PApplet
 		bAlignCamera.setOnClickListener(new OnClickListener()
 		{
 			@Override
-			public void onClick(int id)
+			public void onClick(View v)
 			{
 				Drehsystem3d.this.cameraController.resetCamera();
 			}
 		});
 		bAlignCamera.setId(1);
-		this.uiHandler.addUiElement("bAlign", bAlignCamera);
+		this.uiHandler.addUiElement(bAlignCamera);
 
 		Toast toast = new Toast(this, "WelcomeToast", "Welcome!", Toast.DURATION_LONG);
-		this.uiHandler.addUiElement("WelcomeToast", toast);
+		this.uiHandler.addUiElement(toast);
 
+		
+		Menubar menuBar = new Menubar(this, "MainMenuBar");
+		menuBar.addMenuItem("File", null);
+		menuBar.addMenuSubItem("Test1", null);
+		menuBar.addMenuSubItem("Test2", null);
+		menuBar.addMenuSubItem("Test3dsasdfasf", null);
+		menuBar.addMenuItem("About", null);
+		menuBar.addMenuSubItem("Test1", null);
+		menuBar.addMenuSubItem("Test2", null);
+		menuBar.addMenuSubItem("Test3dsasdfasf", null);
+		menuBar.addMenuItem("Help", null);
+		menuBar.addMenuSubItem("Test1", null);
+		menuBar.addMenuSubItem("Test2", null);
+		menuBar.addMenuSubItem("Test3dsasdfasf", null);
+		this.uiHandler.addUiElement(menuBar);
 		/*
 		 * TextView testView = new TextView(this, width/2, height/2);
 		 * testView.setBackground(255); testView.setTextColor(0);
@@ -259,7 +268,7 @@ public class Drehsystem3d extends PApplet
 
 	private TextView getDummy(String text)
 	{
-		TextView textView = new TextView(this, "Dummy", width / 2, 10);
+		TextView textView = new TextView(this, text + "_view_dummy", width / 2, 10);
 		textView.setBackgroundColor(255);
 		textView.setTextColor(0);
 		textView.setText(text);
@@ -269,12 +278,12 @@ public class Drehsystem3d extends PApplet
 		{
 
 			@Override
-			public void onClick(int id)
+			public void onClick(View v)
 			{
 				Global.logger.log(Level.INFO, "'" + text + "' clicked");
 			}
 		});
-		this.uiHandler.addUiElement(text + "View", textView);
+		this.uiHandler.addUiElement(textView);
 		return textView;
 	}
 
@@ -391,14 +400,14 @@ public class Drehsystem3d extends PApplet
 
 		setButtonVisibility();
 
-		this.uiHandler.draw();
-
 		drawSimulation();
 
 		popMatrix();
 
 		drawTextElements();
 		drawMenuItem();
+		
+		this.uiHandler.draw();
 		// if (this.mousePressed)
 		// {
 		// background(0);
@@ -466,6 +475,9 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
+	/**
+	 * Removes points or clears path when requested.
+	 */
 	private void handlePathUpdates()
 	{
 		if (this.removePoints)
@@ -496,6 +508,9 @@ public class Drehsystem3d extends PApplet
 		erasePath();
 	}
 
+	/**
+	 * Draw the coordinate system of the simulation.
+	 */
 	private void drawCoordinateSufaces()
 	{
 		stroke(255, 0, 0);
@@ -512,6 +527,9 @@ public class Drehsystem3d extends PApplet
 		popMatrix();
 	}
 
+	/**
+	 * Draw background of the detection canvas.
+	 */
 	private void resetDetectionCanvas()
 	{
 		this.detectionCanvas.beginDraw();
@@ -519,6 +537,10 @@ public class Drehsystem3d extends PApplet
 		this.detectionCanvas.endDraw();
 	}
 
+	/**
+	 * Update the output options and draw the passed point.
+	 * @param p Point to draw.
+	 */
 	private void drawPoint(Point p)
 	{
 		p.setVisibilityL(this.cLines.isChecked());
@@ -527,6 +549,10 @@ public class Drehsystem3d extends PApplet
 		p.draw();
 	}
 
+	/**
+	 * Draw point on the detection canvas.
+	 * @param p Point to draw on the detection canvas.
+	 */
 	private void updateDetectionCanvas(Point p)
 	{
 		Integer[] colorValue = this.objects.get(p.getId());
@@ -542,6 +568,9 @@ public class Drehsystem3d extends PApplet
 		this.detectionCanvas.endDraw();
 	}
 
+	/**
+	 * Draw the paths of every point that has a visible path.
+	 */
 	private void drawPointPaths()
 	{
 		if (!this.cPath.isChecked() || this.points.size() <= 1) { return; }
@@ -576,6 +605,9 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
+	/**
+	 * Draw the text elements of the ui.
+	 */
 	private void drawTextElements()
 	{
 		hint(DISABLE_DEPTH_TEST);
@@ -609,6 +641,9 @@ public class Drehsystem3d extends PApplet
 		hint(ENABLE_DEPTH_TEST);
 	}
 
+	/**
+	 * Draw the menu item of a point, if it is visible.
+	 */
 	private void drawMenuItem()
 	{
 		if (this.menuItem != null)

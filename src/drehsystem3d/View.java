@@ -493,7 +493,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 			this.clicked = true;
 			if (this.onClickListener != null)
 			{
-				this.onClickListener.onClick(this.id);
+				this.onClickListener.onClick(this);
 			}
 		}
 		else if (this.clicked)
@@ -561,7 +561,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		{
 			if (this.onHoverListener != null)
 			{
-				this.onHoverListener.onHover(this.id);
+				this.onHoverListener.onHover(this);
 			}
 			if (this.onHoverAction != null)
 			{

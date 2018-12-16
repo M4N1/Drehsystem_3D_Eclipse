@@ -511,7 +511,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	}
 
 	@Override
-	public void onClick(int id)
+	public void onClick(View v)
 	{
 	}
 

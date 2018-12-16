@@ -268,10 +268,6 @@ public class Button extends TextView
 			this.clickAnimationPos = new PVector(this.context.mouseX, this.context.mouseY, 0);
 			this.clickAnimationStartTime = this.context.millis();
 			this.clickAnimationLastTime = this.context.millis();
-			if (this.onClickListener != null)
-			{
-				this.onClickListener.onClick(this.id);
-			}
 		}
 		return this.clicked;
 	}

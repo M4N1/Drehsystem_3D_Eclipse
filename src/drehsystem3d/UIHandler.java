@@ -1,7 +1,7 @@
 package drehsystem3d;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -17,21 +17,21 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	public UIHandler(PApplet context)
 	{
 		this.context = context;
-		this.uiContents = new HashMap<>();
+		this.uiContents = new LinkedHashMap<>();
 	}
 
-	public void addUiElement(String key, View view)
+	public void addUiElement(View view)
 	{
-		this.uiContents.put(key, view);
+		this.uiContents.put(view.name, view);
 	}
 
-	public void removeUiElement(String key)
+	public void removeUiElement(String name)
 	{
-		if (!this.uiContents.containsKey(key))
+		if (!this.uiContents.containsKey(name))
 		{
 			return;
 		}
-		this.uiContents.remove(key);
+		this.uiContents.remove(name);
 	}
 
 	public View getUiElement(String key)
@@ -41,9 +41,12 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 
 	public void draw()
 	{
+		if (Global.logger.isLoggable(Level.FINEST))
+			System.out.print("\n");
 		for (Map.Entry<String, View> pair : this.uiContents.entrySet())
 		{
 			pair.getValue().draw();
+			Global.logger.log(Level.FINEST, "UI draw event", pair.getKey());
 		}
 	}
 
@@ -145,7 +148,7 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 		c.setChecked(checked);
 		c.setSize(20, 20);
 		c.setMargin(5);
-		this.addUiElement(name, c);
+		this.addUiElement(c);
 		return c;
 	}
 }

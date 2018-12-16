@@ -4,12 +4,12 @@ public class Listener
 {
 	public interface OnClickListener
 	{
-		public void onClick(int id);
+		public void onClick(View v);
 	}
 
 	public interface OnHoverListener
 	{
-		public void onHover(int id);
+		public void onHover(View v);
 	}
 
 	public interface OnItemClickListener

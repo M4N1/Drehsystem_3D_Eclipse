@@ -74,9 +74,9 @@ public class MenuItem extends View
 			tv.setOnClickListener(new OnClickListener()
 			{
 				@Override
-				public void onClick(int id)
+				public void onClick(View v)
 				{
-					Global.logger.log(Level.FINE, "Clicked on menu item " + id);
+					Global.logger.log(Level.FINE, "Clicked on menu item " + v.id);
 					if (MenuItem.this.context.mouseButton == Drehsystem3d.LEFT)
 					{
 						if (MenuItem.this.visible)
@@ -84,7 +84,7 @@ public class MenuItem extends View
 							MenuItem.this.visible = false;
 							if (MenuItem.this.onItemClickListener != null)
 							{
-								MenuItem.this.onItemClickListener.onItemClick(id, tv.getText());
+								MenuItem.this.onItemClickListener.onItemClick(v.id, tv.getText());
 							}
 						}
 					}
@@ -163,7 +163,7 @@ public class MenuItem extends View
 	@Override
 	public void draw()
 	{
-		// super.draw();
+		super.draw();
 		if (this.visible)
 		{
 			this.context.fill(150, 150, 150, 255);

@@ -1,4 +1,4 @@
-package drehsystem3d;
+package ui;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -12,9 +12,9 @@ public class Toast extends View
 	private static final int standardWidth = 150;
 	private static final int standardHeight = 40;
 	private static final int standardRadius = 10;
-	static final int DURATION_SHORT = 0;
-	static final int DURATION_LONG = 1;
-	static final int DURATION_INFINITE = 2;
+	public static final int DURATION_SHORT = 0;
+	public static final int DURATION_LONG = 1;
+	public static final int DURATION_INFINITE = 2;
 	private PVector mousePosDiff = new PVector(0, 0, 0);
 	private boolean destroy = false;
 	long startTime = 0;
@@ -24,7 +24,7 @@ public class Toast extends View
 	String text = "";
 	int state = Toast.STATE_ENTER;
 
-	Toast(PApplet context, String name, String text, int duration)
+	public Toast(PApplet context, String name, String text, int duration)
 	{
 		super(context, name, context.width / 2 - standardWidth / 2, context.height);
 		this.context = context;

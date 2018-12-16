@@ -1,4 +1,4 @@
-package drehsystem3d;
+package ui;
 
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.cos;
@@ -10,6 +10,7 @@ import static processing.core.PConstants.TWO_PI;
 
 import java.util.ArrayList;
 
+import drehsystem3d.Listener;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
 import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
@@ -24,55 +25,55 @@ public class Button extends TextView
 	long clickAnimationLastTime = 0;
 	int clickAnimationSize = 0;
 
-	Button(PApplet context, String name)
+	public Button(PApplet context, String name)
 	{
 		super(context, name);
 		init();
 	}
 	
-	Button(PApplet context, String name, float x, float y)
+	public Button(PApplet context, String name, float x, float y)
 	{
 		super(context, name, x, y);
 		init();
 	}
 
-	Button(PApplet context, String name, float x, float y, int width, int height)
+	public Button(PApplet context, String name, float x, float y, int width, int height)
 	{
 		super(context, name, x, y, width, height);
 		init();
 	}
 
-	Button(PApplet context, String name, PVector pos)
+	public Button(PApplet context, String name, PVector pos)
 	{
 		super(context, name, pos);
 		init();
 	}
 
-	Button(PApplet context, String name, PVector pos, int width, int height)
+	public Button(PApplet context, String name, PVector pos, int width, int height)
 	{
 		super(context, name, pos, width, height);
 		init();
 	}
 
-	Button(PApplet context, String name, float x, float y, String text)
+	public Button(PApplet context, String name, float x, float y, String text)
 	{
 		super(context, name, x, y, text);
 		init();
 	}
 
-	Button(PApplet context, String name, float x, float y, int width, int height, String text)
+	public Button(PApplet context, String name, float x, float y, int width, int height, String text)
 	{
 		super(context, name, x, y, width, height, text);
 		init();
 	}
 
-	Button(PApplet context, String name, PVector pos, String text)
+	public Button(PApplet context, String name, PVector pos, String text)
 	{
 		super(context, name, pos, text);
 		init();
 	}
 
-	Button(PApplet context, String name, PVector pos, int width, int height, String text)
+	public Button(PApplet context, String name, PVector pos, int width, int height, String text)
 	{
 		super(context, name, pos, width, height, text);
 		init();

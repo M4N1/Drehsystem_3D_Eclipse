@@ -1,9 +1,9 @@
-package drehsystem3d;
+package ui;
 
 import processing.core.PApplet;
 import processing.core.PVector;
 
-class TextView extends View
+public class TextView extends View
 {
 	public enum TextAlignment
 	{
@@ -22,58 +22,58 @@ class TextView extends View
 	int cornerRadius = 0;
 	TextAlignment textAlignment = TextAlignment.LEFT;
 
-	TextView(PApplet context, String name)
+	public TextView(PApplet context, String name)
 	{
 		super(context, name);
 		TextView.instanceCounter++;
 	}
 	
-	TextView(PApplet context, String name, float x, float y)
+	public TextView(PApplet context, String name, float x, float y)
 	{
 		super(context, name, x, y);
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, float x, float y, int w, int h)
+	public TextView(PApplet context, String name, float x, float y, int w, int h)
 	{
 		super(context, name, x, y, w, h);
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, PVector pos)
+	public TextView(PApplet context, String name, PVector pos)
 	{
 		super(context, name, pos);
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, PVector pos, int w, int h)
+	public TextView(PApplet context, String name, PVector pos, int w, int h)
 	{
 		super(context, name, pos, w, h);
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, float x, float y, String text)
+	public TextView(PApplet context, String name, float x, float y, String text)
 	{
 		super(context, name, x, y);
 		this.text = text;
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, float x, float y, int w, int h, String text)
+	public TextView(PApplet context, String name, float x, float y, int w, int h, String text)
 	{
 		super(context, name, x, y, w, h);
 		this.text = text;
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, PVector pos, String text)
+	public TextView(PApplet context, String name, PVector pos, String text)
 	{
 		super(context, name, pos);
 		this.text = text;
 		TextView.instanceCounter++;
 	}
 
-	TextView(PApplet context, String name, PVector pos, int w, int h, String text)
+	public TextView(PApplet context, String name, PVector pos, int w, int h, String text)
 	{
 		super(context, name, pos, w, h);
 		this.text = text;

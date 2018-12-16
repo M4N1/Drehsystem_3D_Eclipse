@@ -1,8 +1,10 @@
-package drehsystem3d;
+package ui;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import drehsystem3d.Global;
+import drehsystem3d.Listener;
 import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
@@ -44,17 +46,17 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	protected int inputType = InputTypes.FLOAT;
 	protected InputBoxListener mListener;
 
-	InputBox(String title, String[] values)
+	public InputBox(String title, String[] values)
 	{
 		this(title, values, null, false);
 	}
 
-	InputBox(String title, String[] values, String[] standardValues)
+	public InputBox(String title, String[] values, String[] standardValues)
 	{
 		this(title, values, standardValues, true);
 	}
 
-	InputBox(String title, String[] values, String[] descValues, boolean stdValue)
+	public InputBox(String title, String[] values, String[] descValues, boolean stdValue)
 	{
 		this.title = title;
 		this.values = values;

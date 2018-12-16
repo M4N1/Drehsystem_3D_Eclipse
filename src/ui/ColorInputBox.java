@@ -1,4 +1,4 @@
-package drehsystem3d;
+package ui;
 
 public class ColorInputBox extends InputBox {
 	

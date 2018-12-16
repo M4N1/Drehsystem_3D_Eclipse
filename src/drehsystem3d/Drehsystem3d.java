@@ -14,6 +14,17 @@ import drehsystem3d.Listener.UserInputListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
+import ui.Button;
+import ui.Checkbox;
+import ui.Color;
+import ui.ColorInputBox;
+import ui.InputBox;
+import ui.InputTypes;
+import ui.MenuItem;
+import ui.Menubar;
+import ui.TextView;
+import ui.Toast;
+import ui.View;
 
 public class Drehsystem3d extends PApplet
 {
@@ -792,7 +803,7 @@ public class Drehsystem3d extends PApplet
 
 	private void openMenuContextIfObjectIsClicked()
 	{
-		if (this.mouseX < this.menuBarLeft_Width || this.mouseY < this.uiHandler.getUiElement("MainMenuBar").viewHeight) return;
+		if (this.mouseX < this.menuBarLeft_Width || this.mouseY < this.uiHandler.getUiElement("MainMenuBar").getHeight()) return;
 		int objectId = getPressedObjectId();
 		if (objectId != -1)
 		{

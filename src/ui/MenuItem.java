@@ -1,8 +1,11 @@
-package drehsystem3d;
+package ui;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import drehsystem3d.Drehsystem3d;
+import drehsystem3d.Global;
+import drehsystem3d.Listener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
 import processing.core.PApplet;
@@ -25,12 +28,12 @@ public class MenuItem extends View
 	String title = "";
 	boolean visible = true;
 
-	MenuItem(PApplet context, String name, float x, float y, String title, String[] values)
+	public MenuItem(PApplet context, String name, float x, float y, String title, String[] values)
 	{
 		this(context, name, x + standardOffset, y + standardOffset, standardWidth, standardHeight, title, values);
 	}
 
-	MenuItem(PApplet context, String name, float x, float y, int w, int h, String title, String[] values)
+	public MenuItem(PApplet context, String name, float x, float y, int w, int h, String title, String[] values)
 	{
 		super(context, name, x + standardOffset, y + standardOffset, w, h);
 		init(title, values);

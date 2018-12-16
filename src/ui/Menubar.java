@@ -1,15 +1,16 @@
-package drehsystem3d;
+package ui;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
+import drehsystem3d.Global;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnHoverListener;
-import drehsystem3d.TextView.TextAlignment;
 import processing.core.PApplet;
 import processing.core.PVector;
+import ui.TextView.TextAlignment;
 
 public class Menubar extends View implements OnHoverListener
 {
@@ -22,7 +23,7 @@ public class Menubar extends View implements OnHoverListener
 	private int mainTextColor = 0;
 	private int subTextColor = mainTextColor;
 
-	Menubar(PApplet context, String name)
+	public Menubar(PApplet context, String name)
 	{
 		super(context, name);
 		this.setWidth(this.context.displayWidth);

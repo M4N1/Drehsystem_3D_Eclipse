@@ -1,4 +1,4 @@
-package drehsystem3d;
+package ui;
 
 import java.util.ArrayList;
 
@@ -11,27 +11,27 @@ public class Checkbox extends View
 	private boolean checked = false;
 	String text = "";
 
-	Checkbox(PApplet context, String name, String text, ArrayList<Checkbox> group)
+	public Checkbox(PApplet context, String name, String text, ArrayList<Checkbox> group)
 	{
 		this(context, name, 0, 0, 0, text, group);
 	}
 	
-	Checkbox(PApplet context, String name, int posX, int posY, int size)
+	public Checkbox(PApplet context, String name, int posX, int posY, int size)
 	{
 		this(context, name, posX, posY, size, "", null);
 	}
 
-	Checkbox(PApplet context, String name, int posX, int posY, int size, String text)
+	public Checkbox(PApplet context, String name, int posX, int posY, int size, String text)
 	{
 		this(context, name, posX, posY, size, text, null);
 	}
 
-	Checkbox(PApplet context, String name, int posX, int posY, int size, ArrayList<Checkbox> group)
+	public Checkbox(PApplet context, String name, int posX, int posY, int size, ArrayList<Checkbox> group)
 	{
 		this(context, name, posX, posY, size, "", group);
 	}
 
-	Checkbox(PApplet context, String name, int posX, int posY, int size, String text, ArrayList<Checkbox> group)
+	public Checkbox(PApplet context, String name, int posX, int posY, int size, String text, ArrayList<Checkbox> group)
 	{
 		super(context, name, posX, posY, size, size);
 		this.text = text;

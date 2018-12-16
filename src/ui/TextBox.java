@@ -1,14 +1,16 @@
-package drehsystem3d;
+package ui;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
 
+import drehsystem3d.Drehsystem3d;
+import drehsystem3d.Global;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.TextBoxListener;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-class TextBox extends TextView
+public class TextBox extends TextView
 {
 	
 	ArrayList<Integer> keysPressed = new ArrayList<>();
@@ -31,23 +33,23 @@ class TextBox extends TextView
 	int cursorTimer = 0;
 	boolean cursorVisible = false;
 
-	TextBox(PApplet context, String name, int posX, int posY)
+	public TextBox(PApplet context, String name, int posX, int posY)
 	{
 		super(context, name, posX, posY);
 	}
 
-	TextBox(PApplet context, String name, int posX, int posY, int w, int h)
+	public TextBox(PApplet context, String name, int posX, int posY, int w, int h)
 	{
 		super(context, name, posX, posY, w, h);
 		calcWidth();
 	}
 
-	TextBox(PApplet context, String name, PVector pos)
+	public TextBox(PApplet context, String name, PVector pos)
 	{
 		super(context, name, pos);
 	}
 
-	TextBox(PApplet context, String name, PVector pos, int w, int h)
+	public TextBox(PApplet context, String name, PVector pos, int w, int h)
 	{
 		super(context, name, pos, w, h);
 		calcWidth();

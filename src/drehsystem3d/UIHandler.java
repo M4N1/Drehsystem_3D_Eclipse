@@ -8,6 +8,8 @@ import java.util.logging.Level;
 import drehsystem3d.Listener.UserInputListener;
 import drehsystem3d.Listener.WindowResizeListener;
 import processing.core.PApplet;
+import ui.Checkbox;
+import ui.View;
 
 public class UIHandler implements UserInputListener, WindowResizeListener
 {
@@ -22,7 +24,7 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 
 	public void addUiElement(View view)
 	{
-		this.uiContents.put(view.name, view);
+		this.uiContents.put(view.getName(), view);
 	}
 
 	public void removeUiElement(String name)
@@ -82,7 +84,7 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 			boolean elementClicked = element.onMousePressed(mouseButton);
 			if (elementClicked)
 			{
-				Global.logger.log(Level.FINE, "View item clicked", new Object[] {entry.getKey(), element.id, element.getClass().getName()});
+				Global.logger.log(Level.FINE, "View item clicked", new Object[] {entry.getKey(), element.getId(), element.getClass().getName()});
 			}
 			
 			uiElementClicked = uiElementClicked || elementClicked;

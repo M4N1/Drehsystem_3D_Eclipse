@@ -1,4 +1,4 @@
-package drehsystem3d;
+package ui;
 
 import java.awt.Component;
 import java.awt.MouseInfo;
@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import drehsystem3d.Listener;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnHoverListener;
@@ -101,6 +102,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.viewHeight = h;
 		
 		View.registerInstance(this);
+	}
+	
+	public String getName()
+	{
+		return this.name;
 	}
 	
 	private static void registerInstance(View newInstance)

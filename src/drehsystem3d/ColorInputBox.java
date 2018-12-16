@@ -15,20 +15,17 @@ public class ColorInputBox extends InputBox {
 		int colorViewWidth = 30;
 		increaseStartX(colorViewWidth + this.padding);
 		this.colorView = new TextView(this, title + "_tv_" + (itemCount++), this.padding, this.padding, colorViewWidth, this.height);
-		int[] initialColor = new int[3];
+		Color initialColor = new Color();
 		if (stdValue)
 		{
-			for (int i = 0; i < initialColor.length; i++)
-			{
-				initialColor[i] = Integer.parseInt(descValues[i]);
-			}
+			int r = Integer.parseInt(descValues[0]);
+			int g = Integer.parseInt(descValues[1]);
+			int b = Integer.parseInt(descValues[2]);
+			initialColor.setColor(r, g, b);
 		}
 		else
 		{
-			for (int i = 0; i < initialColor.length; i++)
-			{
-				initialColor[i] = 255;
-			}
+			initialColor.setColor(255);
 		}
 		colorView.setBackgroundColor(initialColor);
 		this.contents.add(colorView);
@@ -45,15 +42,15 @@ public class ColorInputBox extends InputBox {
 	public void textEdited(TextBox textBox, String text)
 	{
 		super.textEdited(textBox, text);
-		int[] newColor = colorView.backgroundColor.clone();
+		Color newColor = colorView.backgroundColor.clone();
 		int index = textBox.id - 1;
 		if (text.isEmpty())
 		{
-			newColor[index] = 0;
+			newColor.setColor(index, 0);
 		}
 		else
 		{
-			newColor[index] = Integer.parseInt(text);
+			newColor.setColor(index, Integer.parseInt(text));
 		}
 		colorView.setBackgroundColor(newColor);
 	}

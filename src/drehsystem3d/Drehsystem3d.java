@@ -37,6 +37,7 @@ public class Drehsystem3d extends PApplet
 	PGraphics xySurface, yzSurface, xzSurface;
 	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
 
+	private final int menuBarLeft_Width = 230;
 	int bStartY;
 	int uiMarginX;
 	float scale = 0.2f;
@@ -66,8 +67,8 @@ public class Drehsystem3d extends PApplet
 
 	int idCount = 0;
 	int nameCounter = 'A';
-	Integer[] colorCount = { 100, 0, 0 };
-	PGraphics detectionCanvas;
+	Integer[] colorCount = { 100, 100, 100 };
+	PGraphics simulationCanvas, detectionCanvas;
 
 	@Override
 	public void settings()
@@ -88,20 +89,24 @@ public class Drehsystem3d extends PApplet
 		});
 
 		Settings.setup(this.args);
-
-		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
+		
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
 		this.surface.setResizable(true);
 		this.bStartY = this.height - 450;
 		this.uiMarginX = 20;
+		
+		setupUI();
+
+		this.simulationCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
+		this.detectionCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
+		
 		this.applets = new ArrayList<>();
 		this.cameraController = new CameraController(this, new float[] { 0, 0, 0 }, 1,
-				new PVector(this.width / 2, this.height / 2, 0));
+				new PVector(getSimulationCanvasWidth() / 2, getSimulationCanvasHeight() / 2, 0));
 
 		this.userInputListeners = new ArrayList<>();
 		this.inputHandler = new InputHandler(this);
-		this.uiHandler = new UIHandler(this);
 		this.userInputListeners.add(this.inputHandler);
 		this.userInputListeners.add(this.uiHandler);
 
@@ -127,7 +132,7 @@ public class Drehsystem3d extends PApplet
 		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(200, 0, 0), 0);
 		addNewPoint(getLastPoint(), new PVector(0, -2, 0), new PVector(0, 100, 0), 0).drawPath();
 
-		setupUI();
+		
 
 		this.lastTime = millis();
 		this.startTime = millis();
@@ -135,9 +140,31 @@ public class Drehsystem3d extends PApplet
 		this.stopped = true;
 		this.setup = false;
 	}
+	
+	private int getSimulationCanvasWidth()
+	{
+		return (this.width - menuBarLeft_Width);
+	}
+	
+	private int getSimulationCanvasHeight()
+	{
+		return (this.height - this.uiHandler.getUiElement("MainMenuBar").getHeight());
+	}
 
 	private void setupUI()
 	{
+		this.uiHandler = new UIHandler(this);
+		
+		Menubar menuBar = new Menubar(this, "MainMenuBar");
+		menuBar.addMenuItem("File", null);
+		menuBar.addMenuSubItem("New", null);
+		menuBar.addMenuSubItem("Open", null);
+		menuBar.addMenuSubItem("Save", null);
+		menuBar.addMenuItem("Help", null);
+		menuBar.addMenuSubItem("Controls", null);
+		menuBar.addMenuSubItem("About", null);
+		this.uiHandler.addUiElement(menuBar);
+		
 		this.cLines = this.uiHandler.addCheckBox("cLines", "connections", true);
 		this.cLines.setPos(new PVector(uiMarginX, 180));
 		this.cVelocity = this.uiHandler.addCheckBox("cVelocity", "v", true);
@@ -226,23 +253,10 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement(bAlignCamera);
 
 		Toast toast = new Toast(this, "WelcomeToast", "Welcome!", Toast.DURATION_LONG);
+		toast.setStartX((this.width + this.menuBarLeft_Width - toast.getWidth()) / 2);
 		this.uiHandler.addUiElement(toast);
 
 		
-		Menubar menuBar = new Menubar(this, "MainMenuBar");
-		menuBar.addMenuItem("File", null);
-		menuBar.addMenuSubItem("Test1", null);
-		menuBar.addMenuSubItem("Test2", null);
-		menuBar.addMenuSubItem("Test3dsasdfasf", null);
-		menuBar.addMenuItem("About", null);
-		menuBar.addMenuSubItem("Test1", null);
-		menuBar.addMenuSubItem("Test2", null);
-		menuBar.addMenuSubItem("Test3dsasdfasf", null);
-		menuBar.addMenuItem("Help", null);
-		menuBar.addMenuSubItem("Test1", null);
-		menuBar.addMenuSubItem("Test2", null);
-		menuBar.addMenuSubItem("Test3dsasdfasf", null);
-		this.uiHandler.addUiElement(menuBar);
 		/*
 		 * TextView testView = new TextView(this, width/2, height/2);
 		 * testView.setBackground(255); testView.setTextColor(0);
@@ -397,23 +411,31 @@ public class Drehsystem3d extends PApplet
 			resetTime();
 			this.reset = false;
 		}
+		if (!this.stopped)
+		{
+			update();
+		}
 
 		setButtonVisibility();
 
 		drawSimulation();
-
+		image(this.simulationCanvas, this.menuBarLeft_Width, this.uiHandler.getUiElement("MainMenuBar").getHeight());
 		popMatrix();
+		
+		hint(DISABLE_DEPTH_TEST);
+		stroke(255);
+		line(this.menuBarLeft_Width, 0, this.menuBarLeft_Width, this.height);
 
+		
 		drawTextElements();
 		drawMenuItem();
 		
 		this.uiHandler.draw();
-		// if (this.mousePressed)
-		// {
-		// background(0);
-		// translate(0, 0, 0);
-		// image(this.detectionCanvas, 0, 0);
-		// }
+		
+		hint(ENABLE_DEPTH_TEST);
+		
+		/*if (this.mousePressed)
+			image(this.detectionCanvas, this.menuBarLeft_Width, this.uiHandler.getUiElement("MainMenuBar").getHeight());*/
 	}
 
 	private void resetTime()
@@ -434,30 +456,35 @@ public class Drehsystem3d extends PApplet
 		align.setVisibility(bAlignVisible);
 	}
 
+	/**
+	 * Draws the simulation and the detection canvas.
+	 */
 	private void drawSimulation()
 	{
-		pushMatrix();
-		this.cameraController.adjustCamera(this.getGraphics());
+		resetCanvas(this.simulationCanvas);
+		resetCanvas(this.detectionCanvas);
+		this.simulationCanvas.pushMatrix();
+		this.detectionCanvas.pushMatrix();
+		
+		this.cameraController.adjustCamera(this.simulationCanvas);
+		this.cameraController.adjustCamera(this.detectionCanvas);
 
-		if (!this.stopped)
-		{
-			update();
-		}
+		drawCoordinateSufaces(this.simulationCanvas);
 
-		drawCoordinateSufaces();
-
-		resetDetectionCanvas();
 		for (Point p : this.points)
 		{
 			drawPoint(p);
 			updateDetectionCanvas(p);
 		}
-
-		drawPointPaths();
-
-		popMatrix();
+		
+		drawPointPaths(this.simulationCanvas);
+		this.simulationCanvas.popMatrix();
+		this.detectionCanvas.popMatrix();
 	}
 
+	/**
+	 * Resets every point to its start position.
+	 */
 	private void moveToStartPosition()
 	{
 		for (Point p : this.points)
@@ -466,6 +493,9 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
+	/**
+	 * Adds a new point to the system.
+	 */
 	private void addBufferedPoint()
 	{
 		if (this.pointToAdd != null)
@@ -504,37 +534,40 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.onWindowResize(this.currWindowWidth, this.currWindowHeight, this.width, this.height);
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
-		this.detectionCanvas = createGraphics(this.width, this.height, P3D);
+		this.simulationCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
+		this.detectionCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
 		erasePath();
 	}
 
 	/**
 	 * Draw the coordinate system of the simulation.
 	 */
-	private void drawCoordinateSufaces()
+	private void drawCoordinateSufaces(PGraphics canvas)
 	{
-		stroke(255, 0, 0);
-		image(this.xySurface, -50, -50);
-		pushMatrix();
-		rotateY(HALF_PI);
-		image(this.yzSurface, -50, -50);
-		popMatrix();
+		canvas.beginDraw();
+		canvas.stroke(255, 0, 0);
+		canvas.image(this.xySurface, -50, -50);
+		canvas.pushMatrix();
+		canvas.rotateY(HALF_PI);
+		canvas.image(this.yzSurface, -50, -50);
+		canvas.popMatrix();
 
-		pushMatrix();
-		rotateX(HALF_PI);
-		rotateZ(HALF_PI);
-		image(this.xzSurface, -50, -50);
-		popMatrix();
+		canvas.pushMatrix();
+		canvas.rotateX(HALF_PI);
+		canvas.rotateZ(HALF_PI);
+		canvas.image(this.xzSurface, -50, -50);
+		canvas.popMatrix();
+		canvas.endDraw();
 	}
 
 	/**
 	 * Draw background of the detection canvas.
 	 */
-	private void resetDetectionCanvas()
+	private void resetCanvas(PGraphics canvas)
 	{
-		this.detectionCanvas.beginDraw();
-		this.detectionCanvas.background(0);
-		this.detectionCanvas.endDraw();
+		canvas.beginDraw();
+		canvas.background(0);
+		canvas.endDraw();
 	}
 
 	/**
@@ -546,7 +579,7 @@ public class Drehsystem3d extends PApplet
 		p.setVisibilityL(this.cLines.isChecked());
 		p.setVisibilityV(this.cVelocity.isChecked());
 		p.setVisibilityA(this.cAcceleration.isChecked());
-		p.draw();
+		p.draw(this.simulationCanvas);
 	}
 
 	/**
@@ -559,7 +592,6 @@ public class Drehsystem3d extends PApplet
 		this.detectionCanvas.fill(colorValue[0], colorValue[1], colorValue[2]);
 
 		this.detectionCanvas.beginDraw();
-		this.cameraController.adjustCamera(this.detectionCanvas);
 		this.detectionCanvas.noStroke();
 		this.detectionCanvas.pushMatrix();
 		this.detectionCanvas.translate(p.absPos.x * this.scaleD, p.absPos.y * this.scaleD, p.absPos.z * this.scaleD);
@@ -571,38 +603,40 @@ public class Drehsystem3d extends PApplet
 	/**
 	 * Draw the paths of every point that has a visible path.
 	 */
-	private void drawPointPaths()
+	private void drawPointPaths(PGraphics canvas)
 	{
 		if (!this.cPath.isChecked() || this.points.size() <= 1) { return; }
 
+		canvas.beginDraw();
 		for (Point p : this.points)
 		{
 			if (p.getPathVisibility())
 			{
 				int[] c = p.getPathColor();
-				strokeWeight(2);
-				stroke(c[0], c[1], c[2]);
+				canvas.strokeWeight(2);
+				canvas.stroke(c[0], c[1], c[2]);
 				ArrayList<ArrayList<PVector>> paths = p.getPaths();
 				for (int i = 0; i < paths.size(); i++)
 				{
 					ArrayList<PVector> path = paths.get(i);
 					if (path != null && path.size() > 1)
 					{
-						noFill();
-						beginShape();
+						canvas.noFill();
+						canvas.beginShape();
 						for (int j = 0; j < path.size(); j++)
 						{
 							PVector pos = path.get(j).copy().mult(this.scaleD);
-							curveVertex(pos.x, pos.y, pos.z);
+							canvas.curveVertex(pos.x, pos.y, pos.z);
 						}
 						if (p.finishedPath() && (i == 0))
-							endShape(CLOSE);
+							canvas.endShape(CLOSE);
 						else
-							endShape();
+							canvas.endShape();
 					}
 				}
 			}
 		}
+		canvas.endDraw();
 	}
 
 	/**
@@ -610,7 +644,6 @@ public class Drehsystem3d extends PApplet
 	 */
 	private void drawTextElements()
 	{
-		hint(DISABLE_DEPTH_TEST);
 		pushMatrix();
 		noLights();
 		fill(255);
@@ -626,7 +659,7 @@ public class Drehsystem3d extends PApplet
 			stroke(255);
 
 			text("Scale:", uiMarginX, 80);
-			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 100, 80);
+			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 70, 80);
 
 			if (this.stopped)
 			{
@@ -635,10 +668,9 @@ public class Drehsystem3d extends PApplet
 
 			String speed = "" + (this.speed < 0 ? "(" + this.speed + ")" : this.speed);
 			String speedOutput = "Speed: x" + speed;
-			text(speedOutput, this.width / 2 - textWidth(speedOutput) / 2, this.height - 20);
+			text(speedOutput, (this.width + this.menuBarLeft_Width - textWidth(speedOutput)) / 2, this.height - 20);
 		}
 		popMatrix();
-		hint(ENABLE_DEPTH_TEST);
 	}
 
 	/**
@@ -648,9 +680,7 @@ public class Drehsystem3d extends PApplet
 	{
 		if (this.menuItem != null)
 		{
-			hint(DISABLE_DEPTH_TEST);
 			this.menuItem.draw();
-			hint(ENABLE_DEPTH_TEST);
 		}
 	}
 
@@ -736,6 +766,7 @@ public class Drehsystem3d extends PApplet
 
 	private void openMenuContextIfObjectIsClicked()
 	{
+		if (this.mouseX < this.menuBarLeft_Width || this.mouseY < this.uiHandler.getUiElement("MainMenuBar").viewHeight) return;
 		int objectId = getPressedObjectId();
 		if (objectId != -1)
 		{
@@ -770,7 +801,7 @@ public class Drehsystem3d extends PApplet
 		PVector screenPos = getScreenPos(point);
 
 		View.unregisterInstance("PointMenu");
-		this.menuItem = new MenuItem(this, "PointMenu", screenPos.x, screenPos.y, "Title", values);
+		this.menuItem = new MenuItem(this, "PointMenu", screenPos.x + this.menuBarLeft_Width, screenPos.y + this.uiHandler.getUiElement("MainMenuBar").getHeight(), "Title", values);
 		this.menuItem.setOnItemClickListener(new PointMenuItemClickListener(point, possibleValues));
 	}
 
@@ -1023,12 +1054,18 @@ public class Drehsystem3d extends PApplet
 	{
 		this.detectionCanvas.loadPixels();
 		int objectId = -1;
+		int index = this.mouseX - this.menuBarLeft_Width + (this.mouseY - this.uiHandler.getUiElement("MainMenuBar").getHeight())* this.detectionCanvas.width;
+		Global.logger.log(Level.FINE, "Detection canvas pixel count", this.detectionCanvas.pixelCount);
+		Global.logger.log(Level.FINE, "Detection canvas pixel index", index);
+		int c = this.detectionCanvas.pixels[index];
+		Global.logger.log(Level.FINE, "Color detection canvas", c);
+		
 		Iterator<Map.Entry<Integer, Integer[]>> it = this.objects.entrySet().iterator();
 		while (it.hasNext())
 		{
 			Map.Entry<Integer, Integer[]> pair = it.next();
 			Integer[] colorValue = pair.getValue();
-			int c = this.detectionCanvas.pixels[this.mouseX + this.mouseY * this.width];
+			
 			if (color(colorValue[0], colorValue[1], colorValue[2]) == c)
 			{
 				objectId = pair.getKey();

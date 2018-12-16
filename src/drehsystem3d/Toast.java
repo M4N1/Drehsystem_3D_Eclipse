@@ -45,6 +45,22 @@ public class Toast extends View
 		}
 		this.pos = new PVector(context.width / 2 - standardWidth / 2, context.height, 0);
 	}
+	
+	public void setStartX(int x)
+	{
+		this.pos.x = x;
+	}
+	
+	public void setStartY(int y)
+	{
+		this.pos.y = y;
+	}
+	
+	public void setStartPos(int x, int y)
+	{
+		this.pos.x = x;
+		this.pos.y = y;
+	}
 
 	@Override
 	public boolean isClicked()

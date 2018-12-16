@@ -159,10 +159,12 @@ public class CameraController implements WindowResizeListener
 	{
 		this.currentAngle = getValues(this.angle);
 
+		canvas.beginCamera();
 		canvas.translate(this.pos.x, this.pos.y, 0);
 		canvas.scale(this.zoom);
 		canvas.rotateY(this.angle[0]);
 		canvas.rotateX(this.angle[1]);
+		canvas.endCamera();
 	}
 
 	public void setNewAdjustment(Adjustment adjustment)

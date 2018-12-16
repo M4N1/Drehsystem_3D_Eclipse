@@ -14,8 +14,13 @@ import processing.core.PVector;
 public class Menubar extends View implements OnHoverListener
 {
 	List<List<Button>> menuItems = new ArrayList<List<Button>>();
-	private int[] menuColor = new int[] {255, 255, 255};
-	private int[] itemHoveredColor = new int[] {200, 200, 200};
+	private Color menuColor = new Color(255, 255, 255);
+	private Color submenuColor = new Color(255, 255, 255);
+	private Color itemHoveredColor = new Color(200, 200, 200);
+	private int mainTextSize = 20;
+	private int subTextSize = 17;
+	private int mainTextColor = 0;
+	private int subTextColor = mainTextColor;
 
 	Menubar(PApplet context, String name)
 	{
@@ -38,9 +43,9 @@ public class Menubar extends View implements OnHoverListener
 		b.setPaddingX(15);
 		b.setPaddingY(5);
 		b.setStrokeWeight(1);
+		b.setTextSize(this.mainTextSize);
+		b.setTextColor(mainTextColor);
 		b.setBackgroundColor(menuColor);
-		b.setTextColor(0);
-		b.setTextSize(20);
 		b.setOnHoverAction(new Runnable()
 		{
 			@Override
@@ -141,9 +146,9 @@ public class Menubar extends View implements OnHoverListener
 		b.setPaddingY(15);
 		b.setMarginY(0);
 		b.setStrokeWeight(1);
-		b.setBackgroundColor(menuColor);
-		b.setTextColor(0);
-		b.setTextSize(20);
+		b.setTextSize(subTextSize);
+		b.setTextColor(subTextColor);
+		b.setBackgroundColor(submenuColor);
 		b.setOnHoverAction(new Runnable()
 		{
 			@Override
@@ -158,16 +163,16 @@ public class Menubar extends View implements OnHoverListener
 			public void run()
 			{
 				b.backgroundColor = menuColor;
-				boolean subItemHovered = false;
-				for (int i = 1; i < subItems.size(); i++)
+				boolean itemHovered = false;
+				for (int i = 0; i < subItems.size(); i++)
 				{
 					if (subItems.get(i).isHovered())
 					{
-						subItemHovered = true;
+						itemHovered = true;
 						break;
 					}
 				}
-				if (!subItemHovered)
+				if (!itemHovered)
 					for (int i = 1; i < subItems.size(); i++)
 						subItems.get(i).setVisibility(false);
 			}
@@ -177,16 +182,20 @@ public class Menubar extends View implements OnHoverListener
 			@Override
 			public void onClick(View v)
 			{
-				Global.logger.log(Level.FINE, "Menubar item clicked", b.getText());
 				if (clickEvent != null)
 				{
 					try
 					{
 						clickEvent.run();
-					} catch (Exception e)
-					{
-						Global.logger.log(Level.INFO, "Click action for menu item " + v + " failed!", e);
 					}
+					catch (Exception e)
+					{
+						Global.logger.log(Level.INFO, "Click action for menu item '" + v.name + "' failed!", e);
+					}
+				}
+				else
+				{
+					Global.logger.log(Level.FINE, "Sub item '" + b.text + "' from menu '" + subItems.get(0).text + "' clicked");
 				}
 			}
 		});
@@ -283,6 +292,7 @@ public class Menubar extends View implements OnHoverListener
 	@Override
 	public void draw()
 	{
+		super.draw();
 		for (List<Button> subItems : this.menuItems)
 		{
 			Button b = subItems.get(0);
@@ -290,7 +300,7 @@ public class Menubar extends View implements OnHoverListener
 			if (h > this.viewHeight)
 				this.viewHeight = h;
 		}
-		this.context.fill(this.backgroundColor[0], this.backgroundColor[1], this.backgroundColor[2], this.backgroundAlpha);
+		this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 		this.context.noStroke();
 		this.context.rect(0, 0, this.viewWidth, this.viewHeight);
 		this.context.strokeWeight(1);

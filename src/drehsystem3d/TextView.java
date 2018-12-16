@@ -211,7 +211,7 @@ class TextView extends View
 	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
+		return (mX > this.pos.x && mX <= this.pos.x + this.viewWidth && mY > this.pos.y
 				&& mY <= this.pos.y + this.viewHeight);
 	}
 
@@ -220,7 +220,7 @@ class TextView extends View
 	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
+		return (mX > this.pos.x && mX <= this.pos.x + this.viewWidth && mY > this.pos.y
 				&& mY <= this.pos.y + this.viewHeight);
 	}
 	
@@ -244,7 +244,7 @@ class TextView extends View
 			{
 				this.context.noStroke();
 			}
-			this.context.fill(this.backgroundColor[0], this.backgroundColor[1], this.backgroundColor[2], this.backgroundAlpha);
+			this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
 			this.context.fill(this.textColor);
 			this.context.textSize(this.textSize);

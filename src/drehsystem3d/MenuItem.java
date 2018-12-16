@@ -173,9 +173,9 @@ public class MenuItem extends View
 			for (int i = 0; i < this.textviews.size(); i++)
 			{
 				TextView tv = this.textviews.get(i);
-				if (tv.hovered && tv.backgroundColor[0] == 150 && tv.backgroundColor[1] == 150 && tv.backgroundColor[2] == 150)
+				if (tv.hovered && tv.backgroundColor.r == 150 && tv.backgroundColor.g == 150 && tv.backgroundColor.b == 150)
 				{
-					int color = (tv.backgroundColor[0] + tv.backgroundColor[1] + tv.backgroundColor[2]) / 3;
+					int color = (tv.backgroundColor.r + tv.backgroundColor.g + tv.backgroundColor.b) / 3;
 					tv.setBackgroundColor(255 - color);
 				}
 				else if (!tv.hovered)

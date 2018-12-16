@@ -17,7 +17,6 @@ import processing.core.PVector;
 
 public class Button extends TextView
 {
-	OnClickListener onClickListener = null;
 	OnAnimationFinishedListener onAnimationFinishedListener = null;
 	boolean clickAnimationVisible = false;
 	PVector clickAnimationPos = null;
@@ -92,7 +91,7 @@ public class Button extends TextView
 		super.draw();
 		if (this.clickAnimationVisible)
 		{
-			this.context.fill(255 - this.backgroundColor[0], 255 - this.backgroundColor[1], 255 - this.backgroundColor[2], 100);
+			this.context.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
 			this.context.noStroke();
 			boolean finished = true;
 			if (this.visible)

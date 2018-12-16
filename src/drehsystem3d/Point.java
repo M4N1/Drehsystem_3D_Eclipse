@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Point
@@ -397,19 +398,20 @@ public class Point
 
 	public void draw()
 	{
-		draw(this.context);
+		draw(this.context.getGraphics());
 	}
 
-	public void draw(PApplet context)
+	public void draw(PGraphics canvas)
 	{
 		if (this.newPosReceived)
 		{
 			initPos(this.setPos);
 			this.newPosReceived = false;
 		}
-		context.fill(255);
-		context.stroke(255);
-		context.strokeWeight(1);
+		canvas.beginDraw();
+		canvas.fill(255);
+		canvas.stroke(255);
+		canvas.strokeWeight(1);
 		PVector scaledPos = this.absPos.copy();
 		scaledPos = scaledPos.mult(this.scaleD);
 
@@ -419,24 +421,24 @@ public class Point
 			{
 				PVector scaledParentPos = this.parent.absPos.copy();
 				scaledParentPos = scaledParentPos.mult(this.scaleD);
-				context.line(scaledParentPos.x, scaledParentPos.y, scaledParentPos.z, scaledPos.x, scaledPos.y,
+				canvas.line(scaledParentPos.x, scaledParentPos.y, scaledParentPos.z, scaledPos.x, scaledPos.y,
 						scaledPos.z);
 			}
 		}
 
-		context.strokeWeight(2);
+		canvas.strokeWeight(2);
 		if (this.visibilityV)
 		{
-			context.stroke(0, 0, 255);
-			context.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + this.v.x * this.scale,
+			canvas.stroke(0, 0, 255);
+			canvas.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + this.v.x * this.scale,
 					scaledPos.y + this.v.y * this.scale, scaledPos.z + this.v.z * this.scale);
 		}
 		if (this.visibilityA)
 		{
 			PVector scaledAcceleration = this.a.copy().mult(this.scale);
 			
-			context.stroke(255, 0, 0);
-			context.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + scaledAcceleration.x,
+			canvas.stroke(255, 0, 0);
+			canvas.line(scaledPos.x, scaledPos.y, scaledPos.z, scaledPos.x + scaledAcceleration.x,
 					scaledPos.y + scaledAcceleration.y, scaledPos.z + scaledAcceleration.z);
 		}
 		if (DEBUG && this.parent != null)
@@ -444,59 +446,60 @@ public class Point
 			// Draw w
 			PVector scaledStart = this.parent.absPos.copy().mult(this.scaleD);
 			
-			context.strokeWeight(4);
-			context.stroke(255, 0, 0);
-			context.line(scaledStart.x, scaledStart.y, scaledStart.z,
+			canvas.strokeWeight(4);
+			canvas.stroke(255, 0, 0);
+			canvas.line(scaledStart.x, scaledStart.y, scaledStart.z,
 					scaledStart.x + this.w.x, scaledStart.y + this.w.y,
 					scaledStart.z + this.w.z);
 						
 			// Draw offset between normal vector and w
-			this.context.strokeWeight(4);
-			this.context.stroke(51);
+			canvas.strokeWeight(4);
+			canvas.stroke(51);
 			
 			PVector start = this.parent.absPos.copy();
 			PVector scaledOffsetStart = start.copy().mult(this.scaleD);
 			PVector scaledOffsetEnd = start.copy().add(offset).mult(this.scaleD);
 			
-			this.context.line(scaledOffsetStart.x, scaledOffsetStart.y, scaledOffsetStart.z,
+			canvas.line(scaledOffsetStart.x, scaledOffsetStart.y, scaledOffsetStart.z,
 					scaledOffsetEnd.x, scaledOffsetEnd.y,
 					scaledOffsetEnd.z);
 			
 			// Draw normal vector from w
 			PVector scaledPnStart = start.copy().add(offset).mult(this.scaleD);
 			PVector scaledPnEnd = start.copy().add(offset).add(pn).mult(this.scaleD);
-			this.context.line(scaledPnStart.x, scaledPnStart.y, scaledPnStart.z,
+			canvas.line(scaledPnStart.x, scaledPnStart.y, scaledPnStart.z,
 					scaledPnEnd.x, scaledPnEnd.y,
 					scaledPnEnd.z);
 		}
-		context.pushMatrix();
-		context.translate(scaledPos.x, scaledPos.y, scaledPos.z);
+		canvas.pushMatrix();
+		canvas.translate(scaledPos.x, scaledPos.y, scaledPos.z);
 		if (this.visibilityPath)
 		{
-			context.fill(this.pathColor[0], this.pathColor[1], this.pathColor[2]);
+			canvas.fill(this.pathColor[0], this.pathColor[1], this.pathColor[2]);
 		}
 		else
 		{
-			context.fill(255, 255, 255, 50);
+			canvas.fill(255, 255, 255, 50);
 		}
-		context.lights();
-		context.noStroke();
+		canvas.lights();
+		canvas.noStroke();
 		try
 		{
-			context.sphere(10);
+			canvas.sphere(10);
 		}
 		catch (Exception e)
 		{
 
 		}
-		context.popMatrix();
-		context.hint(DISABLE_DEPTH_TEST);
-		context.fill(255);
+		canvas.popMatrix();
+		canvas.hint(DISABLE_DEPTH_TEST);
+		canvas.fill(255);
 		if (!this.name.equals(""))
 		{
-			context.text(this.name, scaledPos.x + this.size, scaledPos.y + this.size, scaledPos.z + this.size);
+			canvas.text(this.name, scaledPos.x + this.size, scaledPos.y + this.size, scaledPos.z + this.size);
 		}
-		context.hint(ENABLE_DEPTH_TEST);
+		canvas.hint(ENABLE_DEPTH_TEST);
+		canvas.endDraw();
 	}
 
 	public void setName(String name)

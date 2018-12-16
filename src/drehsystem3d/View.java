@@ -1,5 +1,7 @@
 package drehsystem3d;
 
+import java.awt.Component;
+import java.awt.MouseInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,8 +48,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	protected boolean hovered = false;
 	protected int viewWidth = 0, viewHeight = 0;
 	protected final Spacing margin = new Spacing();
-	protected int[] backgroundColor = {0, 0, 0};
-	protected int backgroundAlpha = 255;
+	protected Color backgroundColor = new Color(0, 0, 0, 255);
 	protected AlignmentHorizontal horizontalAlignment = AlignmentHorizontal.MANUALL;
 	protected AlignmentVertical verticalAlignment = AlignmentVertical.MANUALL;
 	protected PApplet context = null;
@@ -271,18 +272,17 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public void setBackgroundColor(int color)
 	{
-		this.backgroundColor = new int[] {color, color, color};
+		this.backgroundColor.setColor(color);
 	}
 	
-	public void setBackgroundColor(int[] color)
+	public void setBackgroundColor(Color color)
 	{
-		if (color.length != 3) return;
 		this.backgroundColor = color;
 	}
 
 	public void setBackgroundgAlpha(int alpha)
 	{
-		this.backgroundAlpha = alpha;
+		this.backgroundColor.a = alpha;
 	}
 
 	public void setSize(int w, int h)
@@ -488,7 +488,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		if (isClicked())
+		if (this.visible && isClicked())
 		{
 			this.clicked = true;
 			if (this.onClickListener != null)

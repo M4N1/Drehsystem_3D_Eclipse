@@ -9,7 +9,9 @@ import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
+import drehsystem3d.Global;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
 import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
@@ -136,8 +138,6 @@ public class Button extends TextView
 						x = shapeDimPos.x;
 						y = shapeDimPos.y;
 					}
-					// Logger.log("x:"+x);
-					// Logger.log("y:"+y);
 					counter++;
 					this.canvas.stroke(255);
 					this.canvas.vertex(x, y);
@@ -181,7 +181,7 @@ public class Button extends TextView
 			xOff = this.cornerRadius - (x - this.pos.x);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
 			yMin = this.pos.y + f;
-			yMax = this.pos.y + this.viewHeight - f;
+			yMax = this.pos.y + this.height - f;
 			if (y < yMin)
 			{
 				return new PVector(x, yMin);
@@ -192,9 +192,9 @@ public class Button extends TextView
 			}
 			return null;
 		}
-		if (x >= this.pos.x + this.viewWidth - this.cornerRadius)
+		if (x >= this.pos.x + this.width - this.cornerRadius)
 		{
-			xMax = this.pos.x + this.viewWidth;
+			xMax = this.pos.x + this.width;
 			if (x > xMax)
 			{
 				return new PVector(xMax, y);
@@ -202,7 +202,7 @@ public class Button extends TextView
 			xOff = x - (xMax - this.cornerRadius);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
 			yMin = this.pos.y + f;
-			yMax = this.pos.y + this.viewHeight - f;
+			yMax = this.pos.y + this.height - f;
 			if (y < yMin)
 			{
 				return new PVector(x, yMin);
@@ -214,9 +214,9 @@ public class Button extends TextView
 			return null;
 		}
 		xMin = this.pos.x;
-		xMax = this.pos.x + this.viewWidth;
+		xMax = this.pos.x + this.width;
 		yMin = this.pos.y;
-		yMax = this.pos.y + this.viewHeight;
+		yMax = this.pos.y + this.height;
 		if (x < xMin)
 		{
 			return new PVector(xMin, y);
@@ -262,6 +262,7 @@ public class Button extends TextView
 	public boolean onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
+		Global.logger.log(Level.FINER, "Button '" + this.name + "'", new Object[] {this.pos, this.width, this.height});
 		if (this.clicked)
 		{
 			this.clickAnimationVisible = true;

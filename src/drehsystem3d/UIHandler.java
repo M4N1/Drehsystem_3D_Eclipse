@@ -1,9 +1,10 @@
 package drehsystem3d;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 import drehsystem3d.Listener.UserInputListener;
@@ -15,51 +16,73 @@ import ui.View;
 public class UIHandler implements UserInputListener, WindowResizeListener
 {
 	private PApplet context;
-	private Map<String, View> uiContents;
+	private List<View> uiContents;
+	private Set<View> contentsToManage;
 
 	public UIHandler(PApplet context)
 	{
 		this.context = context;
-		this.uiContents = new LinkedHashMap<>();
+		this.uiContents = new ArrayList<>();
+		this.contentsToManage = new TreeSet<>(new Comparator<View>() {
+
+			@Override
+			public int compare(View v1, View v2)
+			{
+				if (v1.equals(v2)) return 0;
+				int priority = v1.getDrawPriority() - v2.getDrawPriority();
+				return priority == 0 ? 1 : priority;
+			}
+		});
 	}
 
-	public void addUiElement(View view)
+	public boolean addUiElement(View view)
 	{
-		this.uiContents.put(view.getName(), view);
+		return addUiElement(view, true);
+	}
+	
+	public boolean addUiElement(View view, boolean manage)
+	{
+		Global.logger.log(Level.FINE, "Adding element to ui.", new Object[] {view, view.getName()});
+		if (this.uiContents.contains(view))
+			Global.logger.log(Level.FINE, "Element already exists.", new Object[] {view, view.getName()});
+		boolean success = this.uiContents.add(view);
+		if (success) this.contentsToManage.add(view);
+		return success;
 	}
 
-	public void removeUiElement(String name)
+	public boolean removeUiElement(String name)
 	{
-		if (!this.uiContents.containsKey(name))
-		{
-			return;
-		}
-		this.uiContents.remove(name);
+		View v = getUiElement(name);
+		if (v == null) return false;
+		boolean success = this.uiContents.remove(v);
+		if (success) this.contentsToManage.remove(v);
+		return success;
 	}
 
-	public View getUiElement(String key)
+	public View getUiElement(String name)
 	{
-		return this.uiContents.get(key);
+		for (View v : this.uiContents)
+			if (v.getName().equals(name)) return v;
+		return null;
 	}
 
 	public void draw()
 	{
 		if (Global.logger.isLoggable(Level.FINEST))
 			System.out.print("\n");
-		for (Map.Entry<String, View> pair : this.uiContents.entrySet())
-		{
-			pair.getValue().draw();
-			Global.logger.log(Level.FINEST, "UI draw event", pair.getKey());
-		}
+		this.contentsToManage.forEach((v) -> {
+			v.draw();
+			Global.logger.log(Level.FINEST, "UI draw event", v.getName());
+		});
 	}
 
 	@Override
 	public boolean onKeyPressed(int keyCode, char key)
 	{
 		boolean uiElementClicked = false;
-		for (Map.Entry<String, View> entry : this.uiContents.entrySet())
+		for (View v : this.contentsToManage)
 		{
-			uiElementClicked = uiElementClicked || entry.getValue().onKeyPressed(keyCode, key);
+			uiElementClicked = uiElementClicked || v.onKeyPressed(keyCode, key);
 		}
 		return uiElementClicked;
 	}
@@ -68,9 +91,9 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	public boolean onKeyReleased(int keyCode, char key)
 	{
 		boolean uiElementClicked = false;
-		for (Map.Entry<String, View> entry : this.uiContents.entrySet())
+		for (View v : this.contentsToManage)
 		{
-			uiElementClicked = uiElementClicked || entry.getValue().onKeyReleased(keyCode, key);
+			uiElementClicked = uiElementClicked || v.onKeyReleased(keyCode, key);
 		}
 		return uiElementClicked;
 	}
@@ -79,13 +102,12 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	public boolean onMousePressed(int mouseButton)
 	{
 		boolean uiElementClicked = false;
-		for (Map.Entry<String, View> entry : this.uiContents.entrySet())
+		for (View v : this.contentsToManage)
 		{
-			View element = entry.getValue();
-			boolean elementClicked = element.onMousePressed(mouseButton);
+			boolean elementClicked = v.onMousePressed(mouseButton);
 			if (elementClicked)
 			{
-				Global.logger.log(Level.FINE, "View item clicked", new Object[] {entry.getKey(), element.getId(), element.getClass().getName()});
+				Global.logger.log(Level.FINE, "View item clicked", new Object[] {v.getName(), v.getId(), v.getClass().getName()});
 			}
 			
 			uiElementClicked = uiElementClicked || elementClicked;
@@ -96,7 +118,7 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	@Override
 	public void onMouseDragged()
 	{
-		this.uiContents.forEach((k, v) -> {
+		this.contentsToManage.forEach((v) -> {
 			v.onMouseDragged();
 		});
 	}
@@ -104,14 +126,14 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	@Override
 	public void onMouseReleased(int mouseButton)
 	{
-		this.uiContents.forEach((k, v) -> {
+		this.contentsToManage.forEach((v) -> {
 			v.onMouseReleased(mouseButton);
 		});
 	}
 
 	@Override
 	public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew) {
-		this.uiContents.forEach((k, v) -> {
+		this.contentsToManage.forEach((v) -> {
 			v.onWindowResize(widthOld, heightOld, widthNew, heightNew);
 		});
 	}

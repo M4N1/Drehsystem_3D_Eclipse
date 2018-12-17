@@ -30,20 +30,6 @@ public class Container extends View
 		if (v.container == this) v.container = null;
 		return this.children.remove(v);
 	}
-
-	@Override
-	public boolean isClicked()
-	{
-		return (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.viewWidth
-				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.viewHeight);
-	}
-
-	@Override
-	public boolean isHovered()
-	{
-		return (this.context.mouseX >= this.pos.x && this.context.mouseX <= this.pos.x + this.viewWidth
-				&& this.context.mouseY >= this.pos.y && this.context.mouseY <= this.pos.y + this.viewHeight);
-	}
 	
 	@Override
 	public boolean onMousePressed(int mouseButton)

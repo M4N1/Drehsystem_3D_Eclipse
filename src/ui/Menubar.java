@@ -7,13 +7,12 @@ import java.util.logging.Level;
 
 import drehsystem3d.Global;
 import drehsystem3d.Listener.OnClickListener;
-import drehsystem3d.Listener.OnHoverListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import ui.TextView.TextAlignment;
 
-public class Menubar extends View implements OnHoverListener
+public class Menubar extends View
 {
 	List<List<Button>> menuItems = new ArrayList<List<Button>>();
 	private Color menuColor = new Color(255, 255, 255);
@@ -253,24 +252,6 @@ public class Menubar extends View implements OnHoverListener
 		}
 		return false;
 	}
-
-	@Override
-	public boolean isClicked()
-	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + this.viewHeight);
-	}
-
-	@Override
-	public boolean isHovered()
-	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + this.viewHeight);
-	}
 	
 	@Override
 	public boolean onMousePressed(int mouseButton)
@@ -283,12 +264,6 @@ public class Menubar extends View implements OnHoverListener
 			}			
 		}
 		return super.onMousePressed(mouseButton);
-	}
-
-	@Override
-	public void onHover(View v)
-	{
-		
 	}
 	
 	@Override
@@ -304,10 +279,10 @@ public class Menubar extends View implements OnHoverListener
 		}
 		this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 		this.canvas.noStroke();
-		this.canvas.rect(0, 0, this.viewWidth, this.viewHeight);
+		this.canvas.rect(0, 0, this.width, this.height);
 		this.canvas.strokeWeight(1);
 		this.canvas.stroke(255);
-		this.canvas.line(0, this.viewHeight, this.viewWidth, this.viewHeight);
+		this.canvas.line(0, this.height, this.width, this.height);
 		
 		for (List<Button> subItems : this.menuItems)
 		{

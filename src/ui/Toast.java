@@ -65,24 +65,14 @@ public class Toast extends View
 	@Override
 	public boolean isClicked()
 	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		if (mX >= this.pos.x && mX <= this.pos.x + Toast.standardWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + Toast.standardHeight)
+		super.isClicked();
+		if (this.clicked)
 		{
+			float mX = this.context.mouseX;
+			float mY = this.context.mouseY;
 			this.mousePosDiff = new PVector(mX - this.pos.x, mY - this.pos.y, 0);
-			return true;
 		}
-		return false;
-	}
-
-	@Override
-	public boolean isHovered()
-	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + Toast.standardWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + Toast.standardHeight);
+		return this.clicked;
 	}
 	
 	@Override

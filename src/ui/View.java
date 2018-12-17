@@ -35,6 +35,8 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	public static int instanceCounter = 0;
 	private static List<View> viewInstances = new ArrayList<View>();
 	
+	protected int drawPriority = 1;
+	
 	protected View container = null;
 	protected int id = -1;
 	protected final String name;
@@ -113,6 +115,26 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		this.canvas = this.context.getGraphics();
 		View.registerInstance(this);
+	}
+	
+	public void setCanvas(PGraphics canvas)
+	{
+		this.canvas = canvas;
+	}
+	
+	public void setDrawPriority(int priority)
+	{
+		this.drawPriority = priority;
+	}
+	
+	public int getDrawPriority()
+	{
+		return this.drawPriority;
+	}
+	
+	public PGraphics getCanvas()
+	{
+		return this.canvas;
 	}
 	
 	public String getName()
@@ -308,13 +330,13 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	public void setWidth(int w)
 	{
 		this.width = w;
-		this.viewWidth = w;
+		this.viewWidth = w + this.getMarginX();
 	}
 
 	public void setHeight(int h)
 	{
 		this.height = h;
-		this.viewHeight = h;
+		this.viewHeight = h + this.getMarginY();
 	}
 
 	private void calcPosX()
@@ -490,10 +512,25 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		this.onHoverEndAction = action;
 	}
+	
+	public PVector getPos()
+	{
+		return this.container == null ? this.pos.copy() : this.pos.copy().add(this.container.getPos());
+	}
 
-	public abstract boolean isClicked();
+	public boolean isClicked()
+	{
+		return isHovered();
+	}
 
-	public abstract boolean isHovered();
+	public boolean isHovered()
+	{
+		float mX = this.context.mouseX;
+		float mY = this.context.mouseY;
+		PVector pos = getPos();
+		return (mX > pos.x && mX <= pos.x + this.width && mY > pos.y
+				&& mY <= pos.y + this.height);
+	}
 
 	@Override
 	public boolean onMousePressed(int mouseButton)

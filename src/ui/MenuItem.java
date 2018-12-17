@@ -189,26 +189,4 @@ public class MenuItem extends View
 			}
 		}
 	}
-
-	@Override
-	public boolean isClicked()
-	{
-		if (!this.visible)
-		{
-			return false;
-		}
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + this.viewHeight);
-	}
-
-	@Override
-	public boolean isHovered()
-	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + this.viewHeight);
-	}
 }

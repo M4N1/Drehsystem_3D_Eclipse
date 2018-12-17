@@ -178,6 +178,7 @@ public class Drehsystem3d extends PApplet
 		menuBar.addMenuItem("Help", null);
 		menuBar.addMenuSubItem("Controls", null);
 		menuBar.addMenuSubItem("About", null);
+		menuBar.setDrawPriority(999);
 		this.uiHandler.addUiElement(menuBar);
 	}
 	
@@ -194,7 +195,7 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement(sidebar);
 		
 		this.cLines = setupCheckbox("cLines", "connections", true);
-		this.cLines.setPos(new PVector(uiMarginX, 180));
+		this.cLines.setPos(new PVector(uiMarginX, 140));
 		
 		this.cVelocity = setupCheckbox("cVelocity", "v", true);
 		this.cVelocity.alignBottom(this.cLines);
@@ -227,7 +228,6 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.removePoints = true;
 			}
 		});
-		this.uiHandler.addUiElement(bRemovePoints);
 
 		bMoveToStart = setupButton("bStart");
 		bMoveToStart.alignBottom(bRemovePoints);
@@ -246,7 +246,6 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.moveToStart = true;
 			}
 		});
-		this.uiHandler.addUiElement(bMoveToStart);
 
 		bClearPath = setupButton("bClearPath");
 		bClearPath.alignBottom(bMoveToStart);
@@ -265,7 +264,6 @@ public class Drehsystem3d extends PApplet
 				Drehsystem3d.this.clearPath = true;
 			}
 		});
-		this.uiHandler.addUiElement(bClearPath);
 
 		bAlignCamera = setupButton("bAlign");
 		bAlignCamera.alignBottom(bClearPath);
@@ -285,7 +283,6 @@ public class Drehsystem3d extends PApplet
 			}
 		});
 		bAlignCamera.setId(1);
-		this.uiHandler.addUiElement(bAlignCamera);
 
 		Toast toast = new Toast(this, "WelcomeToast", "Welcome!", Toast.DURATION_LONG);
 		toast.setStartX((this.width + this.menuBarLeft_Width - toast.getWidth()) / 2);
@@ -343,6 +340,7 @@ public class Drehsystem3d extends PApplet
 				b.setTextColor(255);
 			}
 		});
+		this.uiHandler.addUiElement(b, false);
 		return b;
 	}
 
@@ -490,10 +488,10 @@ public class Drehsystem3d extends PApplet
 		
 		hint(DISABLE_DEPTH_TEST);
 
-		//drawTextElements();
-		drawMenuItem();
-		
 		this.uiHandler.draw();
+		
+		drawTextElements();
+		drawMenuItem();
 		
 		hint(ENABLE_DEPTH_TEST);
 		
@@ -514,7 +512,7 @@ public class Drehsystem3d extends PApplet
 
 	private void setButtonVisibility()
 	{
-		Button align = (Button) uiHandler.getUiElement("bAlign");
+		Button align = (Button) this.uiHandler.getUiElement("bAlign");
 		boolean bAlignVisible = !(cameraController.getAngle()[0] == 0 && cameraController.getAngle()[1] == 0
 				&& cameraController.getPos().x == width / 2 && cameraController.getPos().y == height / 2
 				&& cameraController.getZoom() == 1);
@@ -709,33 +707,36 @@ public class Drehsystem3d extends PApplet
 	 */
 	private void drawTextElements()
 	{
-		pushMatrix();
-		noLights();
-		fill(255);
-		stroke(255);
-		textSize(20);
-		text("X:" + this.mouseX, uiMarginX, this.height - 60);
-		text("Y:" + this.mouseY, uiMarginX, this.height - 40);
-		text("Elapsed time:" + (int) (this.elapsedTime / 1000), uiMarginX, this.height - 20);
+		Container sidebar = (Container)this.uiHandler.getUiElement("Sidebar");
+		PGraphics canvas = sidebar.getCanvas();
+		canvas.beginDraw();
+		canvas.pushMatrix();
+		canvas.fill(255);
+		canvas.stroke(255);
+		canvas.textSize(20);
+		canvas.text("X:" + this.mouseX, uiMarginX, this.height - 60);
+		canvas.text("Y:" + this.mouseY, uiMarginX, this.height - 40);
+		canvas.text("Elapsed time:" + (int) (this.elapsedTime / 1000), uiMarginX, this.height - 20);
 
 		if (TEXT_OUTPUT)
 		{
-			fill(255);
-			stroke(255);
+			canvas.fill(255);
+			canvas.stroke(255);
 
-			text("Scale:", uiMarginX, 80);
-			text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 70, 80);
+			canvas.text("Scale:", uiMarginX, 80);
+			canvas.text("1m/s : " + this.scale + "px\n1m : " + this.scaleD + "px", uiMarginX + 70, 80);
 
 			if (this.stopped)
 			{
-				text("paused", uiMarginX, this.height - 100);
+				canvas.text("paused", uiMarginX, this.height - 100);
 			}
 
 			String speed = "" + (this.speed < 0 ? "(" + this.speed + ")" : this.speed);
 			String speedOutput = "Speed: x" + speed;
-			text(speedOutput, (this.width + this.menuBarLeft_Width - textWidth(speedOutput)) / 2, this.height - 20);
+			canvas.text(speedOutput, (this.width + this.menuBarLeft_Width - textWidth(speedOutput)) / 2, this.height - 20);
 		}
-		popMatrix();
+		canvas.popMatrix();
+		canvas.endDraw();
 	}
 
 	/**

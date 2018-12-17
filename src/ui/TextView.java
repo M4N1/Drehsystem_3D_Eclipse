@@ -138,15 +138,17 @@ public class TextView extends View
 	{
 		this.canvas.textSize(this.textSize);
 		int nWidth = (int) this.canvas.textWidth(this.text) + this.padding.getSpacingX() * 2;
-		int newWidth = this.viewWidth > nWidth ? this.viewWidth : nWidth;
-		this.viewWidth = newWidth;
+		int newWidth = this.width > nWidth ? this.width : nWidth;
+		this.width = newWidth;
+		this.viewWidth = newWidth + this.getMarginX();
 	}
 
 	public void calcHeight()
 	{
 		int nHeight = this.textSize + 2 * this.padding.getSpacingY();
-		int newHeight = this.viewHeight > nHeight ? this.viewHeight : nHeight;
-		this.viewHeight = newHeight;
+		int newHeight = this.height > nHeight ? this.height : nHeight;
+		this.height = newHeight;
+		this.viewHeight = newHeight + this.getMarginY();
 	}
 
 	public void setTextAlignment(TextAlignment alignment)
@@ -192,7 +194,7 @@ public class TextView extends View
 				break;
 
 			case RIGHT:
-				offset = this.viewWidth - this.canvas.textWidth(this.text) - paddingSpacingX;
+				offset = this.width - this.canvas.textWidth(this.text) - paddingSpacingX;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -201,7 +203,7 @@ public class TextView extends View
 				break;
 
 			case CENTER:
-				offset = (this.viewWidth - this.canvas.textWidth(this.text)) / 2;
+				offset = (this.width - this.canvas.textWidth(this.text)) / 2;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -210,29 +212,6 @@ public class TextView extends View
 				break;
 		}
 		return posX;
-	}
-
-	@Override
-	public boolean isClicked()
-	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX > this.pos.x && mX <= this.pos.x + this.viewWidth && mY > this.pos.y
-				&& mY <= this.pos.y + this.viewHeight);
-	}
-
-	@Override
-	public boolean isHovered()
-	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		return (mX > this.pos.x && mX <= this.pos.x + this.viewWidth && mY > this.pos.y
-				&& mY <= this.pos.y + this.viewHeight);
-	}
-	
-	public void highlightOnHover(int[] color)
-	{
-		
 	}
 
 	@Override
@@ -251,14 +230,14 @@ public class TextView extends View
 				this.canvas.noStroke();
 			}
 			this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-			this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
+			this.canvas.rect(this.pos.x, this.pos.y, this.width, this.height, this.cornerRadius);
 			
 			this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
 			this.canvas.textSize(this.textSize);
 			calcWidth();
 			calcHeight();
 			float x = calcAlignment();
-			float y = this.pos.y + this.viewHeight - (this.viewHeight - this.textSize) / 2 - 2;
+			float y = this.pos.y + this.height - (this.height - this.textSize) / 2 - 2;
 			this.canvas.text(this.text, x, y);
 		}
 	}

@@ -102,10 +102,9 @@ public class Container extends View
 			this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
 			
-			for (View v : this.children)
-			{
-				v.draw();
-			}
+			this.children.forEach((c) -> {
+				c.draw();
+			});
 		}
 	}
 }

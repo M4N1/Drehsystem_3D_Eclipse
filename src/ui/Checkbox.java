@@ -126,21 +126,21 @@ public class Checkbox extends View
 	public void draw()
 	{
 		super.draw();
-		this.context.noFill();
-		this.context.stroke(255);
-		this.context.strokeWeight(this.hovered ? 2 : 1);
-		this.context.textSize(this.viewHeight);
-		this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
-		this.context.strokeWeight(1);
+		this.canvas.noFill();
+		this.canvas.stroke(255);
+		this.canvas.strokeWeight(this.hovered ? 2 : 1);
+		this.canvas.textSize(this.viewHeight);
+		this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
+		this.canvas.strokeWeight(1);
 		if (this.checked)
 		{
-			this.context.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.viewWidth - padding, this.pos.y + this.viewHeight - padding);
-			this.context.line(this.pos.x + padding, this.pos.y + this.viewHeight - padding, this.pos.x + this.viewWidth - padding, this.pos.y + padding);
+			this.canvas.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.viewWidth - padding, this.pos.y + this.viewHeight - padding);
+			this.canvas.line(this.pos.x + padding, this.pos.y + this.viewHeight - padding, this.pos.x + this.viewWidth - padding, this.pos.y + padding);
 		}
 		if (!this.text.equals(""))
 		{
-			this.context.fill(255);
-			this.context.text(this.text, this.pos.x + this.viewWidth + 10, this.pos.y + this.viewHeight);
+			this.canvas.fill(255);
+			this.canvas.text(this.text, this.pos.x + this.viewWidth + 10, this.pos.y + this.viewHeight);
 		}
 	}
 }

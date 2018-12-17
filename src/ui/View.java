@@ -115,6 +115,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		View.registerInstance(this);
 	}
 	
+	public void setCanvas(PGraphics canvas)
+	{
+		this.canvas = canvas;
+	}
+	
 	public String getName()
 	{
 		return this.name;

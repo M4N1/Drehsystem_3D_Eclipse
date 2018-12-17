@@ -10,7 +10,6 @@ import static processing.core.PConstants.TWO_PI;
 
 import java.util.ArrayList;
 
-import drehsystem3d.Listener;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
 import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
@@ -92,12 +91,12 @@ public class Button extends TextView
 		super.draw();
 		if (this.clickAnimationVisible)
 		{
-			this.context.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
-			this.context.noStroke();
+			this.canvas.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
+			this.canvas.noStroke();
 			boolean finished = true;
 			if (this.visible)
 			{
-				this.context.beginShape();
+				this.canvas.beginShape();
 				float x = 0, y = 0;
 				if (this.points.size() == 0)
 				{
@@ -139,10 +138,10 @@ public class Button extends TextView
 					// Logger.log("x:"+x);
 					// Logger.log("y:"+y);
 					counter++;
-					this.context.stroke(255);
-					this.context.vertex(x, y);
+					this.canvas.stroke(255);
+					this.canvas.vertex(x, y);
 				}
-				this.context.endShape();
+				this.canvas.endShape();
 			}
 			if (this.context.millis() - this.clickAnimationLastTime > 1)
 			{

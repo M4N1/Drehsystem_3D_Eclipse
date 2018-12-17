@@ -602,34 +602,34 @@ public class TextBox extends TextView
 			float y2 = this.pos.y + this.viewHeight - offset + 1;
 			if (this.cursorVisible)
 			{
-				this.context.line(this.cursorPosX, y1, this.cursorPosX, y2);
+				this.canvas.line(this.cursorPosX, y1, this.cursorPosX, y2);
 			}
 			if (this.mouseDrag)
 			{
-				this.context.fill(255, 255, 255, 100);
-				this.context.noStroke();
-				this.context.rect(this.cursorPosX, y1, this.dragCursorPosX - this.cursorPosX, y2 - y1);
+				this.canvas.fill(255, 255, 255, 100);
+				this.canvas.noStroke();
+				this.canvas.rect(this.cursorPosX, y1, this.dragCursorPosX - this.cursorPosX, y2 - y1);
 			}
 			else if (this.markedAreaLength > 0)
 			{
-				this.context.fill(255, 255, 255, 100);
-				this.context.noStroke();
+				this.canvas.fill(255, 255, 255, 100);
+				this.canvas.noStroke();
 				int start = calcCharPos(this.markedAreaStart);
 				int stop = calcCharPos(this.markedAreaLength + this.markedAreaStart) - start;
-				this.context.rect(start, y1, stop, y2 - y1);
+				this.canvas.rect(start, y1, stop, y2 - y1);
 			}
 		}
 	}
 
 	public int calcCharPos(int idx)
 	{
-		this.context.textSize(this.textSize);
+		this.canvas.textSize(this.textSize);
 		String displayedText = getEditableText();
 		if (displayedText.length() == 0 || idx < 0 || idx > displayedText.length())
 		{
 			return (int) calcAlignment(displayedText);
 		}
-		return (int) (calcAlignment() + this.context.textWidth(displayedText.substring(0, idx)));
+		return (int) (calcAlignment() + this.canvas.textWidth(displayedText.substring(0, idx)));
 	}
 
 	public int calcClosestCharPos(float x)
@@ -638,11 +638,11 @@ public class TextBox extends TextView
 		String displayedText = getEditableText();
 		float posX = calcAlignment(displayedText);
 		float min = this.viewWidth;
-		this.context.textSize(this.textSize);
+		this.canvas.textSize(this.textSize);
 		for (int i = 0; i < displayedText.length() + 1; i++)
 		{
 			String subString = displayedText.substring(0, i);
-			float dist = Drehsystem3d.abs(this.context.textWidth(subString) - (x - posX));
+			float dist = Drehsystem3d.abs(this.canvas.textWidth(subString) - (x - posX));
 			if (dist < min)
 			{
 				min = dist;
@@ -660,7 +660,7 @@ public class TextBox extends TextView
 
 	public float calcAlignment(String displayedText)
 	{
-		this.context.textSize(this.textSize);
+		this.canvas.textSize(this.textSize);
 		float posX = this.pos.x;
 		float offset = 0;
 		int paddingSpacingX = this.padding.getSpacingX();
@@ -671,7 +671,7 @@ public class TextBox extends TextView
 				break;
 
 			case RIGHT:
-				offset = this.viewWidth - this.context.textWidth(displayedText) - paddingSpacingX;
+				offset = this.viewWidth - this.canvas.textWidth(displayedText) - paddingSpacingX;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -680,7 +680,7 @@ public class TextBox extends TextView
 				break;
 
 			case CENTER:
-				offset = (this.viewWidth - this.context.textWidth(displayedText)) / 2;
+				offset = (this.viewWidth - this.canvas.textWidth(displayedText)) / 2;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -717,12 +717,12 @@ public class TextBox extends TextView
 	@Override
 	public void draw()
 	{
-		//super.draw();
-		this.context.noFill();
-		this.context.stroke(255);
-		this.context.strokeWeight(1);
-		this.context.textSize(this.textSize);
-		this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
+		super.draw();
+		this.canvas.noFill();
+		this.canvas.stroke(255);
+		this.canvas.strokeWeight(1);
+		this.canvas.textSize(this.textSize);
+		this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
 		float offset = (this.viewHeight - this.textSize) / 2 + 2;
 		float posX = calcAlignment();
 		if (offset < 0)
@@ -731,13 +731,13 @@ public class TextBox extends TextView
 		}
 		if (this.outputText.equals(this.hint))
 		{
-			this.context.fill(100);
+			this.canvas.fill(100);
 		}
 		else
 		{
-			this.context.fill(255);
+			this.canvas.fill(255);
 		}
-		this.context.text(this.outputText, posX, this.pos.y + this.viewHeight - offset);
+		this.canvas.text(this.outputText, posX, this.pos.y + this.viewHeight - offset);
 		showCursor();
 	}
 }

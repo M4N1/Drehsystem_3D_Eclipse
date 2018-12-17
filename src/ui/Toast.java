@@ -27,7 +27,6 @@ public class Toast extends View
 	public Toast(PApplet context, String name, String text, int duration)
 	{
 		super(context, name, context.width / 2 - standardWidth / 2, context.height);
-		this.context = context;
 		this.text = text;
 		switch (duration)
 		{
@@ -158,8 +157,8 @@ public class Toast extends View
 			{
 				x = this.context.mouseX - this.mousePosDiff.x;
 				y = this.context.mouseY - this.mousePosDiff.y;
-				if (x + getWidth() / 2 < 0 || x + getWidth() / 2 > this.context.width || y + getHeight() / 2 < 0
-						|| y + getHeight() / 2 > this.context.height)
+				if (x + getWidth() / 2 < 0 || x + getWidth() / 2 > this.canvas.width || y + getHeight() / 2 < 0
+						|| y + getHeight() / 2 > this.canvas.height)
 				{
 					this.visible = false;
 				}
@@ -168,7 +167,7 @@ public class Toast extends View
 					x -= getWidth() / 2;
 					destroy = true;
 				}
-				else if (x + 2 * getWidth() > this.context.width)
+				else if (x + 2 * getWidth() > this.canvas.width)
 				{
 					x += getWidth() / 2;
 					destroy = true;
@@ -179,15 +178,15 @@ public class Toast extends View
 				}
 			}
 
-			this.context.fill(255);
-			this.context.noStroke();
-			this.context.textSize(20);
+			this.canvas.fill(255);
+			this.canvas.noStroke();
+			this.canvas.textSize(20);
 
-			this.context.rect(x, y, getWidth(), getHeight(), Toast.standardRadius);
-			this.context.fill(0);
-			float pX = x + (getWidth() - this.context.textWidth(this.text)) / 2;
+			this.canvas.rect(x, y, getWidth(), getHeight(), Toast.standardRadius);
+			this.canvas.fill(0);
+			float pX = x + (getWidth() - this.canvas.textWidth(this.text)) / 2;
 			float pY = y + 18 + (getHeight() - 20) / 2;
-			this.context.text(this.text, pX, pY);
+			this.canvas.text(this.text, pX, pY);
 		}
 	}
 }

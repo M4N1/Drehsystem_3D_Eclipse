@@ -26,7 +26,7 @@ public class Menubar extends View implements OnHoverListener
 	public Menubar(PApplet context, String name)
 	{
 		super(context, name);
-		this.setWidth(this.context.displayWidth);
+		this.setWidth(this.canvas.width);
 		this.backgroundColor = menuColor;
 	}
 	
@@ -301,12 +301,12 @@ public class Menubar extends View implements OnHoverListener
 			if (h > this.viewHeight)
 				this.viewHeight = h;
 		}
-		this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-		this.context.noStroke();
-		this.context.rect(0, 0, this.viewWidth, this.viewHeight);
-		this.context.strokeWeight(1);
-		this.context.stroke(255);
-		this.context.line(0, this.viewHeight, this.viewWidth, this.viewHeight);
+		this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
+		this.canvas.noStroke();
+		this.canvas.rect(0, 0, this.viewWidth, this.viewHeight);
+		this.canvas.strokeWeight(1);
+		this.canvas.stroke(255);
+		this.canvas.line(0, this.viewHeight, this.viewWidth, this.viewHeight);
 		
 		for (List<Button> subItems : this.menuItems)
 		{

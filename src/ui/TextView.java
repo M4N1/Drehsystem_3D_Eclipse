@@ -135,8 +135,8 @@ public class TextView extends View
 
 	public void calcWidth()
 	{
-		this.context.textSize(this.textSize);
-		int nWidth = (int) this.context.textWidth(this.text) + this.padding.getSpacingX() * 2;
+		this.canvas.textSize(this.textSize);
+		int nWidth = (int) this.canvas.textWidth(this.text) + this.padding.getSpacingX() * 2;
 		int newWidth = this.viewWidth > nWidth ? this.viewWidth : nWidth;
 		this.viewWidth = newWidth;
 	}
@@ -180,7 +180,7 @@ public class TextView extends View
 
 	public float calcAlignment()
 	{
-		this.context.textSize(this.textSize);
+		this.canvas.textSize(this.textSize);
 		float posX = this.pos.x;
 		float offset = 0;
 		int paddingSpacingX = this.padding.getSpacingX();
@@ -191,7 +191,7 @@ public class TextView extends View
 				break;
 
 			case RIGHT:
-				offset = this.viewWidth - this.context.textWidth(this.text) - paddingSpacingX;
+				offset = this.viewWidth - this.canvas.textWidth(this.text) - paddingSpacingX;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -200,7 +200,7 @@ public class TextView extends View
 				break;
 
 			case CENTER:
-				offset = (this.viewWidth - this.context.textWidth(this.text)) / 2;
+				offset = (this.viewWidth - this.canvas.textWidth(this.text)) / 2;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -240,25 +240,25 @@ public class TextView extends View
 		super.draw();
 		if (this.visible)
 		{
-			this.context.stroke(this.strokeColor);
+			this.canvas.stroke(this.strokeColor);
 			if (this.strokeWeight > 0)
 			{
-				this.context.strokeWeight(this.strokeWeight);
+				this.canvas.strokeWeight(this.strokeWeight);
 			}
 			else
 			{
-				this.context.noStroke();
+				this.canvas.noStroke();
 			}
-			this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
+			this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
+			this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight, this.cornerRadius);
 			
-			this.context.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
-			this.context.textSize(this.textSize);
+			this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
+			this.canvas.textSize(this.textSize);
 			calcWidth();
 			calcHeight();
 			float x = calcAlignment();
 			float y = this.pos.y + this.viewHeight - (this.viewHeight - this.textSize) / 2 - 2;
-			this.context.text(this.text, x, y);
+			this.canvas.text(this.text, x, y);
 		}
 	}
 }

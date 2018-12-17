@@ -133,8 +133,8 @@ public class MenuItem extends View
 
 	public void calcPos()
 	{
-		int xMax = this.context.width - this.viewWidth - 10;
-		int yMax = this.context.height - this.viewHeight - 10;
+		int xMax = this.canvas.width - this.viewWidth - 10;
+		int yMax = this.canvas.height - this.viewHeight - 10;
 		if (this.pos.x > xMax)
 		{
 			updatePos(xMax - this.pos.x, 0);
@@ -168,10 +168,10 @@ public class MenuItem extends View
 		super.draw();
 		if (this.visible)
 		{
-			this.context.fill(150, 150, 150, 255);
-			this.context.stroke(0);
-			this.context.strokeWeight(1);
-			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
+			this.canvas.fill(150, 150, 150, 255);
+			this.canvas.stroke(0);
+			this.canvas.strokeWeight(1);
+			this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
 			for (int i = 0; i < this.textviews.size(); i++)
 			{
 				TextView tv = this.textviews.get(i);

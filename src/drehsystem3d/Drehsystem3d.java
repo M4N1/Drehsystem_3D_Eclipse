@@ -1121,10 +1121,10 @@ public class Drehsystem3d extends PApplet
 		this.detectionCanvas.loadPixels();
 		int objectId = -1;
 		int index = this.mouseX - this.menuBarLeft_Width + (this.mouseY - this.uiHandler.getUiElement("MainMenuBar").getHeight())* this.detectionCanvas.width;
-		Global.logger.log(Level.FINE, "Detection canvas pixel count", this.detectionCanvas.pixelCount);
-		Global.logger.log(Level.FINE, "Detection canvas pixel index", index);
+		Global.logger.log(Level.FINER, "Detection canvas pixel count", this.detectionCanvas.pixelCount);
+		Global.logger.log(Level.FINER, "Detection canvas pixel index", index);
 		int c = this.detectionCanvas.pixels[index];
-		Global.logger.log(Level.FINE, "Color detection canvas", c);
+		Global.logger.log(Level.FINER, "Color detection canvas", c);
 		
 		Iterator<Map.Entry<Integer, Integer[]>> it = this.objects.entrySet().iterator();
 		while (it.hasNext())

@@ -30,7 +30,6 @@ public class TextBox extends TextView
 	String outputText = "";
 	String input = "";
 	boolean setClicked = false;
-	boolean clicked = false;
 	int cursorTimer = 0;
 	boolean cursorVisible = false;
 
@@ -89,6 +88,7 @@ public class TextBox extends TextView
 	@Override
 	public String getText()
 	{
+		Global.logger.log(Level.FINER, "getText", new Object[] {this.name, this.clicked, "'"+this.input+"'", "'"+this.text+"'"});
 		String text = this.clicked ? this.input : this.text;
 		if (text.equals("") && !this.standardText.equals(""))
 		{
@@ -107,15 +107,12 @@ public class TextBox extends TextView
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		float mX = this.context.mouseX;
-		float mY = this.context.mouseY;
-		if (mX >= this.pos.x && mX <= this.pos.x + this.viewWidth && mY >= this.pos.y
-				&& mY <= this.pos.y + this.viewHeight)
+		if (this.isHovered())
 		{
 			this.mouseDrag = true;
 			this.clicked = true;
 			updateText();
-			this.cursorPos = calcClosestCharPos(mX);
+			this.cursorPos = calcClosestCharPos(this.context.mouseX);
 			this.dragCursorPos = this.cursorPos;
 			this.cursorPosX = calcCharPos(this.cursorPos);
 			this.dragCursorPosX = this.cursorPosX;
@@ -133,6 +130,7 @@ public class TextBox extends TextView
 	@Override
 	public void onMouseReleased(int mouseButton)
 	{
+		super.onMouseReleased(mouseButton);
 		this.markedAreaStart = this.dragCursorPos < this.cursorPos ? this.dragCursorPos : this.cursorPos;
 		this.markedAreaLength = Drehsystem3d.abs(this.dragCursorPos - this.cursorPos);
 		this.mouseDrag = false;
@@ -141,10 +139,11 @@ public class TextBox extends TextView
 	@Override
 	public void onMouseDragged()
 	{
+		super.onMouseDragged();
 		if (this.mouseDrag)
 		{
-			float posX = calcAlignment();
-			float min = this.viewWidth;
+			float posX = calcAlignmentX();
+			float min = this.width;
 			for (int i = 0; i < this.outputText.length() + 1; i++)
 			{
 				float mX = this.context.mouseX - posX;
@@ -514,6 +513,7 @@ public class TextBox extends TextView
 		{
 			this.mListener.textEditingFinished(this, this.text);
 		}
+		Global.logger.log(Level.FINER, "textEdited", new Object[] {this.name, this.text});
 	}
 
 	public void updateText()
@@ -598,9 +598,10 @@ public class TextBox extends TextView
 				this.cursorVisible = !this.cursorVisible;
 				this.cursorTimer = this.context.millis();
 			}
-			float offset = (this.viewHeight - this.textSize) / 2;
-			float y1 = this.pos.y + offset - 1;
-			float y2 = this.pos.y + this.viewHeight - offset + 1;
+			float offset = (this.height - this.textSize) / 2;
+			float posY = getActualPos().y;
+			float y1 = posY + offset - 1;
+			float y2 = posY + this.height - offset + 1;
 			if (this.cursorVisible)
 			{
 				this.canvas.line(this.cursorPosX, y1, this.cursorPosX, y2);
@@ -628,17 +629,17 @@ public class TextBox extends TextView
 		String displayedText = getEditableText();
 		if (displayedText.length() == 0 || idx < 0 || idx > displayedText.length())
 		{
-			return (int) calcAlignment(displayedText);
+			return (int) calcAlignmentX(displayedText);
 		}
-		return (int) (calcAlignment() + this.canvas.textWidth(displayedText.substring(0, idx)));
+		return (int) (calcAlignmentX() + this.canvas.textWidth(displayedText.substring(0, idx)));
 	}
 
 	public int calcClosestCharPos(float x)
 	{
 		int idx = -1;
 		String displayedText = getEditableText();
-		float posX = calcAlignment(displayedText);
-		float min = this.viewWidth;
+		float posX = calcAlignmentX(displayedText);
+		float min = this.width;
 		this.canvas.textSize(this.textSize);
 		for (int i = 0; i < displayedText.length() + 1; i++)
 		{
@@ -654,15 +655,15 @@ public class TextBox extends TextView
 	}
 
 	@Override
-	public float calcAlignment()
+	protected float calcAlignmentX()
 	{
-		return calcAlignment(this.outputText);
+		return calcAlignmentX(this.outputText);
 	}
 
-	public float calcAlignment(String displayedText)
+	/*private float calcAlignmentX(String displayedText)
 	{
 		this.canvas.textSize(this.textSize);
-		float posX = this.pos.x;
+		float posX = getPos().x;
 		float offset = 0;
 		int paddingSpacingX = this.padding.getSpacingX();
 		switch (this.textAlignment)
@@ -672,7 +673,7 @@ public class TextBox extends TextView
 				break;
 
 			case RIGHT:
-				offset = this.viewWidth - this.canvas.textWidth(displayedText) - paddingSpacingX;
+				offset = this.width - this.canvas.textWidth(displayedText) - paddingSpacingX;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -681,7 +682,7 @@ public class TextBox extends TextView
 				break;
 
 			case CENTER:
-				offset = (this.viewWidth - this.canvas.textWidth(displayedText)) / 2;
+				offset = (this.width - this.canvas.textWidth(displayedText)) / 2;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -690,7 +691,7 @@ public class TextBox extends TextView
 				break;
 		}
 		return posX;
-	}
+	}*/
 
 	@Override
 	public void setId(int id)
@@ -719,26 +720,29 @@ public class TextBox extends TextView
 	public void draw(PGraphics canvas)
 	{
 		super.draw(canvas);
-		this.canvas.noFill();
+		/*this.canvas.noFill();
 		this.canvas.stroke(255);
 		this.canvas.strokeWeight(1);
 		this.canvas.textSize(this.textSize);
-		this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
-		float offset = (this.viewHeight - this.textSize) / 2 + 2;
-		float posX = calcAlignment();
+		this.canvas.rect(this.pos.x, this.pos.y, this.width, this.height);*/
+		float offset = (this.height - this.textSize) / 2 + 2;
+		float posX = calcAlignmentX();
+		float posY = getActualPos().y + this.height - offset;
 		if (offset < 0)
 		{
 			offset = 0;
 		}
+		this.canvas.beginDraw();
 		if (this.outputText.equals(this.hint))
 		{
 			this.canvas.fill(100);
 		}
 		else
 		{
-			this.canvas.fill(255);
+			this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
 		}
-		this.canvas.text(this.outputText, posX, this.pos.y + this.viewHeight - offset);
+		this.canvas.text(this.outputText, posX, posY);
 		showCursor();
+		this.canvas.endDraw();
 	}
 }

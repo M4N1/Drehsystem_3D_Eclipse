@@ -42,11 +42,15 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	
 	public boolean addUiElement(View view, boolean manage)
 	{
-		Global.logger.log(Level.FINE, "Adding element to ui.", new Object[] {view, view.getName()});
+		Global.logger.log(Level.FINE, "Add item to ui stack.", new Object[] {view, view.getName()});
 		if (this.uiContents.contains(view))
-			Global.logger.log(Level.FINE, "Element already exists.", new Object[] {view, view.getName()});
+			Global.logger.log(Level.FINE, "Item already exists.", new Object[] {view, view.getName()});
 		boolean success = this.uiContents.add(view);
-		if (success) this.contentsToManage.add(view);
+		if (success && manage)
+		{
+			this.contentsToManage.add(view);
+			Global.logger.log(Level.FINE, "Add item to manager stack.", new Object[] {view, view.getName()});
+		}
 		return success;
 	}
 

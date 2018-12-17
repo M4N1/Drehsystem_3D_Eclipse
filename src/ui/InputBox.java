@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import drehsystem3d.Global;
-import drehsystem3d.Listener;
 import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.TextBoxListener;
 import processing.core.PApplet;
+import processing.core.PVector;
 
 public class InputBox extends PApplet implements TextBoxListener, OnClickListener, OnAnimationFinishedListener
 {
@@ -110,18 +110,32 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			tb.setWidth(this.tbWidthMax);
 		}
-		this.bSubmit = new Button(this, title + "_b_submit", this.xStart, this.yStart, 100, 50, "Submit");
+		
+		Global.logger.log(Level.FINER, "Input box current pos", new Object[] {this.xStart, this.yStart});
+		this.bSubmit = new Button(this, title + "_b_submit");
+		this.bSubmit.setPos(new PVector(this.xStart, this.yStart));
+		this.bSubmit.setSize(100, 50);
+		this.bSubmit.setText("Submit");
 		this.bSubmit.setBackgroundColor(255);
 		this.bSubmit.setCornerRadius(5);
 		this.bSubmit.setTextColor(0);
 		this.bSubmit.setTextSize(25);
-		this.bSubmit.setMargin(10);
+		this.bSubmit.setMargin(this.padding);
 		this.bSubmit.setHorizontalAlignment(View.AlignmentHorizontal.CENTER);
 		this.bSubmit.setVerticalAlignment(View.AlignmentVertical.BOTTOM);
 		this.bSubmit.setOnClickListener(this);
 		this.bSubmit.setOnAnimationFinishedListener(this);
-		this.yMax += this.yStart + this.tbHeight + this.padding;
-		this.xMax += this.xStart + this.tvWidth + 2 * this.padding;
+		//this.yMax += this.yStart + this.tbHeight + 2 * this.padding;
+		this.xMax = this.xStart + this.tvWidthMax + this.tbWidthMax + this.padding;
+		
+		
+		//this.xMax = (int)lastElement.pos.x + lastElement.viewWidth + 2 * this.padding;
+		this.yMax = (int)this.yStart + this.bSubmit.viewHeight;
+		
+		Global.logger.log(Level.FINER, "start", new Object[] {this.xStart, this.yStart});
+		Global.logger.log(Level.FINER, "Max dimensions input box", new Object[] {this.title, this.xMax, this.yMax});
+		Global.logger.log(Level.FINER, "Dimensions submit button", new Object[] {this.bSubmit.pos, this.bSubmit.viewWidth, this.bSubmit.viewHeight});
+		Global.logger.log(Level.FINER, "Window dimensions", new Object[] {this.width, this.height});
 		if (this.xMax > this.windowWidth)
 		{
 			this.windowWidth = this.xMax;
@@ -194,8 +208,17 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 
 	private void addTextView(String text)
 	{
-		TextView tv = new TextView(this, title + "_tv_" + (itemCount++), this.xStart, this.yStart, this.tvWidth, this.tvHeight);
-		tv.setMarginY(5);
+		TextView tv = new TextView(this, title + "_tv_" + (itemCount++));
+		if (this.contents.size() == 0)
+		{
+			tv.setPos(new PVector(this.xStart, this.yStart));
+		}
+		else
+		{
+			tv.alignBottom(this.contents.get(this.contents.size()-2));
+		}
+		tv.setSize(this.tvWidth, this.tvHeight);
+		tv.setMarginY(this.padding / 2);
 		tv.setPadding(0);
 		tv.setText(text);
 		tv.setTextSize(30);
@@ -215,8 +238,8 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	private void addTextBox()
 	{
 		final TextBox tb = new TextBox(this, title + "_tv_" + (itemCount++), this.xStart + this.tvWidth, this.yStart, this.tbWidth, this.tbHeight);
-		tb.setMarginY(5);
-		tb.setPadding(5);
+		tb.setMarginY(this.padding / 2);
+		tb.setPadding(this.padding / 2);
 		tb.setTextSize(30);
 		tb.setId(this.counter);
 		tb.alignRight(this.textviews.get(this.textviews.size()-1));
@@ -269,17 +292,13 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 				return true;
 			}
 		});
-		if (tb.viewWidth > this.xMax)
-		{
-			this.xMax = tb.viewWidth;
-		}
 		if (tb.viewWidth > this.tbWidthMax)
 		{
 			this.tbWidthMax = tb.viewWidth;
 		}
 		this.textboxes.add(tb);
 		this.contents.add(tb);
-		this.yStart += this.tbHeight + 10;
+		this.yStart += this.tbHeight + this.padding;
 		this.counter++;
 	}
 
@@ -396,6 +415,19 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		{
 			data[i] = this.textboxes.get(i).getText();
 		}
+		StringBuilder dataString = new StringBuilder();
+		if (Global.logger.isLoggable(Level.FINE))
+		{
+			dataString.append("[");
+			for (int i = 0; i < data.length; i++)
+			{
+				dataString.append(data[i]);
+				if (i < data.length-1)
+					dataString.append(", ");
+			}
+			dataString.append("]");
+		}
+		Global.logger.log(Level.FINE, "Input box '" + this.title + "' finish.", new Object[] {dataString.toString()});
 		if (this.mListener != null)
 		{
 			this.mListener.finishedEditing(data);

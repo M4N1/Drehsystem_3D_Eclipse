@@ -13,6 +13,7 @@ public class Global
 	public static final String logFile = "drehsystem.log";
 
 	public static boolean DEBUG = false;
+	public static boolean SHOW_VIEWBOXES = false;
 	public static Logger logger;
 
 	static

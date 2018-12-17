@@ -22,12 +22,18 @@ public class Container extends View
 	public void addChild(View v)
 	{
 		this.children.add(v);
-		v.setParent(this);
+		v.setPositioning(View.Positioning.RELATIVE);
+		v.setContainer(this);
 	}
 	
 	public boolean removeChild(View v)
 	{
-		if (v.container == this) v.container = null;
+		if (v == null) return false;
+		if (v.container == this)
+		{
+			v.container = null;
+			v.setPositioning(View.Positioning.ABSOLUTE);
+		}
 		return this.children.remove(v);
 	}
 	
@@ -85,12 +91,14 @@ public class Container extends View
 		super.draw();
 		if (this.visible)
 		{
+			this.canvas.hint(PApplet.DISABLE_DEPTH_TEST);
 			this.canvas.beginDraw();
 			this.canvas.background(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 			this.children.forEach((c) -> {
 				c.draw(this.canvas);
 			});
 			this.canvas.endDraw();
+			this.canvas.hint(PApplet.ENABLE_DEPTH_TEST);
 			
 			this.context.image(this.canvas, this.pos.x, this.pos.y);
 		}

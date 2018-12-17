@@ -26,7 +26,7 @@ public class MenuItem extends View
 	ArrayList<TextView> textviews;
 	String[] values;
 	String title = "";
-	boolean visible = true;
+	protected Spacing padding = new Spacing();
 
 	public MenuItem(PApplet context, String name, float x, float y, String title, String[] values)
 	{
@@ -56,14 +56,15 @@ public class MenuItem extends View
 
 	private void init(String title, String[] values)
 	{
-		this.setMargin(10);
-		this.startPosX = (int) this.pos.x + this.getMarginX();
-		this.startPosY = (int) this.pos.y + this.getMarginY();
+		this.padding.setSpacing(10);
+		this.startPosX = (int) 0;
+		this.startPosY = (int) 0;
 		this.textviews = new ArrayList<>();
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
 		{
 			final TextView tv = new TextView(this.context, this.name + "_tv_" + i, this.startPosX, this.startPosY, this.tvWidth, this.tvHeight);
+			tv.setContainer(this);
 			tv.setText(this.values[i]);
 			tv.setTextAlignment(TextView.TextAlignment.CENTER);
 			tv.setTextSize(15);
@@ -104,13 +105,13 @@ public class MenuItem extends View
 
 	public void calcWidth()
 	{
-		int nWidth = 2 * this.getMarginX();
+		int nWidth = 2 * this.padding.getSpacingX();
 		int maxTvWidth = 0;
 		for (TextView tv : this.textviews)
 		{
-			if (tv.viewWidth > maxTvWidth)
+			if (tv.width > maxTvWidth)
 			{
-				maxTvWidth = tv.viewWidth;
+				maxTvWidth = tv.width;
 			}
 		}
 		for (TextView tv : this.textviews)
@@ -118,24 +119,23 @@ public class MenuItem extends View
 			tv.setWidth(maxTvWidth);
 		}
 		nWidth += maxTvWidth;
-		this.viewWidth = nWidth;
+		this.width = nWidth;
 	}
 
 	public void calcHeight()
 	{
-		int nHeight = this.getMarginY();
+		int nHeight = 2 * this.padding.getSpacingY();
 		for (TextView tv : this.textviews)
 		{
-			nHeight += tv.viewHeight + 1;
+			nHeight += tv.height + 1;
 		}
-		nHeight += this.getMarginY();
-		this.viewHeight = nHeight;
+		this.height = nHeight;
 	}
 
 	public void calcPos()
 	{
-		int xMax = this.canvas.width - this.viewWidth - 10;
-		int yMax = this.canvas.height - this.viewHeight - 10;
+		int xMax = this.canvas.width - this.width - 10;
+		int yMax = this.canvas.height - this.height - 10;
 		if (this.pos.x > xMax)
 		{
 			updatePos(xMax - this.pos.x, 0);
@@ -169,10 +169,13 @@ public class MenuItem extends View
 		super.draw(canvas);
 		if (this.visible)
 		{
+			PVector pos = getActualPos();
+			this.canvas.beginDraw();
 			this.canvas.fill(150, 150, 150, 255);
 			this.canvas.stroke(0);
 			this.canvas.strokeWeight(1);
-			this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
+			this.canvas.rect(pos.x, pos.y, this.width, this.height);
+			this.canvas.endDraw();
 			for (int i = 0; i < this.textviews.size(); i++)
 			{
 				TextView tv = this.textviews.get(i);

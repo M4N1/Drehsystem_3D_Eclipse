@@ -14,7 +14,7 @@ public class TextView extends View
 	}
 
 	public static int instanceCounter = 0;
-	String text = "";
+	protected String text = "";
 	protected final Spacing padding = new Spacing();
 	int textSize = 20;
 	int strokeColor = 255;
@@ -140,7 +140,7 @@ public class TextView extends View
 		int nWidth = (int) this.canvas.textWidth(this.text) + this.padding.getSpacingX() * 2;
 		int newWidth = this.width > nWidth ? this.width : nWidth;
 		this.width = newWidth;
-		this.viewWidth = newWidth + this.getMarginX();
+		this.viewWidth = newWidth + 2 * this.getMarginX();
 	}
 
 	public void calcHeight()
@@ -148,7 +148,7 @@ public class TextView extends View
 		int nHeight = this.textSize + 2 * this.padding.getSpacingY();
 		int newHeight = this.height > nHeight ? this.height : nHeight;
 		this.height = newHeight;
-		this.viewHeight = newHeight + this.getMarginY();
+		this.viewHeight = newHeight + 2 * this.getMarginY();
 	}
 
 	public void setTextAlignment(TextAlignment alignment)
@@ -159,21 +159,27 @@ public class TextView extends View
 	public void setPadding(int spacing)
 	{
 		this.padding.setSpacing(spacing);
+		calcWidth();
+		calcHeight();
 	}
 	
 	public void setPadding(int x, int y)
 	{
 		this.padding.setSpacing(x, y);
+		calcWidth();
+		calcHeight();
 	}
 	
 	public void setPaddingX(int x)
 	{
 		this.padding.setSpacingX(x);
+		calcWidth();
 	}
 	
 	public void setPaddingY(int y)
 	{
 		this.padding.setSpacingY(y);
+		calcHeight();
 	}
 
 	public void setCornerRadius(int radius)
@@ -181,10 +187,15 @@ public class TextView extends View
 		this.cornerRadius = radius;
 	}
 
-	public float calcAlignment()
+	protected float calcAlignmentX()
+	{
+		return calcAlignmentX(this.text);
+	}
+	
+	protected float calcAlignmentX(String displayedText)
 	{
 		this.canvas.textSize(this.textSize);
-		float posX = this.pos.x;
+		float posX = this.getActualPos().x;
 		float offset = 0;
 		int paddingSpacingX = this.padding.getSpacingX();
 		switch (this.textAlignment)
@@ -194,7 +205,7 @@ public class TextView extends View
 				break;
 
 			case RIGHT:
-				offset = this.width - this.canvas.textWidth(this.text) - paddingSpacingX;
+				offset = this.width - this.canvas.textWidth(displayedText) - paddingSpacingX;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -203,7 +214,7 @@ public class TextView extends View
 				break;
 
 			case CENTER:
-				offset = (this.width - this.canvas.textWidth(this.text)) / 2;
+				offset = (this.width - this.canvas.textWidth(displayedText)) / 2;
 				if (offset < paddingSpacingX)
 				{
 					offset = paddingSpacingX;
@@ -213,6 +224,11 @@ public class TextView extends View
 		}
 		return posX;
 	}
+	
+	protected float calcAlignmentY()
+	{
+		return getActualPos().y + this.height - (this.height - this.textSize) / 2 - 2;
+	}
 
 	@Override
 	public void draw(PGraphics canvas)
@@ -220,6 +236,7 @@ public class TextView extends View
 		super.draw(canvas);
 		if (this.visible)
 		{
+			this.canvas.beginDraw();
 			this.canvas.stroke(this.strokeColor);
 			if (this.strokeWeight > 0)
 			{
@@ -229,16 +246,16 @@ public class TextView extends View
 			{
 				this.canvas.noStroke();
 			}
+			PVector pos = this.getActualPos();
 			this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-			this.canvas.rect(this.pos.x, this.pos.y, this.width, this.height, this.cornerRadius);
+			this.canvas.rect(pos.x, pos.y, this.width, this.height, this.cornerRadius);
 			
 			this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
 			this.canvas.textSize(this.textSize);
-			calcWidth();
-			calcHeight();
-			float x = calcAlignment();
-			float y = this.pos.y + this.height - (this.height - this.textSize) / 2 - 2;
+			float x = calcAlignmentX();
+			float y = calcAlignmentY();
 			this.canvas.text(this.text, x, y);
+			this.canvas.endDraw();
 		}
 	}
 }

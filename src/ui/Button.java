@@ -112,15 +112,16 @@ public class Button extends TextView
 					}
 				}
 				int counter = 0;
+				//this.canvas.stroke(255);
 				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
 				{
 					PVector point = this.points.get(counter);
 					PVector shapeDimPos = checkShapeDim(point.x, point.y);
 					if (shapeDimPos == null)
 					{
-						x = this.clickAnimationPos.x + this.clickAnimationSize * cos(angle);
-						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
 						int size = this.clickAnimationSize;
+						x = this.clickAnimationPos.x + size * cos(angle);
+						y = this.clickAnimationPos.y + size * sin(angle);
 						while (checkShapeDim(x, y) != null && size > 0)
 						{
 							size--;
@@ -139,7 +140,6 @@ public class Button extends TextView
 						y = shapeDimPos.y;
 					}
 					counter++;
-					this.canvas.stroke(255);
 					this.canvas.vertex(x, y);
 				}
 				this.canvas.endShape();
@@ -152,6 +152,7 @@ public class Button extends TextView
 
 			if (finished)
 			{
+				Global.logger.log(Level.FINER, "Button '" + this.name + "' animation finished", new Object[] {this.clickAnimationSize});
 				this.clickAnimationVisible = false;
 				this.clickAnimationSize = 0;
 				this.points = new ArrayList<>();
@@ -171,17 +172,18 @@ public class Button extends TextView
 		float xMax = 0;
 		float yMin = 0;
 		float yMax = 0;
-		if (x <= this.pos.x + this.cornerRadius)
+		PVector pos = getActualPos();
+		if (x <= pos.x + this.cornerRadius)
 		{
-			xMin = this.pos.x;
+			xMin = pos.x;
 			if (x < xMin)
 			{
 				return new PVector(xMin, y);
 			}
-			xOff = this.cornerRadius - (x - this.pos.x);
+			xOff = this.cornerRadius - (x - pos.x);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
-			yMin = this.pos.y + f;
-			yMax = this.pos.y + this.height - f;
+			yMin = pos.y + f;
+			yMax = pos.y + this.height - f;
 			if (y < yMin)
 			{
 				return new PVector(x, yMin);
@@ -192,17 +194,17 @@ public class Button extends TextView
 			}
 			return null;
 		}
-		if (x >= this.pos.x + this.width - this.cornerRadius)
+		if (x >= pos.x + this.width - this.cornerRadius)
 		{
-			xMax = this.pos.x + this.width;
+			xMax = pos.x + this.width;
 			if (x > xMax)
 			{
 				return new PVector(xMax, y);
 			}
 			xOff = x - (xMax - this.cornerRadius);
 			f = this.cornerRadius - sqrt(this.cornerRadius * this.cornerRadius - xOff * xOff);
-			yMin = this.pos.y + f;
-			yMax = this.pos.y + this.height - f;
+			yMin = pos.y + f;
+			yMax = pos.y + this.height - f;
 			if (y < yMin)
 			{
 				return new PVector(x, yMin);
@@ -213,10 +215,10 @@ public class Button extends TextView
 			}
 			return null;
 		}
-		xMin = this.pos.x;
-		xMax = this.pos.x + this.width;
-		yMin = this.pos.y;
-		yMax = this.pos.y + this.height;
+		xMin = pos.x;
+		xMax = pos.x + this.width;
+		yMin = pos.y;
+		yMax = pos.y + this.height;
 		if (x < xMin)
 		{
 			return new PVector(xMin, y);
@@ -236,16 +238,17 @@ public class Button extends TextView
 		return null;
 	}
 
-	public PVector calcShapeDim(float startX, float startY, float angle)
+	/*public PVector calcShapeDim(float startX, float startY, float angle)
 	{
-		float x = startX - this.pos.x;
+		PVector pos = getPos();
+		float x = startX - pos.x;
 		float y = startY - abs(x * tan(angle));
 		float k = tan(angle);
 		float r = this.cornerRadius;
 		float distX = (r - sqrt(2 * k * r * r - y + 2 * y * r - 2 * y * k * r) - y * k + k * r) / (k * k + 1);
 		float distY = r - sqrt(r * r - (r - distX) * (r - distX));
-		return new PVector(this.pos.x + distX, this.pos.y + distY, 0);
-	}
+		return new PVector(pos.x + distX, pos.y + distY, 0);
+	}*/
 
 	@Override
 	public void setOnClickListener(OnClickListener listener)
@@ -262,13 +265,14 @@ public class Button extends TextView
 	public boolean onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
-		Global.logger.log(Level.FINER, "Button '" + this.name + "'", new Object[] {this.pos, this.width, this.height});
+		Global.logger.log(Level.FINER, "Button '" + this.name + "'", new Object[] {this.clicked, this.pos, this.width, this.height});
 		if (this.clicked)
 		{
 			this.clickAnimationVisible = true;
-			this.clickAnimationPos = new PVector(this.context.mouseX, this.context.mouseY, 0);
+			this.clickAnimationPos = new PVector(this.context.mouseX, this.context.mouseY);
 			this.clickAnimationStartTime = this.context.millis();
 			this.clickAnimationLastTime = this.context.millis();
+			Global.logger.log(Level.FINER, "Starting animation", new Object[] {this.clickAnimationPos, "b.pos: " + getActualPos()});
 		}
 		return this.clicked;
 	}

@@ -158,9 +158,17 @@ public class Drehsystem3d extends PApplet
 		this.setup = false;
 	}
 	
+	private PVector getSimulationCanvasPos()
+	{
+		boolean sidebarVisible = this.uiHandler.getUiElement("Sidebar").getVisibility();
+		int mainmenuBarHeight = this.uiHandler.getUiElement("MainMenuBar").getHeight();
+		return new PVector(sidebarVisible ? this.menuBarLeft_Width : 0, mainmenuBarHeight);
+	}
+	
 	private int getSimulationCanvasWidth()
 	{
-		return (this.width - menuBarLeft_Width);
+		boolean sidebarVisible = this.uiHandler.getUiElement("Sidebar").getVisibility();
+		return (this.width - (sidebarVisible ? menuBarLeft_Width : 0));
 	}
 	
 	private int getSimulationCanvasHeight()
@@ -316,6 +324,7 @@ public class Drehsystem3d extends PApplet
 	{
 		Checkbox c = this.uiHandler.setupCheckBox(name, text, checked);
 		((Container)this.uiHandler.getUiElement("Sidebar")).addChild(c);
+		this.uiHandler.addUiElement(c, false);
 		return c;
 	}
 	
@@ -340,6 +349,7 @@ public class Drehsystem3d extends PApplet
 				b.setTextColor(255);
 			}
 		});
+		((Container)this.uiHandler.getUiElement("Sidebar")).addChild(b);
 		this.uiHandler.addUiElement(b, false);
 		return b;
 	}
@@ -483,19 +493,14 @@ public class Drehsystem3d extends PApplet
 		setButtonVisibility();
 
 		drawSimulation();
-		image(this.simulationCanvas, this.menuBarLeft_Width, this.uiHandler.getUiElement("MainMenuBar").getHeight());
+		PVector simulationPos = getSimulationCanvasPos();
+		image(this.simulationCanvas, simulationPos.x, simulationPos.y);
 		popMatrix();
 		
-		hint(DISABLE_DEPTH_TEST);
-
 		this.uiHandler.draw();
 		
 		drawTextElements();
 		drawMenuItem();
-		
-		hint(ENABLE_DEPTH_TEST);
-		
-		
 		
 		/*if (this.mousePressed)
 			image(this.detectionCanvas, this.menuBarLeft_Width, this.uiHandler.getUiElement("MainMenuBar").getHeight());*/
@@ -600,6 +605,12 @@ public class Drehsystem3d extends PApplet
 		this.simulationCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
 		this.detectionCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
 		erasePath();
+	}
+	
+	private void resizeSimulation()
+	{
+		this.simulationCanvas.setSize(getSimulationCanvasWidth(), getSimulationCanvasHeight());
+		this.detectionCanvas.setSize(getSimulationCanvasWidth(), getSimulationCanvasHeight());
 	}
 
 	/**
@@ -1120,7 +1131,8 @@ public class Drehsystem3d extends PApplet
 	{
 		this.detectionCanvas.loadPixels();
 		int objectId = -1;
-		int index = this.mouseX - this.menuBarLeft_Width + (this.mouseY - this.uiHandler.getUiElement("MainMenuBar").getHeight())* this.detectionCanvas.width;
+		PVector canvasPos = getSimulationCanvasPos();
+		int index = this.mouseX - (int)canvasPos.x + (this.mouseY - (int)canvasPos.y)* this.detectionCanvas.width;
 		Global.logger.log(Level.FINER, "Detection canvas pixel count", this.detectionCanvas.pixelCount);
 		Global.logger.log(Level.FINER, "Detection canvas pixel index", index);
 		int c = this.detectionCanvas.pixels[index];
@@ -1236,6 +1248,12 @@ public class Drehsystem3d extends PApplet
 
 			case 'a':
 				this.cAcceleration.setChecked(!this.cAcceleration.isChecked());
+				break;
+				
+			case 'b':
+				View sidebar = this.uiHandler.getUiElement("Sidebar");
+				sidebar.setVisibility(!sidebar.getVisibility());
+				resizeSimulation();
 				break;
 
 			case ' ':

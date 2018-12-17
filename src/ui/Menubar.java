@@ -277,12 +277,14 @@ public class Menubar extends View
 			if (h > this.viewHeight)
 				this.viewHeight = h;
 		}
+		this.canvas.beginDraw();
 		this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 		this.canvas.noStroke();
 		this.canvas.rect(0, 0, this.width, this.height);
 		this.canvas.strokeWeight(1);
 		this.canvas.stroke(255);
 		this.canvas.line(0, this.height, this.width, this.height);
+		this.canvas.endDraw();
 		
 		for (List<Button> subItems : this.menuItems)
 		{

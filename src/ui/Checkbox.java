@@ -113,22 +113,24 @@ public class Checkbox extends View
 	public void draw(PGraphics canvas)
 	{
 		super.draw(canvas);
+		this.canvas.beginDraw();
 		this.canvas.noFill();
 		this.canvas.stroke(255);
 		this.canvas.strokeWeight(this.hovered ? 2 : 1);
-		this.canvas.textSize(this.viewHeight);
-		this.canvas.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
+		this.canvas.textSize(this.height);
+		this.canvas.rect(this.pos.x, this.pos.y, this.width, this.height);
 		this.canvas.strokeWeight(1);
 		if (this.checked)
 		{
-			this.canvas.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.viewWidth - padding, this.pos.y + this.viewHeight - padding);
-			this.canvas.line(this.pos.x + padding, this.pos.y + this.viewHeight - padding, this.pos.x + this.viewWidth - padding, this.pos.y + padding);
+			this.canvas.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.width - padding, this.pos.y + this.height - padding);
+			this.canvas.line(this.pos.x + padding, this.pos.y + this.height - padding, this.pos.x + this.width - padding, this.pos.y + padding);
 		}
 		if (!this.text.equals(""))
 		{
 			this.canvas.fill(255);
 			
-			this.canvas.text(this.text, this.pos.x + this.viewWidth + 10, this.pos.y + this.viewHeight);
+			this.canvas.text(this.text, this.pos.x + this.width + 10, this.pos.y + this.height);
 		}
+		this.canvas.endDraw();
 	}
 }

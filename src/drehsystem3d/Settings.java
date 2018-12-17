@@ -20,9 +20,10 @@ public class Settings
 		Settings.args = args;
 		
 		Global.DEBUG = getModeState("DEBUG");
+		Global.SHOW_VIEWBOXES = getModeState("VIEWBOXES");
 		Point.restrictPathLength(!getModeState("FULL_PATH"));
 		
-		Settings.printColored = Global.isUnix || Global.DEBUG;
+		Settings.printColored = Global.isUnix || getModeState("PRINT_COLOR");
 		
 		settings.append(getSeparatorLine());
 		settings.append(String.format("# %-" + Settings.optionLength + "s:%-" + (Settings.totalLength - Settings.optionLength - 4) + "s#\n", "Settings status", ""));
@@ -34,6 +35,8 @@ public class Settings
 		settings.append(getStateString("OS", Global.OS));
 		
 		settings.append(getStateString("Debug mode", Global.DEBUG));
+		if (Global.DEBUG)
+			settings.append(getStateString("Show viewboxes", Global.SHOW_VIEWBOXES));
 		
 		settings.append(getStateString("Show endless path", !Point.pathRestricted()));
 		settings.append(setLogLevel());

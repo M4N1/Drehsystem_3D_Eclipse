@@ -1,7 +1,5 @@
 package ui;
 
-import java.awt.Component;
-import java.awt.MouseInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,11 +11,11 @@ import drehsystem3d.Listener.OnHoverListener;
 import drehsystem3d.Listener.UserInputListener;
 import drehsystem3d.Listener.WindowResizeListener;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public abstract class View implements UserInputListener, KeyListener, WindowResizeListener
 {
-	
 	public enum AlignmentHorizontal
 	{
 		MANUALL,
@@ -34,34 +32,43 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		BOTTOM
 	}
 	
-	private static List<View> viewInstances = new ArrayList<View>();
 	public static int instanceCounter = 0;
-	protected View parent = null;
+	private static List<View> viewInstances = new ArrayList<View>();
+	
+	protected View container = null;
 	protected int id = -1;
 	protected final String name;
+	
 	protected OnClickListener onClickListener;
 	protected OnHoverListener onHoverListener;
+	
 	protected Runnable onHoverAction;
 	protected Runnable onHoverEndAction;
-	protected PVector pos;
+	
 	protected boolean clicked = false;
 	protected boolean visible = true;
 	protected boolean hovered = false;
+	
+	protected PVector pos = new PVector(0, 0, 0);
 	protected int viewWidth = 0, viewHeight = 0;
-	protected final Spacing margin = new Spacing();
+	protected int width = 0, height = 0;
+	
 	protected Color backgroundColor = new Color(0, 0, 0, 255);
-	protected AlignmentHorizontal horizontalAlignment = AlignmentHorizontal.MANUALL;
-	protected AlignmentVertical verticalAlignment = AlignmentVertical.MANUALL;
+	
 	protected PApplet context = null;
-	protected Neighbor neighbor = new Neighbor();
-
+	protected PGraphics canvas = null;
+	
+	private Neighbor neighbor = new Neighbor();
+	private final Spacing margin = new Spacing();
+	private AlignmentHorizontal horizontalAlignment = AlignmentHorizontal.MANUALL;
+	private AlignmentVertical verticalAlignment = AlignmentVertical.MANUALL;
+	
 	public View(PApplet context, String name)
 	{
 		this.context = context;
 		this.name = name;
-		this.pos = new PVector(0, 0, 0);
 		
-		View.registerInstance(this);
+		setup();
 	}
 	
 	public View(PApplet context, String name, float x, float y)
@@ -70,7 +77,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.name = name;
 		this.pos = new PVector(x, y, 0);
 		
-		View.registerInstance(this);
+		setup();
 	}
 
 	public View(PApplet context, String name, float x, float y, int w, int h)
@@ -78,29 +85,33 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.context = context;
 		this.name = name;
 		this.pos = new PVector(x, y, 0);
-		this.viewWidth = w;
-		this.viewHeight = h;
+		this.setSize(w, h);
 		
-		View.registerInstance(this);
+		setup();
 	}
 
 	public View(PApplet context, String name, PVector pos)
 	{
 		this.context = context;
 		this.name = name;
-		this.pos = new PVector(pos.x, pos.y, pos.z);
+		this.pos = pos.copy();
 		
-		View.registerInstance(this);
+		setup();
 	}
 
 	public View(PApplet context, String name, PVector pos, int w, int h)
 	{
 		this.context = context;
 		this.name = name;
-		this.pos = new PVector(pos.x, pos.y, pos.z);
-		this.viewWidth = w;
-		this.viewHeight = h;
+		this.pos = pos.copy();
+		this.setSize(w, h);
 		
+		setup();
+	}
+	
+	private void setup()
+	{
+		this.canvas = this.context.getGraphics();
 		View.registerInstance(this);
 	}
 	
@@ -111,21 +122,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	
 	public void setParent(View v)
 	{
-		this.parent = v;
+		this.container = v;
 	}
 	
 	private static void registerInstance(View newInstance)
 	{
-//		if (nameExists(newInstance.name))
-//		{
-//			int counter = 0;
-//			String name;
-//			do
-//			{
-//				name = newInstance.name + "_" + (++counter);
-//			} while (nameExists(name));
-//			newInstance.name = name;
-//		}
 		View.viewInstances.add(newInstance);
 	}
 	
@@ -144,8 +145,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		{
 			if (v.name.equals(name)) 
 			{
-				View.viewInstances.remove(v);
-				return true;
+				return unregisterInstance(v);
 			}
 		}
 		return false;
@@ -298,23 +298,22 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public void setSize(int w, int h)
 	{
-		this.viewWidth = w;
-		this.viewHeight = h;
+		this.width = w;
+		this.viewWidth = w + this.getMarginX();
+		
+		this.height = h;
+		this.viewHeight = h + this.getMarginY();
 	}
 	
 	public void setWidth(int w)
 	{
+		this.width = w;
 		this.viewWidth = w;
 	}
 
 	public void setHeight(int h)
 	{
-		this.viewHeight = h;
-	}
-	
-	public void setDimensions(int w, int h)
-	{
-		this.viewWidth = w;
+		this.height = h;
 		this.viewHeight = h;
 	}
 
@@ -538,10 +537,20 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public int getWidth()
 	{
+		return this.width;
+	}
+	
+	public int getViewWidth()
+	{
 		return this.viewWidth;
 	}
 
 	public int getHeight()
+	{
+		return this.height;
+	}
+	
+	public int getViewHeight()
 	{
 		return this.viewHeight;
 	}

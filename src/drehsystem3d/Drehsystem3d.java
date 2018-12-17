@@ -193,7 +193,7 @@ public class Drehsystem3d extends PApplet
 
 		bRemovePoints = setupButton("bReset");
 		bRemovePoints.setPos(new PVector(uiMarginX, this.bStartY, 0));
-		bRemovePoints.setDimensions(120, 50);
+		bRemovePoints.setSize(120, 50);
 		bRemovePoints.setText("Remove All");
 		bRemovePoints.setMargin(10);
 		bRemovePoints.setBackgroundColor(this.menuBackground);

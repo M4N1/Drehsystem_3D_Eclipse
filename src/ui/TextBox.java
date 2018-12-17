@@ -667,7 +667,7 @@ public class TextBox extends TextView
 		switch (this.textAlignment)
 		{
 			case LEFT:
-				posX += this.margin.getSpacingX();
+				posX += this.getMarginX();
 				break;
 
 			case RIGHT:

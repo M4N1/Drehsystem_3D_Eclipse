@@ -25,7 +25,7 @@ public class Container extends View
 	
 	public boolean removeChild(View v)
 	{
-		if (v.parent == this) v.parent = null;
+		if (v.container == this) v.container = null;
 		return this.children.remove(v);
 	}
 

@@ -5,7 +5,6 @@ import java.util.logging.Level;
 
 import drehsystem3d.Drehsystem3d;
 import drehsystem3d.Global;
-import drehsystem3d.Listener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
 import processing.core.PApplet;
@@ -56,9 +55,9 @@ public class MenuItem extends View
 
 	private void init(String title, String[] values)
 	{
-		this.margin.setSpacing(10);
-		this.startPosX = (int) this.pos.x + this.margin.getSpacingX();
-		this.startPosY = (int) this.pos.y + this.margin.getSpacingY();
+		this.setMargin(10);
+		this.startPosX = (int) this.pos.x + this.getMarginX();
+		this.startPosY = (int) this.pos.y + this.getMarginY();
 		this.textviews = new ArrayList<>();
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
@@ -104,7 +103,7 @@ public class MenuItem extends View
 
 	public void calcWidth()
 	{
-		int nWidth = 2 * this.margin.getSpacingX();
+		int nWidth = 2 * this.getMarginX();
 		int maxTvWidth = 0;
 		for (TextView tv : this.textviews)
 		{
@@ -123,12 +122,12 @@ public class MenuItem extends View
 
 	public void calcHeight()
 	{
-		int nHeight = this.margin.getSpacingY();
+		int nHeight = this.getMarginY();
 		for (TextView tv : this.textviews)
 		{
 			nHeight += tv.viewHeight + 1;
 		}
-		nHeight += this.margin.getSpacingY();
+		nHeight += this.getMarginY();
 		this.viewHeight = nHeight;
 	}
 

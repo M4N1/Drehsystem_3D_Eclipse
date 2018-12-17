@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import drehsystem3d.Listener;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnHoverListener;
@@ -37,8 +36,9 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	
 	private static List<View> viewInstances = new ArrayList<View>();
 	public static int instanceCounter = 0;
+	protected View parent = null;
 	protected int id = -1;
-	protected String name;
+	protected final String name;
 	protected OnClickListener onClickListener;
 	protected OnHoverListener onHoverListener;
 	protected Runnable onHoverAction;
@@ -55,7 +55,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	protected PApplet context = null;
 	protected Neighbor neighbor = new Neighbor();
 
-	View(PApplet context, String name)
+	public View(PApplet context, String name)
 	{
 		this.context = context;
 		this.name = name;
@@ -64,7 +64,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		View.registerInstance(this);
 	}
 	
-	View(PApplet context, String name, float x, float y)
+	public View(PApplet context, String name, float x, float y)
 	{
 		this.context = context;
 		this.name = name;
@@ -73,7 +73,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		View.registerInstance(this);
 	}
 
-	View(PApplet context, String name, float x, float y, int w, int h)
+	public View(PApplet context, String name, float x, float y, int w, int h)
 	{
 		this.context = context;
 		this.name = name;
@@ -84,7 +84,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		View.registerInstance(this);
 	}
 
-	View(PApplet context, String name, PVector pos)
+	public View(PApplet context, String name, PVector pos)
 	{
 		this.context = context;
 		this.name = name;
@@ -93,7 +93,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		View.registerInstance(this);
 	}
 
-	View(PApplet context, String name, PVector pos, int w, int h)
+	public View(PApplet context, String name, PVector pos, int w, int h)
 	{
 		this.context = context;
 		this.name = name;
@@ -107,6 +107,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	public String getName()
 	{
 		return this.name;
+	}
+	
+	public void setParent(View v)
+	{
+		this.parent = v;
 	}
 	
 	private static void registerInstance(View newInstance)

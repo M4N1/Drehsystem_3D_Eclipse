@@ -9,6 +9,7 @@ import drehsystem3d.Global;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnHoverListener;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 import ui.TextView.TextAlignment;
 
@@ -291,9 +292,9 @@ public class Menubar extends View implements OnHoverListener
 	}
 	
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		super.draw(canvas);
 		for (List<Button> subItems : this.menuItems)
 		{
 			Button b = subItems.get(0);

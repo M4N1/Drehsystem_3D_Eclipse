@@ -8,6 +8,7 @@ import drehsystem3d.Global;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class MenuItem extends View
@@ -163,9 +164,9 @@ public class MenuItem extends View
 	}
 
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		super.draw(canvas);
 		if (this.visible)
 		{
 			this.canvas.fill(150, 150, 150, 255);

@@ -18,6 +18,7 @@ import ui.Button;
 import ui.Checkbox;
 import ui.Color;
 import ui.ColorInputBox;
+import ui.Container;
 import ui.InputBox;
 import ui.InputTypes;
 import ui.MenuItem;
@@ -81,7 +82,7 @@ public class Drehsystem3d extends PApplet
 	int idCount = 0;
 	int nameCounter = 'A';
 	Integer[] colorCount = { 100, 100, 100 };
-	PGraphics simulationCanvas, detectionCanvas;
+	PGraphics simulationCanvas, detectionCanvas, sidebarMenu;
 
 	@Override
 	public void settings()
@@ -109,7 +110,10 @@ public class Drehsystem3d extends PApplet
 		this.bStartY = this.height - 450;
 		this.uiMarginX = 20;
 		
-		setupUI();
+		this.uiHandler = new UIHandler(this);
+		
+		setupMainMenuBar();		
+		setupSidebarMenu();
 
 		this.simulationCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
 		this.detectionCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
@@ -164,10 +168,8 @@ public class Drehsystem3d extends PApplet
 		return (this.height - this.uiHandler.getUiElement("MainMenuBar").getHeight());
 	}
 
-	private void setupUI()
+	private void setupMainMenuBar()
 	{
-		this.uiHandler = new UIHandler(this);
-		
 		Menubar menuBar = new Menubar(this, "MainMenuBar");
 		menuBar.addMenuItem("File", null);
 		menuBar.addMenuSubItem("New", null);
@@ -177,16 +179,33 @@ public class Drehsystem3d extends PApplet
 		menuBar.addMenuSubItem("Controls", null);
 		menuBar.addMenuSubItem("About", null);
 		this.uiHandler.addUiElement(menuBar);
+	}
+	
+	private void setupSidebarMenu()
+	{	
+		Container sidebar = new Container(
+				this, 
+				"Sidebar", 
+				new PVector(0, this.uiHandler.getUiElement("MainMenuBar").getViewHeight()), 
+				this.menuBarLeft_Width, 
+				getSimulationCanvasHeight());
+		sidebar.setVisibility(true);
+		sidebar.setBackgroundColor(this.menuBackground);
+		this.uiHandler.addUiElement(sidebar);
 		
-		this.cLines = this.uiHandler.addCheckBox("cLines", "connections", true);
+		this.cLines = setupCheckbox("cLines", "connections", true);
 		this.cLines.setPos(new PVector(uiMarginX, 180));
-		this.cVelocity = this.uiHandler.addCheckBox("cVelocity", "v", true);
+		
+		this.cVelocity = setupCheckbox("cVelocity", "v", true);
 		this.cVelocity.alignBottom(this.cLines);
-		this.cAcceleration = this.uiHandler.addCheckBox("cAcceleration", "acc", false);
+		
+		this.cAcceleration = setupCheckbox("cAcceleration", "acc", false);
 		this.cAcceleration.alignBottom(this.cVelocity);
-		this.cOutput = this.uiHandler.addCheckBox("cOutput", "out", false);
+		
+		this.cOutput = setupCheckbox("cOutput", "out", false);
 		this.cOutput.alignBottom(this.cAcceleration);
-		this.cPath = this.uiHandler.addCheckBox("cPath", "path", true);
+		
+		this.cPath = setupCheckbox("cPath", "path", true);
 		this.cPath.alignBottom(this.cOutput);
 
 		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
@@ -294,6 +313,13 @@ public class Drehsystem3d extends PApplet
 		 * view = getDummy("Bottom"); view.alignBottom(testView);
 		 * view.setHorizontalAlignment(View.AlignmentHorizontal.RIGHT);
 		 */
+	}
+	
+	private Checkbox setupCheckbox(String name, String text, boolean checked)
+	{
+		Checkbox c = this.uiHandler.setupCheckBox(name, text, checked);
+		((Container)this.uiHandler.getUiElement("Sidebar")).addChild(c);
+		return c;
 	}
 	
 	private Button setupButton(String title)
@@ -464,12 +490,14 @@ public class Drehsystem3d extends PApplet
 		
 		hint(DISABLE_DEPTH_TEST);
 
-		drawTextElements();
+		//drawTextElements();
 		drawMenuItem();
 		
 		this.uiHandler.draw();
 		
 		hint(ENABLE_DEPTH_TEST);
+		
+		
 		
 		/*if (this.mousePressed)
 			image(this.detectionCanvas, this.menuBarLeft_Width, this.uiHandler.getUiElement("MainMenuBar").getHeight());*/
@@ -498,8 +526,8 @@ public class Drehsystem3d extends PApplet
 	 */
 	private void drawSimulation()
 	{
-		resetCanvas(this.simulationCanvas);
-		resetCanvas(this.detectionCanvas);
+		setupCanvas(this.simulationCanvas);
+		setupCanvas(this.detectionCanvas);
 		this.simulationCanvas.pushMatrix();
 		this.detectionCanvas.pushMatrix();
 		
@@ -600,7 +628,7 @@ public class Drehsystem3d extends PApplet
 	/**
 	 * Draw background of the detection canvas.
 	 */
-	private void resetCanvas(PGraphics canvas)
+	private void setupCanvas(PGraphics canvas)
 	{
 		canvas.beginDraw();
 		canvas.background(0);

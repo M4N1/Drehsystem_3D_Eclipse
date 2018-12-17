@@ -115,11 +115,6 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		View.registerInstance(this);
 	}
 	
-	public void setCanvas(PGraphics canvas)
-	{
-		this.canvas = canvas;
-	}
-	
 	public String getName()
 	{
 		return this.name;
@@ -578,6 +573,12 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public void draw()
 	{
+		draw(this.canvas);
+	}
+	
+	public void draw(PGraphics canvas)
+	{
+		this.canvas = canvas;
 		calcPosX();
 		calcPosY();
 		boolean previouslyHovered = this.hovered;

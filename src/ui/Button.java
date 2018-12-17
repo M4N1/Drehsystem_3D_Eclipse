@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
 import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Button extends TextView
@@ -86,9 +87,9 @@ public class Button extends TextView
 	ArrayList<PVector> points = new ArrayList<>();
 
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		super.draw(canvas);
 		if (this.clickAnimationVisible)
 		{
 			this.canvas.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);

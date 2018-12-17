@@ -3,6 +3,7 @@ package ui;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 
 public class Checkbox extends View
 {
@@ -123,9 +124,9 @@ public class Checkbox extends View
 	}
 
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		super.draw(canvas);
 		this.canvas.noFill();
 		this.canvas.stroke(255);
 		this.canvas.strokeWeight(this.hovered ? 2 : 1);
@@ -140,6 +141,7 @@ public class Checkbox extends View
 		if (!this.text.equals(""))
 		{
 			this.canvas.fill(255);
+			
 			this.canvas.text(this.text, this.pos.x + this.viewWidth + 10, this.pos.y + this.viewHeight);
 		}
 	}

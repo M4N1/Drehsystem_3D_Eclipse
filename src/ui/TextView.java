@@ -1,6 +1,7 @@
 package ui;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class TextView extends View
@@ -235,9 +236,9 @@ public class TextView extends View
 	}
 
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		super.draw(canvas);
 		if (this.visible)
 		{
 			this.canvas.stroke(this.strokeColor);

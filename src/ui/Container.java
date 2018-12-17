@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
+import processing.core.PVector;
 
 public class Container extends View
 {
@@ -11,10 +12,11 @@ public class Container extends View
 	protected int strokeWeight = 1;
 	protected Color strokeColor = new Color(255);
 	
-	public Container(PApplet context, String name)
+	public Container(PApplet context, String name, PVector pos, int w, int h)
 	{
-		super(context, name);
+		super(context, name, pos, w, h);
 		this.visible = false;
+		this.canvas = this.context.createGraphics(w, h);
 	}
 	
 	public void addChild(View v)
@@ -97,14 +99,14 @@ public class Container extends View
 		super.draw();
 		if (this.visible)
 		{
-			this.context.strokeWeight(this.strokeWeight);
-			this.context.stroke(this.strokeColor.r, this.strokeColor.g, this.strokeColor.b, this.strokeColor.a);
-			this.context.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-			this.context.rect(this.pos.x, this.pos.y, this.viewWidth, this.viewHeight);
-			
+			this.canvas.beginDraw();
+			this.canvas.background(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 			this.children.forEach((c) -> {
-				c.draw();
+				c.draw(this.canvas);
 			});
+			this.canvas.endDraw();
+			
+			this.context.image(this.canvas, this.pos.x, this.pos.y);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package drehsystem3d;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -115,42 +116,41 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 		});
 	}
 	
-	public Checkbox addCheckBox(String name, String desc)
+	public Checkbox setupCheckBox(String name, String desc)
 	{
-		return addCheckBox(name, desc, false, (ArrayList<Checkbox>) null);
+		return setupCheckBox(name, desc, false, (ArrayList<Checkbox>) null);
 	}
 
-	public Checkbox addCheckBox(String name, String desc, boolean checked)
+	public Checkbox setupCheckBox(String name, String desc, boolean checked)
 	{
-		return addCheckBox(name, desc, checked, (ArrayList<Checkbox>) null);
+		return setupCheckBox(name, desc, checked, (ArrayList<Checkbox>) null);
 	}
 
-	public Checkbox addCheckBox(String name, String desc, Checkbox member)
-	{
-		ArrayList<Checkbox> group = new ArrayList<>();
-		group.add(member);
-		return addCheckBox(name, desc, false, group);
-	}
-
-	public Checkbox addCheckBox(String name, String desc, ArrayList<Checkbox> group)
-	{
-		return addCheckBox(name, desc, false, group);
-	}
-
-	public Checkbox addCheckBox(String name, String desc, boolean checked, Checkbox member)
+	public Checkbox setupCheckBox(String name, String desc, Checkbox member)
 	{
 		ArrayList<Checkbox> group = new ArrayList<>();
 		group.add(member);
-		return addCheckBox(name, desc, checked, group);
+		return setupCheckBox(name, desc, false, group);
 	}
 
-	public Checkbox addCheckBox(String name, String desc, boolean checked, ArrayList<Checkbox> group)
+	public Checkbox setupCheckBox(String name, String desc, ArrayList<Checkbox> group)
+	{
+		return setupCheckBox(name, desc, false, group);
+	}
+
+	public Checkbox setupCheckBox(String name, String desc, boolean checked, Checkbox member)
+	{
+		ArrayList<Checkbox> group = new ArrayList<>();
+		group.add(member);
+		return setupCheckBox(name, desc, checked, group);
+	}
+
+	public Checkbox setupCheckBox(String name, String desc, boolean checked, ArrayList<Checkbox> group)
 	{
 		Checkbox c = new Checkbox(this.context, name, desc, group);
 		c.setChecked(checked);
 		c.setSize(20, 20);
 		c.setMargin(5);
-		this.addUiElement(c);
 		return c;
 	}
 }

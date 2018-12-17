@@ -8,6 +8,7 @@ import drehsystem3d.Global;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.TextBoxListener;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class TextBox extends TextView
@@ -715,9 +716,9 @@ public class TextBox extends TextView
 	}
 
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		super.draw(canvas);
 		this.canvas.noFill();
 		this.canvas.stroke(255);
 		this.canvas.strokeWeight(1);

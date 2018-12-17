@@ -1,6 +1,7 @@
 package ui;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Toast extends View
@@ -133,8 +134,9 @@ public class Toast extends View
 	}
 
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
+		super.draw(canvas);
 		if (this.visible)
 		{
 			float x, y;

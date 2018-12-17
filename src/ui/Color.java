@@ -14,6 +14,11 @@ public class Color
 		this(c, c, c);
 	}
 	
+	public Color(int c, int a)
+	{
+		this(c, c, c, a);
+	}
+	
 	public Color(int r, int g, int b)
 	{
 		this(r, g, b, 255);

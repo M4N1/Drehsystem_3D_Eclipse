@@ -561,6 +561,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		return getRelPos().add(new PVector(this.getMarginX(), this.getMarginY()));
 	}
+	
+	public PVector getRelPos(PVector pos)
+	{
+		return this.container == null ? pos.copy() : pos.copy().sub(this.container.getAbsPos());
+	}
 
 
 	public boolean isClicked()
@@ -572,7 +577,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
-		PVector pos = getAbsPos();
+		PVector pos = getActualAbsPos();
 		return (mX > pos.x && mX <= pos.x + this.width && mY > pos.y
 				&& mY <= pos.y + this.height);
 	}
@@ -687,8 +692,14 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 				PVector pos = getViewPos();
 				this.canvas.beginDraw();
 				this.canvas.noFill();
+				
 				this.canvas.stroke(0, 0, 255);
 				this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
+				
+				pos = getActualPos();
+				this.canvas.stroke(255, 0, 0);
+				this.canvas.rect(pos.x, pos.y, this.width, this.height);
+				
 				this.canvas.endDraw();
 			}
 		}

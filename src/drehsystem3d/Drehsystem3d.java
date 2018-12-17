@@ -216,6 +216,14 @@ public class Drehsystem3d extends PApplet
 		
 		this.cPath = setupCheckbox("cPath", "path", true);
 		this.cPath.alignBottom(this.cOutput);
+		
+		TextView info1 = new TextView(this, "Info1");
+		info1.setPos(new PVector(uiMarginX, 50));
+		info1.setText("Hello World!");
+		info1.setBackgroundColor(new Color(0, 0));
+		info1.setStrokeWeight(0);
+		sidebar.addChild(info1);
+		this.uiHandler.addUiElement(info1, false);
 
 		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
 
@@ -489,6 +497,8 @@ public class Drehsystem3d extends PApplet
 		{
 			update();
 		}
+		TextView info1 = (TextView)this.uiHandler.getUiElement("Info1");
+		info1.setText(String.format("mX: %d\nmY: %d", this.mouseX, this.mouseY));
 
 		setButtonVisibility();
 

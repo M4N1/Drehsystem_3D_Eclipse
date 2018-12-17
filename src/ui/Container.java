@@ -26,6 +26,15 @@ public class Container extends View
 		v.setContainer(this);
 	}
 	
+	public View getChild(String name)
+	{
+		for (View v : this.children)
+		{
+			if (v.name.equals(name)) return v;
+		}
+		return null;
+	}
+	
 	public boolean removeChild(View v)
 	{
 		if (v == null) return false;

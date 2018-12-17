@@ -17,6 +17,7 @@ import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 public class Button extends TextView
 {
@@ -94,12 +95,10 @@ public class Button extends TextView
 		super.draw(canvas);
 		if (this.clickAnimationVisible)
 		{
-			this.canvas.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
-			this.canvas.noStroke();
+			
 			boolean finished = true;
 			if (this.visible)
 			{
-				this.canvas.beginShape();
 				float x = 0, y = 0;
 				if (this.points.size() == 0)
 				{
@@ -111,8 +110,11 @@ public class Button extends TextView
 						this.points.add(new PVector(x, y, 0));
 					}
 				}
+				this.canvas.beginDraw();
+				this.canvas.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
+				this.canvas.noStroke();
+				this.canvas.beginShape();
 				int counter = 0;
-				//this.canvas.stroke(255);
 				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
 				{
 					PVector point = this.points.get(counter);
@@ -143,7 +145,9 @@ public class Button extends TextView
 					this.canvas.vertex(x, y);
 				}
 				this.canvas.endShape();
+				this.canvas.endDraw();
 			}
+			
 			if (this.context.millis() - this.clickAnimationLastTime > 1)
 			{
 				this.clickAnimationSize += 9;
@@ -269,7 +273,7 @@ public class Button extends TextView
 		if (this.clicked)
 		{
 			this.clickAnimationVisible = true;
-			this.clickAnimationPos = new PVector(this.context.mouseX, this.context.mouseY);
+			this.clickAnimationPos = getRelPos(new PVector(this.context.mouseX, this.context.mouseY));
 			this.clickAnimationStartTime = this.context.millis();
 			this.clickAnimationLastTime = this.context.millis();
 			Global.logger.log(Level.FINER, "Starting animation", new Object[] {this.clickAnimationPos, "b.pos: " + getActualPos()});

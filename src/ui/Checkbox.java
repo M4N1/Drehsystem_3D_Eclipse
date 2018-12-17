@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.core.PVector;
 
 public class Checkbox extends View
 {
@@ -113,23 +114,24 @@ public class Checkbox extends View
 	public void draw(PGraphics canvas)
 	{
 		super.draw(canvas);
+		PVector pos = getActualPos();
 		this.canvas.beginDraw();
 		this.canvas.noFill();
 		this.canvas.stroke(255);
 		this.canvas.strokeWeight(this.hovered ? 2 : 1);
 		this.canvas.textSize(this.height);
-		this.canvas.rect(this.pos.x, this.pos.y, this.width, this.height);
+		this.canvas.rect(pos.x, pos.y, this.width, this.height);
 		this.canvas.strokeWeight(1);
 		if (this.checked)
 		{
-			this.canvas.line(this.pos.x + padding, this.pos.y + padding, this.pos.x + this.width - padding, this.pos.y + this.height - padding);
-			this.canvas.line(this.pos.x + padding, this.pos.y + this.height - padding, this.pos.x + this.width - padding, this.pos.y + padding);
+			this.canvas.line(pos.x + padding, pos.y + padding, pos.x + this.width - padding, pos.y + this.height - padding);
+			this.canvas.line(pos.x + padding, pos.y + this.height - padding, pos.x + this.width - padding, pos.y + padding);
 		}
 		if (!this.text.equals(""))
 		{
 			this.canvas.fill(255);
 			
-			this.canvas.text(this.text, this.pos.x + this.width + 10, this.pos.y + this.height);
+			this.canvas.text(this.text, pos.x + this.width + 10, pos.y + this.height);
 		}
 		this.canvas.endDraw();
 	}

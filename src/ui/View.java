@@ -95,7 +95,10 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.context = context;
 		this.name = name;
 		this.pos = new PVector(x, y, 0);
-		this.setSize(w, h);
+		this.width = w;
+		this.viewWidth = w;
+		this.height = h;
+		this.viewHeight = h;
 		
 		setup();
 	}
@@ -114,7 +117,10 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.context = context;
 		this.name = name;
 		this.pos = pos.copy();
-		this.setSize(w, h);
+		this.width = w;
+		this.viewWidth = w;
+		this.height = h;
+		this.viewHeight = h;
 		
 		setup();
 	}
@@ -211,39 +217,87 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	
 	protected class Spacing
 	{
-		private int x = 0;
-		private int y = 0;
+		private static final int TOP = 0;
+		private static final int RIGHT = 1;
+		private static final int BOTTOM = 2;
+		private static final int LEFT = 3;
 		
-		public void setSpacing(int spacing)
+		private int[] spacing = new int[4];
+		
+		public void set(int spacing)
 		{
-			this.x = spacing;
-			this.y = spacing;
+			for (int i = TOP; i <= LEFT; i++)
+			{
+				this.spacing[i] = spacing;
+			}
 		}
 		
-		public void setSpacing(int x, int y)
+		public void set(int x, int y)
 		{
-			this.x = x;
-			this.y = y;
+			this.setX(x);
+			this.setY(y);
 		}
 		
-		public void setSpacingX(int x)
+		public void setTop(int value)
 		{
-			this.x = x;
+			this.spacing[TOP] = value;
 		}
 		
-		public void setSpacingY(int y)
+		public void setRight(int value)
 		{
-			this.y = y;
+			this.spacing[RIGHT] = value;
 		}
 		
-		public int getSpacingX()
+		public void setBottom(int value)
 		{
-			return x;
+			this.spacing[BOTTOM] = value;
 		}
 		
-		public int getSpacingY()
+		public void setLeft(int value)
 		{
-			return y;
+			this.spacing[LEFT] = value;
+		}
+		
+		public void setX(int x)
+		{
+			this.spacing[RIGHT] = x;
+			this.spacing[LEFT] = x;
+		}
+		
+		public void setY(int y)
+		{
+			this.spacing[TOP] = y;
+			this.spacing[BOTTOM] = y;
+		}
+		
+		public int getTop()
+		{
+			return this.spacing[TOP];
+		}
+		
+		public int getRight()
+		{
+			return this.spacing[RIGHT];
+		}
+		
+		public int getBottom()
+		{
+			return this.spacing[BOTTOM];
+		}
+		
+		public int getLeft()
+		{
+			return this.spacing[LEFT];
+		}
+		
+		public int getX()
+		{
+			return getRight() + getLeft();
+		}
+
+		public int getY()
+		{
+			return getTop() + getBottom();
 		}
 	}
 	
@@ -333,23 +387,20 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public void setSize(int w, int h)
 	{
-		this.width = w;
-		this.viewWidth = w + 2 * this.getMarginX();
-		
-		this.height = h;
-		this.viewHeight = h + 2 * this.getMarginY();
+		setWidth(w);
+		setHeight(h);
 	}
 	
 	public void setWidth(int w)
 	{
 		this.width = w;
-		this.viewWidth = w + 2 * this.getMarginX();
+		updateViewWidth();
 	}
 
 	public void setHeight(int h)
 	{
 		this.height = h;
-		this.viewHeight = h + 2 * this.getMarginY();
+		updateViewHeight();
 	}
 
 	private void calcPosX()
@@ -478,28 +529,50 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public void setMargin(int spacing)
 	{
-		this.margin.setSpacing(spacing);
-		this.viewWidth = this.width + 2 * this.margin.getSpacingX();
-		this.viewHeight = this.height + 2 * this.margin.getSpacingY();
+		this.margin.set(spacing);
+		updateViewSize();
+	}
+	
+	public void setMarginTop(int value)
+	{
+		this.margin.setTop(value);
+		updateViewHeight();
+	}
+	
+	public void setMarginRight(int value)
+	{
+		this.margin.setRight(value);
+		updateViewWidth();
+	}
+	
+	public void setMarginBottom(int value)
+	{
+		this.margin.setBottom(value);
+		updateViewHeight();
+	}
+	
+	public void setMarginLeft(int value)
+	{
+		this.margin.setLeft(value);
+		updateViewWidth();
 	}
 	
 	public void setMarginX(int x)
 	{
-		this.margin.setSpacingX(x);
-		this.viewWidth = this.width + 2 * this.margin.getSpacingX();
+		this.margin.setX(x);
+		updateViewWidth();
 	}
 	
 	public void setMarginY(int y)
 	{
-		this.margin.setSpacingY(y);
-		this.viewHeight = this.height + 2 * this.margin.getSpacingY();
+		this.margin.setY(y);
+		updateViewHeight();
 	}
 	
 	public void setMargin(int x, int y)
 	{
-		this.margin.setSpacing(x, y);
-		this.viewWidth = this.width + 2 * this.margin.getSpacingX();
-		this.viewHeight = this.height + 2 * this.margin.getSpacingY();
+		this.margin.set(x, y);
+		updateViewSize();
 	}
 	
 	public void setId(int id)
@@ -554,12 +627,12 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	
 	public PVector getActualAbsPos()
 	{
-		return getAbsPos().add(new PVector(this.getMarginX(), this.getMarginY()));
+		return getAbsPos().add(new PVector(this.getMarginLeft(), this.getMarginTop()));
 	}
 	
 	public PVector getActualRelPos()
 	{
-		return getRelPos().add(new PVector(this.getMarginX(), this.getMarginY()));
+		return getRelPos().add(new PVector(this.getMarginLeft(), this.getMarginTop()));
 	}
 	
 	public PVector getRelPos(PVector pos)
@@ -642,20 +715,56 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		return this.viewHeight;
 	}
 	
+	public int getMarginTop()
+	{
+		return this.margin.getTop();
+	}
+	
+	public int getMarginRight()
+	{
+		return this.margin.getRight();
+	}
+	
+	public int getMarginBottom()
+	{
+		return this.margin.getBottom();
+	}
+	
+	public int getMarginLeft()
+	{
+		return this.margin.getLeft();
+	}
+	
 	public int getMarginX()
 	{
-		return this.margin.getSpacingX();
+		return this.margin.getX();
 	}
 	
 	public int getMarginY()
 	{
-		return this.margin.getSpacingY();
+		return this.margin.getY();
 	}
 	
 	@Override
 	public void onWindowResize(int widthOld, int heightOld, int widthNew, int heightNew) {
 		this.pos.x = this.pos.x * widthNew / widthOld;
 		this.pos.y = this.pos.y * heightNew / heightOld;
+	}
+	
+	private void updateViewWidth()
+	{
+		this.viewWidth = this.width + this.margin.getX();
+	}
+
+	private void updateViewHeight()
+	{
+		this.viewHeight = this.height + this.margin.getY();
+	}
+	
+	private void updateViewSize()
+	{
+		this.viewWidth = this.width + this.margin.getX();
+		this.viewHeight = this.height + this.margin.getY();
 	}
 
 	public void draw()
@@ -689,16 +798,18 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		{
 			if (this.visible)
 			{
-				PVector pos = getViewPos();
+				PVector pos;
 				this.canvas.beginDraw();
 				this.canvas.noFill();
-				
-				this.canvas.stroke(0, 0, 255);
-				this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
+				this.canvas.strokeWeight(2);
 				
 				pos = getActualPos();
 				this.canvas.stroke(255, 0, 0);
 				this.canvas.rect(pos.x, pos.y, this.width, this.height);
+				
+				pos = getViewPos();
+				this.canvas.stroke(0, 0, 255);
+				this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
 				
 				this.canvas.endDraw();
 			}

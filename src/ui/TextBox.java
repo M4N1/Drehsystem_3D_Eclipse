@@ -14,24 +14,24 @@ import processing.core.PVector;
 public class TextBox extends TextView
 {
 	
-	ArrayList<Integer> keysPressed = new ArrayList<>();
-	boolean mouseDrag = false;
-	int markedAreaStart = 0;
-	int markedAreaLength = 0;
-	int inputType = InputTypes.ALL;
-	TextBoxListener mListener;
-	KeyListener keyListener;
-	int cursorPos = 0;
-	int dragCursorPos = 0;
-	float cursorPosX;
-	float dragCursorPosX;
-	String hint = "";
-	String standardText = "";
-	String outputText = "";
-	String input = "";
-	boolean setClicked = false;
-	int cursorTimer = 0;
-	boolean cursorVisible = false;
+	protected ArrayList<Integer> keysPressed = new ArrayList<>();
+	protected boolean mouseDrag = false;
+	protected int markedAreaStart = 0;
+	protected int markedAreaLength = 0;
+	protected int inputType = InputTypes.ALL;
+	protected TextBoxListener mListener;
+	protected KeyListener keyListener;
+	protected int cursorPos = 0;
+	protected int dragCursorPos = 0;
+	protected float cursorPosX;
+	protected float dragCursorPosX;
+	protected String hint = "";
+	protected String standardText = "";
+	protected String outputText = "";
+	protected String input = "";
+	protected boolean setClicked = false;
+	protected int cursorTimer = 0;
+	protected boolean cursorVisible = false;
 
 	public TextBox(PApplet context, String name, int posX, int posY)
 	{
@@ -41,7 +41,7 @@ public class TextBox extends TextView
 	public TextBox(PApplet context, String name, int posX, int posY, int w, int h)
 	{
 		super(context, name, posX, posY, w, h);
-		calcWidth();
+		//calcWidth();
 	}
 
 	public TextBox(PApplet context, String name, PVector pos)
@@ -52,7 +52,7 @@ public class TextBox extends TextView
 	public TextBox(PApplet context, String name, PVector pos, int w, int h)
 	{
 		super(context, name, pos, w, h);
-		calcWidth();
+		//calcWidth();
 	}
 
 	public void setTextBoxListener(TextBoxListener listener)

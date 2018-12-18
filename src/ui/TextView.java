@@ -16,12 +16,12 @@ public class TextView extends View
 	public static int instanceCounter = 0;
 	protected String text = "";
 	protected final Spacing padding = new Spacing();
-	int textSize = 20;
-	int strokeColor = 255;
-	int strokeWeight = 1;
-	Color textColor = new Color(255);
-	int cornerRadius = 0;
-	TextAlignment textAlignment = TextAlignment.LEFT;
+	protected int textSize = 20;
+	protected int strokeColor = 255;
+	protected int strokeWeight = 1;
+	protected Color textColor = new Color(255);
+	protected int cornerRadius = 0;
+	protected TextAlignment textAlignment = TextAlignment.LEFT;
 
 	public TextView(PApplet context, String name)
 	{
@@ -137,18 +137,18 @@ public class TextView extends View
 	public void calcWidth()
 	{
 		this.canvas.textSize(this.textSize);
-		int nWidth = (int) this.canvas.textWidth(this.text) + this.padding.getSpacingX() * 2;
+		int nWidth = (int) this.canvas.textWidth(this.text) + this.padding.getX();
 		int newWidth = this.width > nWidth ? this.width : nWidth;
 		this.width = newWidth;
-		this.viewWidth = newWidth + 2 * this.getMarginX();
+		this.viewWidth = newWidth + this.getMarginX();
 	}
 
 	public void calcHeight()
 	{
-		int nHeight = this.textSize + 2 * this.padding.getSpacingY();
+		int nHeight = this.textSize + this.padding.getY();
 		int newHeight = this.height > nHeight ? this.height : nHeight;
 		this.height = newHeight;
-		this.viewHeight = newHeight + 2 * this.getMarginY();
+		this.viewHeight = newHeight + this.getMarginY();
 	}
 
 	public void setTextAlignment(TextAlignment alignment)
@@ -158,27 +158,27 @@ public class TextView extends View
 	
 	public void setPadding(int spacing)
 	{
-		this.padding.setSpacing(spacing);
+		this.padding.set(spacing);
 		calcWidth();
 		calcHeight();
 	}
 	
 	public void setPadding(int x, int y)
 	{
-		this.padding.setSpacing(x, y);
+		this.padding.set(x, y);
 		calcWidth();
 		calcHeight();
 	}
 	
 	public void setPaddingX(int x)
 	{
-		this.padding.setSpacingX(x);
+		this.padding.setX(x);
 		calcWidth();
 	}
 	
 	public void setPaddingY(int y)
 	{
-		this.padding.setSpacingY(y);
+		this.padding.setY(y);
 		calcHeight();
 	}
 
@@ -197,27 +197,27 @@ public class TextView extends View
 		this.canvas.textSize(this.textSize);
 		float posX = this.getActualPos().x;
 		float offset = 0;
-		int paddingSpacingX = this.padding.getSpacingX();
+		int paddingLeft = this.padding.getLeft();
 		switch (this.textAlignment)
 		{
 			case LEFT:
-				posX += paddingSpacingX;
+				posX += paddingLeft;
 				break;
 
 			case RIGHT:
-				offset = this.width - this.canvas.textWidth(displayedText) - paddingSpacingX;
-				if (offset < paddingSpacingX)
+				offset = this.width - this.canvas.textWidth(displayedText) - paddingLeft;
+				if (offset < paddingLeft)
 				{
-					offset = paddingSpacingX;
+					offset = paddingLeft;
 				}
 				posX += offset;
 				break;
 
 			case CENTER:
 				offset = (this.width - this.canvas.textWidth(displayedText)) / 2;
-				if (offset < paddingSpacingX)
+				if (offset < paddingLeft)
 				{
-					offset = paddingSpacingX;
+					offset = paddingLeft;
 				}
 				posX += offset;
 				break;

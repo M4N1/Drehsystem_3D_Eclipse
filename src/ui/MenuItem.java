@@ -56,19 +56,32 @@ public class MenuItem extends View
 
 	private void init(String title, String[] values)
 	{
-		this.padding.setSpacing(10);
+		this.padding.set(10);
 		this.startPosX = (int) 0;
 		this.startPosY = (int) 0;
 		this.textviews = new ArrayList<>();
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
 		{
-			final TextView tv = new TextView(this.context, this.name + "_tv_" + i, this.startPosX, this.startPosY, this.tvWidth, this.tvHeight);
+			final TextView tv = new TextView(this.context, this.name + "_tv_" + i);
+			if (i != 0 && this.textviews.size() > 0)
+			{
+				tv.alignBottom(this.textviews.get(this.textviews.size() - 1));
+			}
+			else
+			{
+				tv.setPos(new PVector(this.startPosX, this.startPosY));
+			}
+			tv.setSize(this.tvWidth, this.tvHeight);
 			tv.setContainer(this);
 			tv.setText(this.values[i]);
 			tv.setTextAlignment(TextView.TextAlignment.CENTER);
 			tv.setTextSize(15);
-			tv.setMargin(10);
+			tv.setMarginX(10);
+			if (i == 0)
+				tv.setMarginTop(10);
+			else if (i == this.values.length - 1)
+				tv.setMarginBottom(10);
 			tv.setId(i + 1);
 			tv.setTextColor(0);
 			tv.setBackgroundgAlpha(255);
@@ -105,7 +118,6 @@ public class MenuItem extends View
 
 	public void calcWidth()
 	{
-		int nWidth = 2 * this.padding.getSpacingX();
 		int maxTvWidth = 0;
 		for (TextView tv : this.textviews)
 		{
@@ -118,18 +130,16 @@ public class MenuItem extends View
 		{
 			tv.setWidth(maxTvWidth);
 		}
-		nWidth += maxTvWidth;
-		this.width = nWidth;
+		this.width = maxTvWidth + this.padding.getX();
 	}
 
 	public void calcHeight()
 	{
-		int nHeight = 2 * this.padding.getSpacingY();
-		for (TextView tv : this.textviews)
-		{
-			nHeight += tv.height + 1;
-		}
-		this.height = nHeight;
+		View first = this.textviews.get(0);
+		View last = this.textviews.get(this.textviews.size()-1);
+		int startPos = (int)first.getAbsPos().y;
+		int endPos = (int)last.getAbsPos().y + last.getViewHeight();
+		this.height = endPos - startPos;
 	}
 
 	public void calcPos()
@@ -188,7 +198,7 @@ public class MenuItem extends View
 				{
 					tv.setBackgroundColor(150);
 				}
-				tv.draw();
+				tv.draw(canvas);
 			}
 		}
 	}

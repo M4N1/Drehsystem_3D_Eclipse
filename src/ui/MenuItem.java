@@ -80,7 +80,7 @@ public class MenuItem extends View
 			tv.setMarginX(10);
 			if (i == 0)
 				tv.setMarginTop(10);
-			else if (i == this.values.length - 1)
+			if (i == this.values.length - 1)
 				tv.setMarginBottom(10);
 			tv.setId(i + 1);
 			tv.setTextColor(0);
@@ -121,16 +121,16 @@ public class MenuItem extends View
 		int maxTvWidth = 0;
 		for (TextView tv : this.textviews)
 		{
-			if (tv.width > maxTvWidth)
+			if (tv.viewWidth > maxTvWidth)
 			{
-				maxTvWidth = tv.width;
+				maxTvWidth = tv.viewWidth;
 			}
 		}
 		for (TextView tv : this.textviews)
 		{
 			tv.setWidth(maxTvWidth);
 		}
-		this.width = maxTvWidth + this.padding.getX();
+		this.setWidth(maxTvWidth + this.padding.getX());
 	}
 
 	public void calcHeight()
@@ -139,7 +139,7 @@ public class MenuItem extends View
 		View last = this.textviews.get(this.textviews.size()-1);
 		int startPos = (int)first.getAbsPos().y;
 		int endPos = (int)last.getAbsPos().y + last.getViewHeight();
-		this.height = endPos - startPos;
+		this.setHeight(endPos - startPos);
 	}
 
 	public void calcPos()

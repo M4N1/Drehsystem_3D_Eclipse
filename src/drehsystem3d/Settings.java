@@ -20,7 +20,7 @@ public class Settings
 		Settings.args = args;
 		
 		Global.DEBUG = getModeState("DEBUG");
-		Global.SHOW_VIEWBOXES = getModeState("VIEWBOXES");
+		Global.SHOW_VIEWBOXES = Global.DEBUG && getModeState("VIEWBOXES");
 		Point.restrictPathLength(!getModeState("FULL_PATH"));
 		
 		Settings.printColored = Global.isUnix || getModeState("PRINT_COLOR");

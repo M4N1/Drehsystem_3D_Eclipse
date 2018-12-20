@@ -186,16 +186,14 @@ public class Drehsystem3d extends PApplet
 		menuBar.addMenuSubItem("New", null);
 		menuBar.addMenuSubItem("Open", null);
 		menuBar.addMenuSubItem("Save", null);
-		menuBar.addMenuSubItem("Screenshot", new Runnable()
+		menuBar.addMenuSubItem("Screenshot", () ->
 		{
-			@Override
-			public void run()
-			{
-				Calendar cal = Calendar.getInstance();
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd-mm.ss.SSS");
-				String fileName = formatter.format(cal.getTime());
-				Drehsystem3d.this.simulationCanvas.save(fileName + ".jpg");
-			}
+			Calendar cal = Calendar.getInstance();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd-mm.ss.SSS");
+			String fileName = formatter.format(cal.getTime()) + ".jpg";
+			Drehsystem3d.this.simulationCanvas.save(fileName);
+			String path = System.getProperty("user.dir") + "\\" + fileName;
+			Global.logger.log(Level.INFO, "Saved screenshot to " + path);
 		});
 		menuBar.addMenuItem("Help", null);
 		menuBar.addMenuSubItem("Controls", null);
@@ -217,7 +215,7 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement(sidebar);
 		
 		this.cLines = setupCheckbox("cLines", "connections", true);
-		this.cLines.setPos(new PVector(uiMarginX, 140));
+		this.cLines.setPos(this.uiMarginX, 140);
 		
 		this.cVelocity = setupCheckbox("cVelocity", "v", true);
 		this.cVelocity.alignBottom(this.cLines);
@@ -232,7 +230,7 @@ public class Drehsystem3d extends PApplet
 		this.cPath.alignBottom(this.cOutput);
 		
 		TextView info1 = new TextView(this, "Info1");
-		info1.setPos(new PVector(uiMarginX, 50));
+		info1.setPos(new PVector(uiMarginX, sidebar.getHeight() - 100));
 		info1.setText("Hello World!");
 		info1.setBackgroundColor(new Color(0, 0));
 		info1.setStrokeWeight(0);
@@ -240,7 +238,8 @@ public class Drehsystem3d extends PApplet
 		sidebar.addChild(info1);
 		this.uiHandler.addUiElement(info1, false);
 		
-		TextBox tb = new TextBox(this, "test_tb", new PVector(0, 0));
+		TextBox tb = new TextBox(this, "test_tb");
+		tb.setPos(this.uiMarginX, this.uiMarginX);
 		tb.setHint("Enter text");
 		tb.setWidth(200);
 		tb.setStrokeWeight(1);
@@ -252,14 +251,8 @@ public class Drehsystem3d extends PApplet
 		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
 
 		bRemovePoints = setupButton("bReset");
-		bRemovePoints.setPos(new PVector(uiMarginX, this.bStartY, 0));
-		bRemovePoints.setSize(120, 50);
+		bRemovePoints.setPos(this.uiMarginX, this.bStartY);
 		bRemovePoints.setText("Remove All");
-		bRemovePoints.setMargin(10);
-		bRemovePoints.setBackgroundColor(this.menuBackground);
-		bRemovePoints.setTextColor(255);
-		bRemovePoints.setCornerRadius(15);
-		bRemovePoints.setStrokeWeight(2);
 		bRemovePoints.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -271,13 +264,7 @@ public class Drehsystem3d extends PApplet
 
 		bMoveToStart = setupButton("bStart");
 		bMoveToStart.alignBottom(bRemovePoints);
-		bMoveToStart.setSize(120, 50);
 		bMoveToStart.setText("Start Pos");
-		bMoveToStart.setMargin(10);
-		bMoveToStart.setBackgroundColor(this.menuBackground);
-		bMoveToStart.setTextColor(255);
-		bMoveToStart.setCornerRadius(15);
-		bMoveToStart.setStrokeWeight(2);
 		bMoveToStart.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -289,13 +276,7 @@ public class Drehsystem3d extends PApplet
 
 		bClearPath = setupButton("bClearPath");
 		bClearPath.alignBottom(bMoveToStart);
-		bClearPath.setSize(120, 50);
 		bClearPath.setText("Clear Path");
-		bClearPath.setMargin(10);
-		bClearPath.setBackgroundColor(this.menuBackground);
-		bClearPath.setTextColor(255);
-		bClearPath.setCornerRadius(15);
-		bClearPath.setStrokeWeight(2);
 		bClearPath.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -307,13 +288,7 @@ public class Drehsystem3d extends PApplet
 
 		bAlignCamera = setupButton("bAlign");
 		bAlignCamera.alignBottom(bClearPath);
-		bAlignCamera.setSize(120, 50);
 		bAlignCamera.setText("Align");
-		bAlignCamera.setMargin(10);
-		bAlignCamera.setBackgroundColor(this.menuBackground);
-		bAlignCamera.setTextColor(255);
-		bAlignCamera.setCornerRadius(15);
-		bAlignCamera.setStrokeWeight(2);
 		bAlignCamera.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -363,23 +338,19 @@ public class Drehsystem3d extends PApplet
 	private Button setupButton(String title)
 	{
 		Button b = new Button(this, title);
-		b.setOnHoverAction(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				b.setBackgroundColor(new Color(255));
-				b.setTextColor(Drehsystem3d.this.menuBackground);
-			}
+		b.setSize(120, 50);
+		b.setMargin(10);
+		b.setBackgroundColor(this.menuBackground);
+		b.setTextColor(255);
+		b.setCornerRadius(15);
+		b.setStrokeWeight(2);
+		b.setOnHoverAction(() -> {
+			b.setBackgroundColor(new Color(255));
+			b.setTextColor(Drehsystem3d.this.menuBackground);
 		});
-		b.setOnHoverEndAction(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				b.setBackgroundColor(Drehsystem3d.this.menuBackground);
-				b.setTextColor(255);
-			}
+		b.setOnHoverEndAction(() -> {
+			b.setBackgroundColor(Drehsystem3d.this.menuBackground);
+			b.setTextColor(255);
 		});
 		((Container)this.uiHandler.getUiElement("Sidebar")).addChild(b);
 		this.uiHandler.addUiElement(b, false);

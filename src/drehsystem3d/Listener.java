@@ -13,6 +13,7 @@ public class Listener
 	public interface OnHoverListener
 	{
 		public void onHover(View v);
+		public void onHoverEnd(View v);
 	}
 
 	public interface OnItemClickListener

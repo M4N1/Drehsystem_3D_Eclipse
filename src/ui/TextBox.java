@@ -35,6 +35,12 @@ public class TextBox extends TextView
 	protected int cursorTimer = 0;
 	protected boolean cursorVisible = false;
 
+	public TextBox(PApplet context, String name)
+	{
+		super(context, name);
+		setup();
+	}
+	
 	public TextBox(PApplet context, String name, int posX, int posY)
 	{
 		super(context, name, posX, posY);

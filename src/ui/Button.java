@@ -1,10 +1,8 @@
 package ui;
 
-import static processing.core.PApplet.abs;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.sin;
 import static processing.core.PApplet.sqrt;
-import static processing.core.PApplet.tan;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.TWO_PI;
 
@@ -17,7 +15,6 @@ import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 public class Button extends TextView
 {
@@ -27,6 +24,7 @@ public class Button extends TextView
 	long clickAnimationStartTime = 0;
 	long clickAnimationLastTime = 0;
 	int clickAnimationSize = 0;
+	ArrayList<PVector> points = new ArrayList<>();
 
 	public Button(PApplet context, String name)
 	{
@@ -85,87 +83,6 @@ public class Button extends TextView
 	public void init()
 	{
 		this.textAlignment = TextView.TextAlignment.CENTER;
-	}
-
-	ArrayList<PVector> points = new ArrayList<>();
-
-	@Override
-	public void draw(PGraphics canvas)
-	{
-		super.draw(canvas);
-		if (this.clickAnimationVisible)
-		{
-			
-			boolean finished = true;
-			if (this.visible)
-			{
-				float x = 0, y = 0;
-				if (this.points.size() == 0)
-				{
-					this.clickAnimationSize = 1;
-					for (float angle = 0; angle < TWO_PI; angle += PI / 32)
-					{
-						x = this.clickAnimationPos.x + this.clickAnimationSize * cos(angle);
-						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
-						this.points.add(new PVector(x, y, 0));
-					}
-				}
-				this.canvas.beginDraw();
-				this.canvas.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
-				this.canvas.noStroke();
-				this.canvas.beginShape();
-				int counter = 0;
-				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
-				{
-					PVector point = this.points.get(counter);
-					PVector shapeDimPos = checkShapeDim(point.x, point.y);
-					if (shapeDimPos == null)
-					{
-						int size = this.clickAnimationSize;
-						x = this.clickAnimationPos.x + size * cos(angle);
-						y = this.clickAnimationPos.y + size * sin(angle);
-						while (checkShapeDim(x, y) != null && size > 0)
-						{
-							size--;
-							x = this.clickAnimationPos.x + size * cos(angle);
-							y = this.clickAnimationPos.y + size * sin(angle);
-						}
-						size++;
-						x = this.clickAnimationPos.x + size * cos(angle);
-						y = this.clickAnimationPos.y + size * sin(angle);
-						this.points.set(counter, new PVector(x, y, 0));
-						finished = false;
-					}
-					else
-					{
-						x = shapeDimPos.x;
-						y = shapeDimPos.y;
-					}
-					counter++;
-					this.canvas.vertex(x, y);
-				}
-				this.canvas.endShape();
-				this.canvas.endDraw();
-			}
-			
-			if (this.context.millis() - this.clickAnimationLastTime > 1)
-			{
-				this.clickAnimationSize += 9;
-				this.clickAnimationLastTime = this.context.millis();
-			}
-
-			if (finished)
-			{
-				Global.logger.log(Level.FINER, "Button '" + this.name + "' animation finished", new Object[] {this.clickAnimationSize});
-				this.clickAnimationVisible = false;
-				this.clickAnimationSize = 0;
-				this.points = new ArrayList<>();
-				if (this.onAnimationFinishedListener != null)
-				{
-					this.onAnimationFinishedListener.onAnimationFinished();
-				}
-			}
-		}
 	}
 
 	public PVector checkShapeDim(float x, float y)
@@ -242,18 +159,6 @@ public class Button extends TextView
 		return null;
 	}
 
-	/*public PVector calcShapeDim(float startX, float startY, float angle)
-	{
-		PVector pos = getPos();
-		float x = startX - pos.x;
-		float y = startY - abs(x * tan(angle));
-		float k = tan(angle);
-		float r = this.cornerRadius;
-		float distX = (r - sqrt(2 * k * r * r - y + 2 * y * r - 2 * y * k * r) - y * k + k * r) / (k * k + 1);
-		float distY = r - sqrt(r * r - (r - distX) * (r - distX));
-		return new PVector(pos.x + distX, pos.y + distY, 0);
-	}*/
-
 	@Override
 	public void setOnClickListener(OnClickListener listener)
 	{
@@ -269,15 +174,92 @@ public class Button extends TextView
 	public boolean onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
-		Global.logger.log(Level.FINER, "Button '" + this.name + "'", new Object[] {this.clicked, this.pos, this.width, this.height});
+		Global.logger.log(Level.FINEST, "Button '" + this.name + "'", new Object[] {this.clicked, this.pos, this.width, this.height});
 		if (this.clicked)
 		{
 			this.clickAnimationVisible = true;
 			this.clickAnimationPos = getRelPos(new PVector(this.context.mouseX, this.context.mouseY));
 			this.clickAnimationStartTime = this.context.millis();
 			this.clickAnimationLastTime = this.context.millis();
-			Global.logger.log(Level.FINER, "Starting animation", new Object[] {this.clickAnimationPos, "b.pos: " + getActualPos()});
 		}
 		return this.clicked;
+	}
+	
+	@Override
+	public void draw(PGraphics canvas)
+	{
+		super.draw(canvas);
+		if (this.clickAnimationVisible)
+		{
+			
+			boolean finished = true;
+			if (this.visible)
+			{
+				float x = 0, y = 0;
+				if (this.points.size() == 0)
+				{
+					this.clickAnimationSize = 1;
+					for (float angle = 0; angle < TWO_PI; angle += PI / 32)
+					{
+						x = this.clickAnimationPos.x + this.clickAnimationSize * cos(angle);
+						y = this.clickAnimationPos.y + this.clickAnimationSize * sin(angle);
+						this.points.add(new PVector(x, y, 0));
+					}
+				}
+				this.canvas.beginDraw();
+				this.canvas.fill(255 - this.backgroundColor.r, 255 - this.backgroundColor.g, 255 - this.backgroundColor.b, 100);
+				this.canvas.noStroke();
+				this.canvas.beginShape();
+				int counter = 0;
+				for (float angle = 0; angle < TWO_PI; angle += PI / 32)
+				{
+					PVector point = this.points.get(counter);
+					PVector shapeDimPos = checkShapeDim(point.x, point.y);
+					if (shapeDimPos == null)
+					{
+						int size = this.clickAnimationSize;
+						x = this.clickAnimationPos.x + size * cos(angle);
+						y = this.clickAnimationPos.y + size * sin(angle);
+						while (checkShapeDim(x, y) != null && size > 0)
+						{
+							size--;
+							x = this.clickAnimationPos.x + size * cos(angle);
+							y = this.clickAnimationPos.y + size * sin(angle);
+						}
+						size++;
+						x = this.clickAnimationPos.x + size * cos(angle);
+						y = this.clickAnimationPos.y + size * sin(angle);
+						this.points.set(counter, new PVector(x, y, 0));
+						finished = false;
+					}
+					else
+					{
+						x = shapeDimPos.x;
+						y = shapeDimPos.y;
+					}
+					counter++;
+					this.canvas.vertex(x, y);
+				}
+				this.canvas.endShape();
+				this.canvas.endDraw();
+			}
+			
+			if (this.context.millis() - this.clickAnimationLastTime > 1)
+			{
+				this.clickAnimationSize += 9;
+				this.clickAnimationLastTime = this.context.millis();
+			}
+
+			if (finished)
+			{
+				this.clickAnimationVisible = false;
+				this.clickAnimationSize = 0;
+				this.points = new ArrayList<>();
+				if (this.onAnimationFinishedListener != null)
+				{
+					this.onAnimationFinishedListener.onAnimationFinished();
+				}
+			}
+		}
 	}
 }

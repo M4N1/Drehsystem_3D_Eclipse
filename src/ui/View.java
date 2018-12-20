@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import drehsystem3d.Global;
 import drehsystem3d.Listener.KeyListener;
@@ -364,6 +365,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	{
 		return this.visible;
 	}
+	
+	public void setPos(float x, float y)
+	{
+		this.pos = new PVector(x, y);
+	}
 
 	public void setPos(PVector pos)
 	{
@@ -412,11 +418,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		switch (neighborDir)
 		{
 			case Neighbor.RIGHT:
-				this.pos.x = other.pos.x - this.viewWidth;
+				this.pos.x = other.pos.x - this.viewWidth - 1;
 				break;
 				
 			case Neighbor.LEFT:
-				this.pos.x = other.pos.x + other.viewWidth;
+				this.pos.x = other.pos.x + other.viewWidth + 1;
 				break;
 				
 			case Neighbor.TOP:
@@ -449,11 +455,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		switch(neighborDir)
 		{
 			case Neighbor.TOP:
-				this.pos.y = other.pos.y + other.viewHeight;
+				this.pos.y = other.pos.y + other.viewHeight + 1;
 				break;
 				
 			case Neighbor.BOTTOM:
-				this.pos.y = other.pos.y - this.viewHeight;
+				this.pos.y = other.pos.y - this.viewHeight - 1;
 				break;
 				
 			case Neighbor.LEFT:
@@ -651,7 +657,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
 		PVector pos = getActualAbsPos();
-		return (mX > pos.x && mX <= pos.x + this.width && mY > pos.y
+		return (mX >= pos.x && mX <= pos.x + this.width && mY >= pos.y
 				&& mY <= pos.y + this.height);
 	}
 
@@ -776,38 +782,54 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.hovered = isHovered();
 		if (this.hovered)
 		{
-			if (this.onHoverListener != null)
+			if (!previouslyHovered)
 			{
-				this.onHoverListener.onHover(this);
-			}
-			if (this.onHoverAction != null)
-			{
-				this.onHoverAction.run();
+				Global.logger.log(
+					Level.FINER, 
+					"View on hover", 
+					new Object[] {
+							this.name, 
+							this.pos, 
+							this.width, 
+							this.height, 
+							this.viewWidth, 
+							this.viewHeight
+					}
+				);
+				if (this.onHoverListener != null) this.onHoverListener.onHover(this);
+				if (this.onHoverAction != null) this.onHoverAction.run();
 			}
 		}
-		else if (previouslyHovered && this.onHoverEndAction != null)
+		else if (previouslyHovered)
 		{
-			this.onHoverEndAction.run();
+			if (this.onHoverListener != null) this.onHoverListener.onHoverEnd(this);
+			if (this.onHoverEndAction != null) this.onHoverEndAction.run();
 		}
-		if (Global.DEBUG && Global.SHOW_VIEWBOXES)
+		if (Global.SHOW_VIEWBOXES && this.visible)
 		{
-			if (this.visible)
+			PVector pos;
+			this.canvas.beginDraw();
+			this.canvas.noFill();
+			this.canvas.strokeWeight(2);
+			
+			pos = this.getActualPos();
+			this.canvas.stroke(255, 0, 0);
+			this.canvas.rect(pos.x, pos.y, this.width, this.height);
+			
+			pos = this.getViewPos();
+			if (this.hovered)
 			{
-				PVector pos;
-				this.canvas.beginDraw();
-				this.canvas.noFill();
-				this.canvas.strokeWeight(2);
-				
-				pos = this.getActualPos();
-				this.canvas.stroke(255, 0, 0);
-				this.canvas.rect(pos.x, pos.y, this.width, this.height);
-				
-				pos = this.getViewPos();
+				this.canvas.stroke(255, 255, 0);
+				this.canvas.strokeWeight(3);
+			}
+			else
+			{
 				this.canvas.stroke(0, 0, 255);
-				this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
-				
-				this.canvas.endDraw();
+				this.canvas.strokeWeight(2);
 			}
+			this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
+			
+			this.canvas.endDraw();
 		}
 	}
 	

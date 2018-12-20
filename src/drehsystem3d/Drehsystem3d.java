@@ -1,6 +1,8 @@
 package drehsystem3d;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,6 +25,7 @@ import ui.InputBox;
 import ui.InputTypes;
 import ui.MenuItem;
 import ui.Menubar;
+import ui.TextBox;
 import ui.TextView;
 import ui.Toast;
 import ui.View;
@@ -183,7 +186,17 @@ public class Drehsystem3d extends PApplet
 		menuBar.addMenuSubItem("New", null);
 		menuBar.addMenuSubItem("Open", null);
 		menuBar.addMenuSubItem("Save", null);
-		menuBar.addMenuSubItem("Screenshot", null);
+		menuBar.addMenuSubItem("Screenshot", new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Calendar cal = Calendar.getInstance();
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd-mm.ss.SSS");
+				String fileName = formatter.format(cal.getTime());
+				Drehsystem3d.this.simulationCanvas.save(fileName + ".jpg");
+			}
+		});
 		menuBar.addMenuItem("Help", null);
 		menuBar.addMenuSubItem("Controls", null);
 		menuBar.addMenuSubItem("About", null);
@@ -223,8 +236,18 @@ public class Drehsystem3d extends PApplet
 		info1.setText("Hello World!");
 		info1.setBackgroundColor(new Color(0, 0));
 		info1.setStrokeWeight(0);
+		info1.setPadding(5);
 		sidebar.addChild(info1);
 		this.uiHandler.addUiElement(info1, false);
+		
+		TextBox tb = new TextBox(this, "test_tb", new PVector(0, 0));
+		tb.setHint("Enter text");
+		tb.setWidth(200);
+		tb.setStrokeWeight(1);
+		tb.setStrokeColor(255);
+		tb.setBackgroundColor(new Color(0, 0));
+		sidebar.addChild(tb);
+		this.uiHandler.addUiElement(tb, false);
 
 		Button bRemovePoints, bMoveToStart, bClearPath, bAlignCamera;
 
@@ -428,16 +451,20 @@ public class Drehsystem3d extends PApplet
 		}
 	}
 
-	private void handleKeyPressedPermanent()
+	private void checkKeyPressedPermanent()
 	{
-		int lastKeyCode = this.inputHandler.getLastKeyCode();
-		if (this.keyPressed && (lastKeyCode == 139 || lastKeyCode == 93 || lastKeyCode == 140 || lastKeyCode == 47))
+		
+		if (this.keyPressed) // && (lastKeyCode == 139 || lastKeyCode == 93 || lastKeyCode == 140 || lastKeyCode == 47)
 		{
 			if (this.inputHandler.millisSinceLastKeyEventElapsed(500)
-					|| (this.keyPressedPermanent && this.inputHandler.millisSinceLastKeyEventElapsed(100)))
+					|| (this.keyPressedPermanent && this.inputHandler.millisSinceLastKeyEventElapsed(50)))
 			{
+				int lastKeyCode = this.inputHandler.getLastKeyCode();
+				char lastKey = this.inputHandler.getLastKey();
+				if (!this.keyPressedPermanent)
+					Global.logger.log(Level.FINE, "Key pressed permanent", new Object[] {lastKeyCode, "'"+lastKey+"'"});
 				this.keyPressedPermanent = true;
-				handleKeyPressedEvent(this.inputHandler.getLastKeyCode(), this.inputHandler.getLastKey());
+				handleKeyPressedEvent(lastKeyCode, lastKey);
 			}
 		}
 		else
@@ -468,7 +495,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void draw()
 	{
-		handleKeyPressedPermanent();
+		checkKeyPressedPermanent();
 		addBufferedPoint();
 		handlePathUpdates();
 		noLights();
@@ -1225,20 +1252,19 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		Global.logger.log(Level.FINE, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
-		boolean uiElementClicked = this.uiHandler.onKeyPressed(this.keyCode, this.key);
-		if (!uiElementClicked)
-		{
-			handleKeyPressedEvent(this.keyCode, this.key);
-		}
+		handleKeyPressedEvent(this.keyCode, this.key);
 	}
 
 	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey)
 	{
+		Global.logger.log(Level.FINE, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
+		boolean uiElementClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
-			l.onKeyPressed(pressedKeyCode, pressedKey);
+			uiElementClicked = uiElementClicked || l.onKeyPressed(this.keyCode, this.key);
 		}
+		if (uiElementClicked)
+			return;
 		switch (pressedKeyCode)
 		{
 			case 139:

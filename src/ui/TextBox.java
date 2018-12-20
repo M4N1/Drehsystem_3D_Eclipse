@@ -21,6 +21,7 @@ public class TextBox extends TextView
 	protected int inputType = InputTypes.ALL;
 	protected TextBoxListener mListener;
 	protected KeyListener keyListener;
+	protected Color cursorColor = new Color(255);
 	protected int cursorPos = 0;
 	protected int dragCursorPos = 0;
 	protected float cursorPosX;
@@ -29,6 +30,7 @@ public class TextBox extends TextView
 	protected String standardText = "";
 	protected String outputText = "";
 	protected String input = "";
+	protected Color textHintColor = new Color(100);
 	protected boolean setClicked = false;
 	protected int cursorTimer = 0;
 	protected boolean cursorVisible = false;
@@ -36,25 +38,32 @@ public class TextBox extends TextView
 	public TextBox(PApplet context, String name, int posX, int posY)
 	{
 		super(context, name, posX, posY);
+		setup();
 	}
 
 	public TextBox(PApplet context, String name, int posX, int posY, int w, int h)
 	{
 		super(context, name, posX, posY, w, h);
-		//calcWidth();
+		setup();
 	}
 
 	public TextBox(PApplet context, String name, PVector pos)
 	{
 		super(context, name, pos);
+		setup();
 	}
 
 	public TextBox(PApplet context, String name, PVector pos, int w, int h)
 	{
 		super(context, name, pos, w, h);
-		//calcWidth();
+		setup();
 	}
 
+	public void setup()
+	{
+		this.setPadding(5);
+	}
+	
 	public void setTextBoxListener(TextBoxListener listener)
 	{
 		this.mListener = listener;
@@ -270,6 +279,7 @@ public class TextBox extends TextView
 					break;
 
 				case 127:
+				case 147:
 					if (this.markedAreaLength > 0)
 					{
 						deleteMarkedInputChars();
@@ -602,8 +612,10 @@ public class TextBox extends TextView
 			float posY = getActualPos().y;
 			float y1 = posY + offset - 1;
 			float y2 = posY + this.height - offset + 1;
+			this.canvas.beginDraw();
 			if (this.cursorVisible)
 			{
+				this.canvas.stroke(this.cursorColor.r, this.cursorColor.g,this.cursorColor.b, this.cursorColor.a);
 				this.canvas.line(this.cursorPosX, y1, this.cursorPosX, y2);
 			}
 			if (this.mouseDrag)
@@ -620,6 +632,7 @@ public class TextBox extends TextView
 				int stop = calcCharPos(this.markedAreaLength + this.markedAreaStart) - start;
 				this.canvas.rect(start, y1, stop, y2 - y1);
 			}
+			this.canvas.endDraw();
 		}
 	}
 
@@ -719,30 +732,33 @@ public class TextBox extends TextView
 	@Override
 	public void draw(PGraphics canvas)
 	{
-		super.draw(canvas);
-		/*this.canvas.noFill();
-		this.canvas.stroke(255);
-		this.canvas.strokeWeight(1);
-		this.canvas.textSize(this.textSize);
-		this.canvas.rect(this.pos.x, this.pos.y, this.width, this.height);*/
+		this.update(canvas);
 		float offset = (this.height - this.textSize) / 2 + 2;
 		float posX = calcAlignmentX();
-		float posY = getActualPos().y + this.height - offset;
+		float posY = calcAlignmentY(); //getActualPos().y + this.height - offset;
 		if (offset < 0)
 		{
 			offset = 0;
 		}
+		PVector pos = this.getActualPos();
 		this.canvas.beginDraw();
+		
+		this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
+		this.canvas.stroke(this.strokeColor, this.strokeColor, this.strokeColor, 255);
+		this.canvas.strokeWeight(this.strokeWeight);
+		this.canvas.rect(pos.x, pos.y, this.width, this.height);
 		if (this.outputText.equals(this.hint))
 		{
-			this.canvas.fill(100);
+			this.canvas.fill(this.textHintColor.r, this.textHintColor.g, this.textHintColor.b, this.textHintColor.a);
 		}
 		else
 		{
 			this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
 		}
+		this.canvas.textSize(this.textSize);
 		this.canvas.text(this.outputText, posX, posY);
-		showCursor();
+		
 		this.canvas.endDraw();
+		showCursor();
 	}
 }

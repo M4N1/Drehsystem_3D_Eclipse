@@ -269,7 +269,7 @@ public class Menubar extends View
 	@Override
 	public void draw(PGraphics canvas)
 	{
-		super.draw(canvas);
+		this.update(canvas);
 		for (List<Button> subItems : this.menuItems)
 		{
 			Button b = subItems.get(0);

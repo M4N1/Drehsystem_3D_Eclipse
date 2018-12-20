@@ -113,7 +113,7 @@ public class Checkbox extends View
 	@Override
 	public void draw(PGraphics canvas)
 	{
-		super.draw(canvas);
+		this.update(canvas);
 		PVector pos = getActualPos();
 		this.canvas.beginDraw();
 		this.canvas.noFill();

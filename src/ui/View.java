@@ -766,13 +766,8 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.viewWidth = this.width + this.margin.getX();
 		this.viewHeight = this.height + this.margin.getY();
 	}
-
-	public void draw()
-	{
-		draw(this.canvas);
-	}
 	
-	public void draw(PGraphics canvas)
+	public void update(PGraphics canvas)
 	{
 		this.canvas = canvas;
 		calcPosX();
@@ -803,11 +798,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 				this.canvas.noFill();
 				this.canvas.strokeWeight(2);
 				
-				pos = getActualPos();
+				pos = this.getActualPos();
 				this.canvas.stroke(255, 0, 0);
 				this.canvas.rect(pos.x, pos.y, this.width, this.height);
 				
-				pos = getViewPos();
+				pos = this.getViewPos();
 				this.canvas.stroke(0, 0, 255);
 				this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
 				
@@ -815,4 +810,11 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 			}
 		}
 	}
+	
+	public void draw()
+	{
+		draw(this.canvas);
+	}
+	
+	public abstract void draw(PGraphics canvas);
 }

@@ -176,7 +176,7 @@ public class MenuItem extends View
 	@Override
 	public void draw(PGraphics canvas)
 	{
-		super.draw(canvas);
+		this.update(canvas);
 		if (this.visible)
 		{
 			PVector pos = getActualPos();

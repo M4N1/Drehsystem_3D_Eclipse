@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Container extends View
@@ -95,9 +96,9 @@ public class Container extends View
 	}
 	
 	@Override
-	public void draw()
+	public void draw(PGraphics canvas)
 	{
-		super.draw();
+		this.update(canvas);
 		if (this.visible)
 		{
 			this.canvas.hint(PApplet.DISABLE_DEPTH_TEST);

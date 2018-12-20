@@ -123,6 +123,12 @@ public class TextView extends View
 	{
 		return this.text;
 	}
+	
+	public int getTextHeight()
+	{
+		int lineCount = this.text.split("\n").length;
+		return (lineCount * this.textSize + (lineCount-1) * this.textSize / 2);
+	}
 
 	public void setStrokeColor(int strokeColor)
 	{
@@ -145,7 +151,7 @@ public class TextView extends View
 
 	public void calcHeight()
 	{
-		int nHeight = this.textSize + this.padding.getY();
+		int nHeight = this.getTextHeight() + this.padding.getY();
 		int newHeight = this.height > nHeight ? this.height : nHeight;
 		this.height = newHeight;
 		this.viewHeight = newHeight + this.getMarginY();
@@ -227,13 +233,13 @@ public class TextView extends View
 	
 	protected float calcAlignmentY()
 	{
-		return getActualPos().y + this.height - (this.height - this.textSize) / 2 - 2;
+		return getActualPos().y + (this.height - this.getTextHeight()) / 2 + this.textSize - 2;
 	}
 
 	@Override
 	public void draw(PGraphics canvas)
 	{
-		super.draw(canvas);
+		this.update(canvas);
 		if (this.visible)
 		{
 			this.canvas.beginDraw();

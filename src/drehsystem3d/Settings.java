@@ -31,12 +31,12 @@ public class Settings
 		settings.append(getEmptyInfoLine());		
 		
 		settings.append(getStateString("Version", Global.VERSION));
-		settings.append(getEmptyInfoLine());
 		settings.append(getStateString("OS", Global.OS));
+		settings.append(getEmptyInfoLine());
 		
 		settings.append(getStateString("Debug mode", Global.DEBUG));
 		if (Global.DEBUG)
-			settings.append(getStateString("Show viewboxes", Global.SHOW_VIEWBOXES));
+			settings.append(getSubStateString("Show viewboxes", Global.SHOW_VIEWBOXES));
 		
 		settings.append(getStateString("Show endless path", !Point.pathRestricted()));
 		settings.append(setLogLevel());
@@ -90,7 +90,7 @@ public class Settings
 		Global.logger.addHandler(handler);
 		
 		boolean storeLog = getModeState("STORE_LOG");
-		status.append(getStateString("Save log", storeLog));
+		status.append(getSubStateString("Save log", storeLog));
 		if (storeLog)
 		{
 			try
@@ -146,10 +146,20 @@ public class Settings
 		return getStateString(messageSignature, (state ? "active" : "inactive"));
 	}
 	
+	private static String getSubStateString(String messageSignature, boolean state)
+	{
+		return getStateString(" - " + messageSignature, state);
+	}
+	
 	private static String getStateString(String messageSignature, String state)
 	{
 		String out = "# %-" + Settings.optionLength + "s:%3$-" + (spaces/2.0+0.5) + "s%-" + Settings.statusLength + "s%-" + (spaces/2) + "s#\n";
 		return String.format(out, messageSignature, state, "");
+	}
+	
+	private static String getSubStateString(String messageSignature, String state)
+	{
+		return getStateString(" - " + messageSignature, state);
 	}
 	
 	private static boolean containsArgument(String[] arr, String arg)

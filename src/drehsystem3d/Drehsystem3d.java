@@ -168,7 +168,7 @@ public class Drehsystem3d extends PApplet
 	private int getSimulationCanvasWidth()
 	{
 		boolean sidebarVisible = this.uiHandler.getUiElement("Sidebar").getVisibility();
-		return (this.width - (sidebarVisible ? menuBarLeft_Width : 0));
+		return (this.width - (sidebarVisible ? this.menuBarLeft_Width : 0));
 	}
 	
 	private int getSimulationCanvasHeight()
@@ -183,6 +183,7 @@ public class Drehsystem3d extends PApplet
 		menuBar.addMenuSubItem("New", null);
 		menuBar.addMenuSubItem("Open", null);
 		menuBar.addMenuSubItem("Save", null);
+		menuBar.addMenuSubItem("Screenshot", null);
 		menuBar.addMenuItem("Help", null);
 		menuBar.addMenuSubItem("Controls", null);
 		menuBar.addMenuSubItem("About", null);
@@ -619,8 +620,24 @@ public class Drehsystem3d extends PApplet
 	
 	private void resizeSimulation()
 	{
-		this.simulationCanvas.setSize(getSimulationCanvasWidth(), getSimulationCanvasHeight());
-		this.detectionCanvas.setSize(getSimulationCanvasWidth(), getSimulationCanvasHeight());
+		if (Global.logger.isLoggable(Level.FINER))
+		{
+			StringBuilder oldSize = new StringBuilder(), newSize = new StringBuilder();
+			oldSize.append("old:[");
+			oldSize.append(this.simulationCanvas.width);
+			oldSize.append(",");
+			oldSize.append(this.simulationCanvas.height);
+			oldSize.append("]");
+			
+			newSize.append("new:[");
+			newSize.append(getSimulationCanvasWidth());
+			newSize.append(",");
+			newSize.append(getSimulationCanvasHeight());
+			newSize.append("]");
+			Global.logger.log(Level.FINER, "Resize simulation", new Object[] {oldSize.toString(), newSize.toString()});
+		}
+		this.simulationCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
+		this.detectionCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
 	}
 
 	/**
@@ -888,7 +905,7 @@ public class Drehsystem3d extends PApplet
 		PVector screenPos = getScreenPos(point);
 
 		View.unregisterInstance("PointMenu");
-		this.menuItem = new MenuItem(this, "PointMenu", screenPos.x + this.menuBarLeft_Width, screenPos.y + this.uiHandler.getUiElement("MainMenuBar").getHeight(), "Title", values);
+		this.menuItem = new MenuItem(this, "PointMenu", screenPos.x + this.getSimulationCanvasPos().x, screenPos.y + this.uiHandler.getUiElement("MainMenuBar").getHeight(), "Title", values);
 		this.menuItem.setOnItemClickListener(new PointMenuItemClickListener(point, possibleValues));
 	}
 
@@ -1143,7 +1160,7 @@ public class Drehsystem3d extends PApplet
 		int objectId = -1;
 		PVector canvasPos = getSimulationCanvasPos();
 		int index = this.mouseX - (int)canvasPos.x + (this.mouseY - (int)canvasPos.y)* this.detectionCanvas.width;
-		Global.logger.log(Level.FINER, "Detection canvas pixel count", this.detectionCanvas.pixelCount);
+		Global.logger.log(Level.FINER, "Detection canvas pixel count", this.detectionCanvas.pixels.length);
 		Global.logger.log(Level.FINER, "Detection canvas pixel index", index);
 		int c = this.detectionCanvas.pixels[index];
 		Global.logger.log(Level.FINER, "Color detection canvas", c);

@@ -1,5 +1,9 @@
 package drehsystem3d;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
+
+import com.sun.org.slf4j.internal.Logger;
 
 import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.OnClickListener;
@@ -16,19 +22,21 @@ import drehsystem3d.Listener.UserInputListener;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
-import ui.Button;
-import ui.Checkbox;
-import ui.Color;
-import ui.ColorInputBox;
-import ui.Container;
-import ui.InputBox;
-import ui.InputTypes;
-import ui.MenuItem;
-import ui.Menubar;
-import ui.TextBox;
-import ui.TextView;
-import ui.Toast;
-import ui.View;
+import ui.*;
+
+//import ui.Button;
+//import ui.Checkbox;
+//import ui.Color;
+//import ui.ColorInputBox;
+//import ui.Container;
+//import ui.InputBox;
+//import ui.InputTypes;
+//import ui.MenuItem;
+//import ui.Menubar;
+//import ui.TextBox;
+//import ui.TextView;
+//import ui.Toast;
+//import ui.View;
 
 public class Drehsystem3d extends PApplet
 {
@@ -44,11 +52,12 @@ public class Drehsystem3d extends PApplet
 	TextBoxListener textEditedListener;
 	MenuItem menuItem;
 
+	ArrayList<PVector> path = new ArrayList<>();
 	ArrayList<Point> points = new ArrayList<>();
 	ArrayList<GraphApplet> applets;
 	UIHandler uiHandler;
 	InputHandler inputHandler;
-	Point pointToAdd;
+	ArrayList<Point> pointsToAdd = new ArrayList<>();
 	PGraphics xySurface, yzSurface, xzSurface;
 	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
 
@@ -186,13 +195,31 @@ public class Drehsystem3d extends PApplet
 		menuBar.addMenuSubItem("New", null);
 		menuBar.addMenuSubItem("Open", null);
 		menuBar.addMenuSubItem("Save", null);
+		menuBar.addMenuSubItem("Draw", () -> 
+		{
+			try
+			{
+				if (fetchPath("./path_test.txt") && this.path.size() > 1)
+				{
+					ArrayList<Complex> signal = new ArrayList<>();
+					for (int i = 0; i < this.path.size(); i++)
+					{
+						PVector pos = this.path.get(i);
+						signal.add(new Complex(pos.x, pos.y));
+					}
+					signal = this.dft(signal);
+					Global.logger.log(Level.INFO, "dft out", signal);
+				}
+			}
+			catch (IOException e) {}
+		});
 		menuBar.addMenuSubItem("Screenshot", () ->
 		{
 			Calendar cal = Calendar.getInstance();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd-mm.ss.SSS");
 			String fileName = formatter.format(cal.getTime()) + ".jpg";
-			Drehsystem3d.this.simulationCanvas.save(fileName);
-			String path = System.getProperty("user.dir") + "\\" + fileName;
+			String path = System.getProperty("user.dir") + "\\screenshots\\" + fileName;
+			Drehsystem3d.this.simulationCanvas.save(path);
 			Global.logger.log(Level.INFO, "Saved screenshot to " + path);
 		});
 		menuBar.addMenuItem("Help", null);
@@ -377,6 +404,58 @@ public class Drehsystem3d extends PApplet
 		this.uiHandler.addUiElement(textView);
 		return textView;
 	}
+	
+	public boolean fetchPath(String filePath) throws IOException
+	{
+		File file = new File(filePath);
+				  
+		BufferedReader br = new BufferedReader(new FileReader(file)); 
+		  
+		this.path = new ArrayList<>();
+		String st;
+		while ((st = br.readLine()) != null) 
+		{
+			String[] values = st.split(",");
+			if (values.length != 3) return false;
+			Global.logger.log(Level.INFO, "values", values);
+			PVector pos = new PVector(
+						Float.parseFloat(values[0]), 
+						Float.parseFloat(values[1]), 
+						Float.parseFloat(values[2])
+					);
+			this.path.add(pos);
+		}
+		
+		br.close();
+		return true;
+	}
+	
+	ArrayList<Complex> dft(ArrayList<Complex> x)
+	{
+	  int N = x.size();
+	  ArrayList<Complex> X = new ArrayList<Complex>(N);
+
+	  for (int k = 0; k < N; k++)
+	  {
+	    
+	    Complex sum = new Complex(0, 0);
+
+	    for (int n = 0; n < N; n++)
+	    {
+	      float phi = (TWO_PI * k * n) / N;
+	      Complex c = new Complex(cos(phi), -sin(phi));
+	      sum = sum.add(x.get(n).mult(c));
+	    }
+
+	    sum = sum.div(N);
+	    
+	    float freq = k;
+	    float amp = sum.mag();
+	    float phase = sum.heading();
+	    X.add(new Complex(sum.re, sum.im, freq, amp, phase));
+	  }
+	  return X;
+	}
 
 	public void update()
 	{
@@ -425,7 +504,7 @@ public class Drehsystem3d extends PApplet
 	private void checkKeyPressedPermanent()
 	{
 		
-		if (this.keyPressed) // && (lastKeyCode == 139 || lastKeyCode == 93 || lastKeyCode == 140 || lastKeyCode == 47)
+		if (this.keyPressed)
 		{
 			if (this.inputHandler.millisSinceLastKeyEventElapsed(500)
 					|| (this.keyPressedPermanent && this.inputHandler.millisSinceLastKeyEventElapsed(50)))
@@ -467,7 +546,7 @@ public class Drehsystem3d extends PApplet
 	public void draw()
 	{
 		checkKeyPressedPermanent();
-		addBufferedPoint();
+		addBufferedPoints();
 		handlePathUpdates();
 		noLights();
 		pushMatrix();
@@ -573,13 +652,14 @@ public class Drehsystem3d extends PApplet
 	/**
 	 * Adds a new point to the system.
 	 */
-	private void addBufferedPoint()
+	private void addBufferedPoints()
 	{
-		if (this.pointToAdd != null)
+		if (this.pointsToAdd != null)
 		{
-			addNewPoint(this.pointToAdd.parent, this.pointToAdd.setPos, this.pointToAdd.setW, this.pointToAdd.setAlpha);
-			this.pointToAdd = null;
+			for (Point p : this.pointsToAdd)
+				addNewPoint(p.parent, p.setPos, p.setW, p.setAlpha);
 		}
+		this.pointsToAdd = new ArrayList<>();
 	}
 
 	/**
@@ -589,9 +669,7 @@ public class Drehsystem3d extends PApplet
 	{
 		if (this.removePoints)
 		{
-			this.points = new ArrayList<>();
-			this.nameCounter = 65;
-			addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
+			this.deletePoints();
 			this.removePoints = false;
 		}
 		else if (this.clearPath)
@@ -602,6 +680,13 @@ public class Drehsystem3d extends PApplet
 			}
 			this.clearPath = false;
 		}
+	}
+	
+	private void deletePoints()
+	{
+		this.points = new ArrayList<>();
+		this.nameCounter = 65;
+		addNewPoint(null, new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
 	}
 
 	private void handleWindowResizeEvent()
@@ -739,7 +824,7 @@ public class Drehsystem3d extends PApplet
 	}
 
 	/**
-	 * Draw the text elements of the ui.
+	 * Draw the text elements of the UI.
 	 */
 	private void drawTextElements()
 	{
@@ -1109,9 +1194,11 @@ public class Drehsystem3d extends PApplet
 
 	private boolean addPoint(Point parent, String... data)
 	{
-		Drehsystem3d.this.pointToAdd = new Point(Drehsystem3d.this, Drehsystem3d.this.idCount, parent,
+		Point pointToAdd = new Point(Drehsystem3d.this, Drehsystem3d.this.idCount, parent,
 				new PVector(0, 0, 0), new PVector(0, 0, 0), 0);
-		return changePoint(Drehsystem3d.this.pointToAdd, data);
+		if (!changePoint(pointToAdd, data)) return false;
+		Drehsystem3d.this.pointsToAdd.add(pointToAdd);
+		return true;
 	}
 
 	private boolean changePoint(Point point, String... data)
@@ -1126,11 +1213,7 @@ public class Drehsystem3d extends PApplet
 		float wz = getValueOrZero(data[5]);
 		float alpha = getValueOrZero(data[6]);
 
-		if (x == 0 && y == 0 && z == 0)
-		{
-			Drehsystem3d.this.pointToAdd = null;
-			return false;
-		}
+		if (x == 0 && y == 0 && z == 0) return false;
 		Drehsystem3d.this.reset = true;
 		//resetPoints();
 		point.setPos(new PVector(x, y, z));

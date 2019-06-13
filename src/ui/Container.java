@@ -30,9 +30,7 @@ public class Container extends View
 	public View getChild(String name)
 	{
 		for (View v : this.children)
-		{
 			if (v.name.equals(name)) return v;
-		}
 		return null;
 	}
 	
@@ -45,6 +43,15 @@ public class Container extends View
 			v.setPositioning(View.Positioning.ABSOLUTE);
 		}
 		return this.children.remove(v);
+	}
+	
+	@Override
+	public void setVisibility(boolean visible)
+	{
+		super.setVisibility(visible);
+		this.children.forEach((v) -> {
+			v.setVisibility(visible);
+		});	
 	}
 	
 	@Override

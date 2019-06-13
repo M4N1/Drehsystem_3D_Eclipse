@@ -649,7 +649,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 
 	public boolean isClicked()
 	{
-		return isHovered();
+		return this.visible && isHovered();
 	}
 
 	public boolean isHovered()
@@ -664,7 +664,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		if (this.visible && isClicked())
+		if (isClicked())
 		{
 			this.clicked = true;
 			if (this.onClickListener != null)

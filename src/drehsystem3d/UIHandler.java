@@ -40,6 +40,12 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 		return addUiElement(view, true);
 	}
 	
+	/**
+	 * 
+	 * @param view The element to add
+	 * @param manage Let the UIHandler manage events of the given view
+	 * @return True when successful
+	 */
 	public boolean addUiElement(View view, boolean manage)
 	{
 		Global.logger.log(Level.FINE, "Add item to ui stack.", new Object[] {view, view.getName()});

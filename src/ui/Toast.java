@@ -61,11 +61,11 @@ public class Toast extends View
 		this.pos.x = x;
 		this.pos.y = y;
 	}
-
+	
 	@Override
-	public boolean isClicked()
+	public boolean onMousePressed(int mouseButton)
 	{
-		super.isClicked();
+		super.onMousePressed(mouseButton);
 		if (this.clicked)
 		{
 			float mX = this.context.mouseX;

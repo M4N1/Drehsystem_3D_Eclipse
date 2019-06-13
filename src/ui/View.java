@@ -646,12 +646,6 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		return this.container == null ? pos.copy() : pos.copy().sub(this.container.getAbsPos());
 	}
 
-
-	public boolean isClicked()
-	{
-		return this.visible && isHovered();
-	}
-
 	public boolean isHovered()
 	{
 		float mX = this.context.mouseX;
@@ -664,7 +658,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	@Override
 	public boolean onMousePressed(int mouseButton)
 	{
-		if (isClicked())
+		if (this.visible && isHovered())
 		{
 			this.clicked = true;
 			if (this.onClickListener != null)

@@ -12,8 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 
-import com.sun.org.slf4j.internal.Logger;
-
 import drehsystem3d.Listener.InputBoxListener;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
@@ -23,20 +21,6 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import ui.*;
-
-//import ui.Button;
-//import ui.Checkbox;
-//import ui.Color;
-//import ui.ColorInputBox;
-//import ui.Container;
-//import ui.InputBox;
-//import ui.InputTypes;
-//import ui.MenuItem;
-//import ui.Menubar;
-//import ui.TextBox;
-//import ui.TextView;
-//import ui.Toast;
-//import ui.View;
 
 public class Drehsystem3d extends PApplet
 {

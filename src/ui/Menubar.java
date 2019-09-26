@@ -8,7 +8,6 @@ import java.util.logging.Level;
 import drehsystem3d.Global;
 import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 import ui.TextView.TextAlignment;
 
@@ -254,8 +253,9 @@ public class Menubar extends View
 	}
 	
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void onMousePressed(int mouseButton)
 	{
+		super.onMousePressed(mouseButton);
 		for (List<Button> subItems : this.menuItems)
 		{
 			for (Button b : subItems)
@@ -263,35 +263,61 @@ public class Menubar extends View
 				b.onMousePressed(mouseButton);
 			}			
 		}
-		return super.onMousePressed(mouseButton);
 	}
 	
 	@Override
-	public void draw(PGraphics canvas)
+	public View updateHoverState()
 	{
-		this.update(canvas);
+		View viewClicked = super.updateHoverState();
 		for (List<Button> subItems : this.menuItems)
-		{
-			Button b = subItems.get(0);
-			int h = b.viewHeight + 2 * b.getMarginX();
-			if (h > this.viewHeight)
-				this.viewHeight = h;
-		}
-		this.canvas.beginDraw();
-		this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-		this.canvas.noStroke();
-		this.canvas.rect(0, 0, this.width, this.height);
-		this.canvas.strokeWeight(1);
-		this.canvas.stroke(255);
-		this.canvas.line(0, this.height, this.width, this.height);
-		this.canvas.endDraw();
-		
+			for (Button b : subItems)
+				if (b.updateHoverState() != null)
+					viewClicked = b;
+		return viewClicked;
+	}
+	
+	@Override
+	public View isPressed()
+	{
+		View viewPressed = super.isPressed();
 		for (List<Button> subItems : this.menuItems)
-		{
 			for (Button b : subItems)
 			{
-				b.draw();
-			}			
+				View current = b.isPressed();
+				viewPressed = current != null ? current : viewPressed;
+			}
+		return viewPressed;
+	}
+	
+	@Override
+	public void draw()
+	{
+		//this.update(canvas);
+		if (this.visible)
+		{
+			for (List<Button> subItems : this.menuItems)
+			{
+				Button b = subItems.get(0);
+				int h = b.viewHeight + 2 * b.getMarginX();
+				if (h > this.viewHeight)
+					this.viewHeight = h;
+			}
+			this.canvas.beginDraw();
+			this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
+			this.canvas.noStroke();
+			this.canvas.rect(0, 0, this.width, this.height);
+			this.canvas.strokeWeight(1);
+			this.canvas.stroke(255);
+			this.canvas.line(0, this.height, this.width, this.height);
+			this.canvas.endDraw();
+			
+			for (List<Button> subItems : this.menuItems)
+			{
+				for (Button b : subItems)
+				{
+					b.draw();
+				}			
+			}
 		}
 	}
 }

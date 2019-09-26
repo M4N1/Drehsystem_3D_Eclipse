@@ -80,10 +80,18 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	{
 		if (Global.logger.isLoggable(Level.FINEST))
 			System.out.print("\n");
-		this.contentsToManage.forEach((v) -> {
+		View hoveredView = null;
+		for (View c : this.contentsToManage)
+		{
+			View current = c.updateHoverState();
+			hoveredView = current != null ? current : hoveredView;
+		}
+		if (hoveredView != null) hoveredView.onHoverAction();
+		for (View v : this.contentsToManage)
+		{
 			v.draw();
 			Global.logger.log(Level.FINEST, "UI draw event", v.getName());
-		});
+		}
 	}
 
 	@Override
@@ -109,20 +117,18 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	}
 
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void onMousePressed(int mouseButton)
 	{
-		boolean uiElementClicked = false;
-		for (View v : this.contentsToManage)
+		View viewPressed = null;
+		for(View v : this.contentsToManage)
 		{
-			boolean elementClicked = v.onMousePressed(mouseButton);
-			if (elementClicked)
-			{
-				Global.logger.log(Level.FINE, "View item clicked", new Object[] {v.getName(), v.getId(), v.getClass().getName()});
-			}
-			
-			uiElementClicked = uiElementClicked || elementClicked;
+			View current = v.isPressed();
+			viewPressed = current != null ? current : viewPressed;
 		}
-		return uiElementClicked;
+		if (viewPressed != null) {
+			Global.logger.log(Level.FINE, "View Pressed", new Object[] {viewPressed.getName(), viewPressed.getId()});
+			viewPressed.onMousePressed(mouseButton);
+		}
 	}
 
 	@Override

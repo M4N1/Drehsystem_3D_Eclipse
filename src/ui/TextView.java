@@ -1,7 +1,6 @@
 package ui;
 
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class TextView extends View
@@ -142,7 +141,9 @@ public class TextView extends View
 
 	public void calcWidth()
 	{
+		this.canvas.beginDraw();
 		this.canvas.textSize(this.textSize);
+		this.canvas.endDraw();
 		int nWidth = (int) this.canvas.textWidth(this.text) + this.padding.getX();
 		int newWidth = this.width > nWidth ? this.width : nWidth;
 		this.width = newWidth;
@@ -237,9 +238,9 @@ public class TextView extends View
 	}
 
 	@Override
-	public void draw(PGraphics canvas)
+	public void draw()
 	{
-		this.update(canvas);
+		//this.update(canvas);
 		if (this.visible)
 		{
 			this.canvas.beginDraw();

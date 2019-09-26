@@ -1,7 +1,6 @@
 package ui;
 
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Toast extends View
@@ -63,7 +62,7 @@ public class Toast extends View
 	}
 	
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
 		if (this.clicked)
@@ -72,7 +71,6 @@ public class Toast extends View
 			float mY = this.context.mouseY;
 			this.mousePosDiff = new PVector(mX - this.pos.x, mY - this.pos.y, 0);
 		}
-		return this.clicked;
 	}
 	
 	@Override
@@ -81,6 +79,7 @@ public class Toast extends View
 		this.clicked = false;
 	}
 
+	@Override
 	public void update()
 	{
 		switch (this.state)
@@ -124,9 +123,9 @@ public class Toast extends View
 	}
 
 	@Override
-	public void draw(PGraphics canvas)
+	public void draw()
 	{
-		this.update(canvas);
+		//this.update(canvas);
 		if (this.visible)
 		{
 			float x, y;

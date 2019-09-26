@@ -130,7 +130,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		
 		
 		//this.xMax = (int)lastElement.pos.x + lastElement.viewWidth + 2 * this.padding;
-		this.yMax = (int)this.yStart + this.bSubmit.viewHeight;
+		this.yMax = this.yStart + this.bSubmit.viewHeight;
 		
 		Global.logger.log(Level.FINER, "start", new Object[] {this.xStart, this.yStart});
 		Global.logger.log(Level.FINER, "Max dimensions input box", new Object[] {this.title, this.xMax, this.yMax});
@@ -353,6 +353,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	{
 		background(0);
 		this.contents.forEach((v) -> {
+			v.update();
 			v.draw();
 		});
 		this.bSubmit.draw();

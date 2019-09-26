@@ -32,6 +32,14 @@ public class Color
 		this.a = a;
 	}
 	
+	public Color(Color c)
+	{
+		this.r = c.r;
+		this.g = c.g;
+		this.b = c.b;
+		this.a = c.a;
+	}
+	
 	public void setColor(int c)
 	{
 		setColor(c, c, c);
@@ -66,6 +74,7 @@ public class Color
 		}
 	}
 	
+	@Override
 	public Color clone()
 	{
 		return new Color(this.r, this.g, this.b, this.a);

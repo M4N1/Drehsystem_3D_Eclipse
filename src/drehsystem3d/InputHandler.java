@@ -63,10 +63,9 @@ public class InputHandler implements UserInputListener
 	}
 
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void onMousePressed(int mouseButton)
 	{
 		addItem(this.mouseButtons, mouseButton);
-		return false;
 	}
 
 	@Override

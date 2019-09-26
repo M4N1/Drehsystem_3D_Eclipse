@@ -8,7 +8,6 @@ import drehsystem3d.Global;
 import drehsystem3d.Listener.OnClickListener;
 import drehsystem3d.Listener.OnItemClickListener;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class MenuItem extends View
@@ -40,7 +39,7 @@ public class MenuItem extends View
 	}
 
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
 		for (TextView tv : this.textviews)
@@ -51,14 +50,13 @@ public class MenuItem extends View
 		{
 			this.visible = false;
 		}
-		return this.clicked;
 	}
 
 	private void init(String title, String[] values)
 	{
 		this.padding.set(10);
-		this.startPosX = (int) 0;
-		this.startPosY = (int) 0;
+		this.startPosX = 0;
+		this.startPosY = 0;
 		this.textviews = new ArrayList<>();
 		this.values = values;
 		for (int i = 0; i < this.values.length; i++)
@@ -174,9 +172,9 @@ public class MenuItem extends View
 	}
 
 	@Override
-	public void draw(PGraphics canvas)
+	public void draw()
 	{
-		this.update(canvas);
+		//this.update(canvas);
 		if (this.visible)
 		{
 			PVector pos = getActualPos();

@@ -1,5 +1,7 @@
 package drehsystem3d;
 
+import static drehsystem3d.Global.logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -7,6 +9,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,6 +47,7 @@ public class Drehsystem3d extends PApplet
 	ArrayList<Point> pointsToAdd = new ArrayList<>();
 	PGraphics xySurface, yzSurface, xzSurface;
 	Checkbox cLines, cVelocity, cAcceleration, cOutput, cPath;
+	ArrayList<Runnable> executeInSync = new ArrayList<>();
 
 	private final int menuBarLeft_Width = 240;
 	int bStartY;
@@ -94,7 +98,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void uncaughtException(Thread t, Throwable e)
 			{
-				Global.logger.log(Level.SEVERE, "Uncaught exception", e);
+				logger.log(Level.SEVERE, "Uncaught exception", e);
 			}
 		});
 
@@ -183,16 +187,36 @@ public class Drehsystem3d extends PApplet
 		{
 			try
 			{
-				if (fetchPath("./path_test.txt") && this.path.size() > 1)
+				if (fetchPath("./path_test3.txt", 100) && this.path.size() > 1)
 				{
-					ArrayList<Complex> signal = new ArrayList<>();
+					ArrayList<Complex> inputSignal = new ArrayList<>();
 					for (int i = 0; i < this.path.size(); i++)
 					{
 						PVector pos = this.path.get(i);
-						signal.add(new Complex(pos.x, pos.y));
+						inputSignal.add(new Complex(pos.x, pos.y));
 					}
-					signal = this.dft(signal);
-					Global.logger.log(Level.INFO, "dft out", signal);
+					final ArrayList<Complex> outputSignal = this.dft(inputSignal);
+					logger.log(Level.INFO, "dft out", outputSignal);
+					executeInSync(() -> {
+						deletePoints();
+						Point p = getLastPoint();
+						//Complex previous;
+						for (Complex c : outputSignal)
+						{
+							p = addNewPoint(
+									p, 
+									c.amp / 3, 
+									new float[] {0, c.phase}, 
+									//new PVector (0, 0, TWO_PI * (c.freq - previous.freq) / 100),
+									new PVector (0, 0, c.freq),
+									0
+								);
+							//previous = c.copy();
+						}
+						//p.setPos(p.getPos().add(this.simulationCanvas.width/2, this.simulationCanvas.height/2));
+						p.drawPath();
+						this.cVelocity.setChecked(false);
+					});
 				}
 			}
 			catch (IOException e) {}
@@ -204,7 +228,7 @@ public class Drehsystem3d extends PApplet
 			String fileName = formatter.format(cal.getTime()) + ".jpg";
 			String path = System.getProperty("user.dir") + "\\screenshots\\" + fileName;
 			Drehsystem3d.this.simulationCanvas.save(path);
-			Global.logger.log(Level.INFO, "Saved screenshot to " + path);
+			logger.log(Level.INFO, "Saved screenshot to " + path);
 		});
 		menuBar.addMenuItem("Help", null);
 		menuBar.addMenuSubItem("Controls", null);
@@ -222,6 +246,7 @@ public class Drehsystem3d extends PApplet
 				this.menuBarLeft_Width, 
 				getSimulationCanvasHeight());
 		sidebar.setVisibility(true);
+		sidebar.setDrawPriority(998);
 		sidebar.setBackgroundColor(this.menuBackground);
 		this.uiHandler.addUiElement(sidebar);
 		
@@ -256,6 +281,8 @@ public class Drehsystem3d extends PApplet
 		tb.setStrokeWeight(1);
 		tb.setStrokeColor(255);
 		tb.setBackgroundColor(new Color(0, 0));
+		tb.setOnHoverAction(() -> { tb.setStrokeWeight(2); });
+		tb.setOnHoverEndAction(() -> { tb.setStrokeWeight(1); });
 		sidebar.addChild(tb);
 		this.uiHandler.addUiElement(tb, false);
 
@@ -269,7 +296,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(View v)
 			{
-				Drehsystem3d.this.removePoints = true;
+				executeInSync(() -> deletePoints());
 			}
 		});
 
@@ -281,7 +308,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(View v)
 			{
-				Drehsystem3d.this.moveToStart = true;
+				Drehsystem3d.this.executeInSync(() -> moveToStart());
 			}
 		});
 
@@ -293,7 +320,7 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(View v)
 			{
-				Drehsystem3d.this.clearPath = true;
+				Drehsystem3d.this.executeInSync(() -> clearPath());
 			}
 		});
 
@@ -312,7 +339,7 @@ public class Drehsystem3d extends PApplet
 
 		Toast toast = new Toast(this, "WelcomeToast", "Welcome!", Toast.DURATION_LONG);
 		toast.setStartX((this.width + this.menuBarLeft_Width - toast.getWidth()) / 2);
-		this.uiHandler.addUiElement(toast);
+		this.uiHandler.addUiElement(toast, false);
 
 		
 		/*
@@ -382,35 +409,54 @@ public class Drehsystem3d extends PApplet
 			@Override
 			public void onClick(View v)
 			{
-				Global.logger.log(Level.INFO, "'" + text + "' clicked");
+				logger.log(Level.INFO, "'" + text + "' clicked");
 			}
 		});
 		this.uiHandler.addUiElement(textView);
 		return textView;
 	}
 	
-	public boolean fetchPath(String filePath) throws IOException
+	private void moveToStart()
+	{
+		moveToStartPosition();
+		resetTime();
+	}
+	
+	private void resetSimulation()
+	{
+		resetPoints();
+		resetTime();
+	}
+	
+	private void executeInSync(Runnable r) { this.executeInSync.add(r); }
+	
+	public boolean fetchPath(String filePath, int precision) throws IOException
 	{
 		File file = new File(filePath);
 				  
 		BufferedReader br = new BufferedReader(new FileReader(file)); 
-		  
+		
+		int counter = 0;
 		this.path = new ArrayList<>();
 		String st;
 		while ((st = br.readLine()) != null) 
 		{
-			String[] values = st.split(",");
-			if (values.length != 3) return false;
-			Global.logger.log(Level.INFO, "values", values);
-			PVector pos = new PVector(
-						Float.parseFloat(values[0]), 
-						Float.parseFloat(values[1]), 
-						Float.parseFloat(values[2])
-					);
-			this.path.add(pos);
+			if (counter++ == precision)
+			{
+				String[] values = st.split(",");
+				if (values.length != 3) return false;
+				logger.log(Level.INFO, "values", values);
+				PVector pos = new PVector(
+						Float.parseFloat(values[0]) / 10, 
+						Float.parseFloat(values[1]) / 10, 
+						Float.parseFloat(values[2]) / 10
+						);
+				this.path.add(pos);
+				counter = 0;
+			}
 		}
-		
 		br.close();
+		logger.log(Level.FINE, "Fetched path: \"" + filePath + "\"");
 		return true;
 	}
 	
@@ -438,6 +484,16 @@ public class Drehsystem3d extends PApplet
 	    float phase = sum.heading();
 	    X.add(new Complex(sum.re, sum.im, freq, amp, phase));
 	  }
+	  X.sort(new Comparator<Complex>()
+		{
+		
+			@Override
+			public int compare(Complex o1, Complex o2)
+			{
+				return (int) (o2.amp - o1.amp);
+			}
+			  
+		});
 	  return X;
 	}
 
@@ -468,18 +524,18 @@ public class Drehsystem3d extends PApplet
 				for (Point p : this.points)
 				{
 					p.update(dTime, this.elapsedTime);
-					if (Global.logger.isLoggable(Level.FINEST))
+					if (logger.isLoggable(Level.FINEST))
 					{
 						System.out.print("\n");
 					}
 				}
-				if (Global.logger.isLoggable(Level.FINEST))
+				if (logger.isLoggable(Level.FINEST))
 				{
 					System.out.print("\n\n");
 				}
 			}
-			Global.logger.log(Level.FINEST, "dTime", dTimeTotal);
-			Global.logger.log(Level.FINEST, "elapsed time", this.elapsedTime);
+			logger.log(Level.FINEST, "dTime", dTimeTotal);
+			logger.log(Level.FINEST, "elapsed time", this.elapsedTime);
 			updateGraphApplets();
 			this.lastTime = millis();
 		}
@@ -496,7 +552,7 @@ public class Drehsystem3d extends PApplet
 				int lastKeyCode = this.inputHandler.getLastKeyCode();
 				char lastKey = this.inputHandler.getLastKey();
 				if (!this.keyPressedPermanent)
-					Global.logger.log(Level.FINE, "Key pressed permanent", new Object[] {lastKeyCode, "'"+lastKey+"'"});
+					logger.log(Level.FINE, "Key pressed permanent", new Object[] {lastKeyCode, "'"+lastKey+"'"});
 				this.keyPressedPermanent = true;
 				handleKeyPressedEvent(lastKeyCode, lastKey);
 			}
@@ -529,9 +585,11 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void draw()
 	{
+		this.executeInSync.forEach((r) -> { r.run(); });
+		this.executeInSync = new ArrayList<>();
 		checkKeyPressedPermanent();
+		//handlePointUpdates();
 		addBufferedPoints();
-		handlePathUpdates();
 		noLights();
 		pushMatrix();
 		if (!(this.currWindowWidth == this.width && this.currWindowHeight == this.height))
@@ -542,7 +600,7 @@ public class Drehsystem3d extends PApplet
 		this.cameraController.calcCameraAdjustment();
 
 		background(this.menuBackground.r, this.menuBackground.g, this.menuBackground.b, this.menuBackground.a);
-
+		background(0);
 		if (this.moveToStart)
 		{
 			moveToStartPosition();
@@ -580,7 +638,7 @@ public class Drehsystem3d extends PApplet
 
 	private void resetTime()
 	{
-		Global.logger.log(Level.FINE, "Global pos reset");
+		logger.log(Level.FINE, "Global pos reset");
 		this.elapsedTime = 0;
 		this.startTime = 0;
 		this.lastTime = 0;
@@ -649,20 +707,28 @@ public class Drehsystem3d extends PApplet
 	/**
 	 * Removes points or clears path when requested.
 	 */
-	private void handlePathUpdates()
+//	private void handlePointUpdates()
+//	{
+//		if (this.removePoints)
+//		{
+//			this.deletePoints();
+//			this.removePoints = false;
+//		}
+//		else if (this.clearPath)
+//		{
+//			for (Point p : this.points)
+//			{
+//				p.clearPath();
+//			}
+//			this.clearPath = false;
+//		}
+//	}
+	
+	private void clearPath()
 	{
-		if (this.removePoints)
+		for (Point p : this.points)
 		{
-			this.deletePoints();
-			this.removePoints = false;
-		}
-		else if (this.clearPath)
-		{
-			for (Point p : this.points)
-			{
-				p.clearPath();
-			}
-			this.clearPath = false;
+			p.clearPath();
 		}
 	}
 	
@@ -687,7 +753,7 @@ public class Drehsystem3d extends PApplet
 	
 	private void resizeSimulation()
 	{
-		if (Global.logger.isLoggable(Level.FINER))
+		if (logger.isLoggable(Level.FINER))
 		{
 			StringBuilder oldSize = new StringBuilder(), newSize = new StringBuilder();
 			oldSize.append("old:[");
@@ -701,7 +767,7 @@ public class Drehsystem3d extends PApplet
 			newSize.append(",");
 			newSize.append(getSimulationCanvasHeight());
 			newSize.append("]");
-			Global.logger.log(Level.FINER, "Resize simulation", new Object[] {oldSize.toString(), newSize.toString()});
+			logger.log(Level.FINER, "Resize simulation", new Object[] {oldSize.toString(), newSize.toString()});
 		}
 		this.simulationCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
 		this.detectionCanvas = createGraphics(getSimulationCanvasWidth(), getSimulationCanvasHeight(), P3D);
@@ -851,6 +917,7 @@ public class Drehsystem3d extends PApplet
 	{
 		if (this.menuItem != null)
 		{
+			this.menuItem.update();
 			this.menuItem.draw();
 		}
 	}
@@ -859,15 +926,16 @@ public class Drehsystem3d extends PApplet
 	public void mousePressed()
 	{
 		String button = (this.mouseButton == LEFT ? "Left" : (this.mouseButton == RIGHT ? "Right" : "Mid"));
-		Global.logger.log(Level.FINE, "Mouse pressed (" + button + ", " + this.mouseButton + ")");
+		logger.log(Level.FINE, "Mouse pressed (" + button + ", " + this.mouseButton + ")");
 		boolean itemClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
-			itemClicked = itemClicked || l.onMousePressed(this.mouseButton);
+			l.onMousePressed(this.mouseButton);
 		}
-		if (this.menuItem != null)
+		if (this.menuItem != null && this.menuItem.isPressed() != null)
 		{
-			itemClicked = itemClicked || this.menuItem.onMousePressed(this.mouseButton);
+			itemClicked = true;
+			this.menuItem.onMousePressed(this.mouseButton);
 		}
 
 		if (itemClicked) { return; }
@@ -945,7 +1013,7 @@ public class Drehsystem3d extends PApplet
 			{
 				if (p.getId() == objectId)
 				{
-					Global.logger.log(Level.FINE, "Point '" + p.getName() + "' pressed");
+					logger.log(Level.FINE, "Point '" + p.getName() + "' pressed");
 					openMenuContext(p);
 				}
 			}
@@ -1198,11 +1266,11 @@ public class Drehsystem3d extends PApplet
 		float alpha = getValueOrZero(data[6]);
 
 		if (x == 0 && y == 0 && z == 0) return false;
-		Drehsystem3d.this.reset = true;
-		//resetPoints();
+//		Drehsystem3d.this.reset = true;
 		point.setPos(new PVector(x, y, z));
 		point.setW(new PVector(wx, wy, wz));
 		point.setAlpha(alpha);
+		executeInSync(() -> resetSimulation());
 		return true;
 	}
 
@@ -1225,10 +1293,10 @@ public class Drehsystem3d extends PApplet
 		int objectId = -1;
 		PVector canvasPos = getSimulationCanvasPos();
 		int index = this.mouseX - (int)canvasPos.x + (this.mouseY - (int)canvasPos.y)* this.detectionCanvas.width;
-		Global.logger.log(Level.FINER, "Detection canvas pixel count", this.detectionCanvas.pixels.length);
-		Global.logger.log(Level.FINER, "Detection canvas pixel index", index);
+		logger.log(Level.FINER, "Detection canvas pixel count", this.detectionCanvas.pixels.length);
+		logger.log(Level.FINER, "Detection canvas pixel index", index);
 		int c = this.detectionCanvas.pixels[index];
-		Global.logger.log(Level.FINER, "Color detection canvas", c);
+		logger.log(Level.FINER, "Color detection canvas", c);
 		
 		Iterator<Map.Entry<Integer, Integer[]>> it = this.objects.entrySet().iterator();
 		while (it.hasNext())
@@ -1295,14 +1363,13 @@ public class Drehsystem3d extends PApplet
 
 	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey)
 	{
-		Global.logger.log(Level.FINE, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
+		logger.log(Level.FINE, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
 		boolean uiElementClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
 			uiElementClicked = uiElementClicked || l.onKeyPressed(this.keyCode, this.key);
 		}
-		if (uiElementClicked)
-			return;
+		if (uiElementClicked) return;
 		switch (pressedKeyCode)
 		{
 			case 139:
@@ -1317,11 +1384,8 @@ public class Drehsystem3d extends PApplet
 		}
 		switch (pressedKey)
 		{
-			case '1':
-				updateDrawSpeed(1);
-				break;
-
 			case '0':
+			case '1':
 				updateDrawSpeed(1);
 				break;
 
@@ -1450,7 +1514,7 @@ public class Drehsystem3d extends PApplet
 	private void stopOrResume()
 	{
 		this.stopped = !this.stopped;
-		Global.logger.log(Level.FINE, (this.stopped ? "Animation stopped" : "Animation started"));
+		logger.log(Level.FINE, (this.stopped ? "Animation stopped" : "Animation started"));
 		if (this.stopped)
 		{
 			this.elapsedTime += (millis() - this.lastTime) * this.speed;
@@ -1495,10 +1559,10 @@ public class Drehsystem3d extends PApplet
 		return null;
 	}
 
-	private Point addNewPoint(Point parent, float a, float[] angle, PVector w, float alpha)
+	private Point addNewPoint(Point parent, float amp, float[] angle, PVector w, float alpha)
 	{
 		this.points.add(
-				new Point(this, this.idCount, "" + PApplet.parseChar(this.nameCounter++), parent, a, angle, w, alpha));
+				new Point(this, this.idCount, "" + PApplet.parseChar(this.nameCounter++), parent, amp, angle, w, alpha));
 		Point point = this.points.get(this.points.size() - 1);
 		point.setScale(this.scale);
 		point.setScaleD(this.scaleD);

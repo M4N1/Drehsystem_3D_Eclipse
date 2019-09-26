@@ -55,7 +55,7 @@ public class Listener
 
 		public boolean onKeyReleased(int keyCode, char key);
 
-		public boolean onMousePressed(int mouseButton);
+		public void onMousePressed(int mouseButton);
 
 		public void onMouseDragged();
 

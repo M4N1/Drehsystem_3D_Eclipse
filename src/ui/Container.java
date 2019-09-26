@@ -25,6 +25,7 @@ public class Container extends View
 		this.children.add(v);
 		v.setPositioning(View.Positioning.RELATIVE);
 		v.setContainer(this);
+		v.setCanvas(this.canvas);
 	}
 	
 	public View getChild(String name)
@@ -55,13 +56,30 @@ public class Container extends View
 	}
 	
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void setCanvas(PGraphics canvas)
+	{
+		super.setCanvas(canvas);
+		this.children.forEach((v) -> {
+			v.setCanvas(canvas);
+		});	
+	}
+	
+	@Override
+	public View isPressed()
+	{
+		View childPressed = super.isPressed();
+		for(View v : this.children)
+		{
+			View current = v.isPressed();
+			childPressed = current != null ? current : childPressed;
+		}
+		return childPressed;
+	}
+	
+	@Override
+	public void onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
-		this.children.forEach((v) -> {
-			v.onMousePressed(mouseButton);
-		});		
-		return this.clicked;
 	}
 	
 	@Override
@@ -85,11 +103,10 @@ public class Container extends View
 	@Override
 	public boolean onKeyPressed(int keyCode, char key)
 	{
-		super.onKeyPressed(keyCode, key);
-		this.children.forEach((v) -> {
-			v.onKeyPressed(keyCode, key);
-		});
-		return this.clicked;
+		boolean clicked = super.onKeyPressed(keyCode, key);
+		for (View v : this.children)
+			clicked = clicked || v.onKeyPressed(keyCode, key);
+		return clicked;
 	}
 	
 	@Override
@@ -103,21 +120,34 @@ public class Container extends View
 	}
 	
 	@Override
-	public void draw(PGraphics canvas)
+	public View updateHoverState()
 	{
-		this.update(canvas);
+		View childHovered = super.updateHoverState();
+		for (View c : this.children)
+		{
+			View current = c.updateHoverState();
+			childHovered = current != null ? current : childHovered;
+		}
+		return childHovered;
+	}
+	
+	@Override
+	public void draw()
+	{
+		//this.update(canvas);
 		if (this.visible)
 		{
 			this.canvas.hint(PApplet.DISABLE_DEPTH_TEST);
 			this.canvas.beginDraw();
 			this.canvas.background(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
 			this.children.forEach((c) -> {
-				c.draw(this.canvas);
+				c.draw();
 			});
 			this.canvas.endDraw();
 			this.canvas.hint(PApplet.ENABLE_DEPTH_TEST);
 			
-			this.context.image(this.canvas, this.pos.x, this.pos.y);
+			PVector pos = this.getActualPos();
+			this.context.image(this.canvas, pos.x, pos.y);
 		}
 	}
 }

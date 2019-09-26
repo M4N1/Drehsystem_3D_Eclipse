@@ -8,7 +8,6 @@ import drehsystem3d.Global;
 import drehsystem3d.Listener.KeyListener;
 import drehsystem3d.Listener.TextBoxListener;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class TextBox extends TextView
@@ -120,26 +119,28 @@ public class TextBox extends TextView
 	}
 
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public View isPressed()
 	{
-		if (this.isHovered())
+		View result = super.isPressed();
+		if (result == null)
 		{
-			this.mouseDrag = true;
-			this.clicked = true;
-			updateText();
-			this.cursorPos = calcClosestCharPos(this.context.mouseX);
-			this.dragCursorPos = this.cursorPos;
-			this.cursorPosX = calcCharPos(this.cursorPos);
-			this.dragCursorPosX = this.cursorPosX;
-			resetCursor();
-		}
-		else if (this.clicked)
-		{
-			this.clicked = false;
 			this.mouseDrag = false;
 			textEdited();
 		}
-		return super.onMousePressed(mouseButton);
+		return result;
+	}
+	
+	@Override
+	public void onMousePressed(int mouseButton)
+	{
+		super.onMousePressed(mouseButton);
+		this.mouseDrag = true;
+		updateText();
+		this.cursorPos = calcClosestCharPos(this.context.mouseX);
+		this.dragCursorPos = this.cursorPos;
+		this.cursorPosX = calcCharPos(this.cursorPos);
+		this.dragCursorPosX = this.cursorPosX;
+		resetCursor();
 	}
 
 	@Override
@@ -736,35 +737,35 @@ public class TextBox extends TextView
 	}
 
 	@Override
-	public void draw(PGraphics canvas)
+	public void draw()
 	{
-		this.update(canvas);
-		float offset = (this.height - this.textSize) / 2 + 2;
-		float posX = calcAlignmentX();
-		float posY = calcAlignmentY(); //getActualPos().y + this.height - offset;
-		if (offset < 0)
+		//this.update(canvas);
+		if (this.visible)
 		{
-			offset = 0;
+			float offset = (this.height - this.textSize) / 2 + 2;
+			float posX = calcAlignmentX();
+			float posY = calcAlignmentY(); //getActualPos().y + this.height - offset;
+			if (offset < 0) offset = 0;
+			PVector pos = this.getActualPos();
+			this.canvas.beginDraw();
+			
+			this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
+			this.canvas.stroke(this.strokeColor, this.strokeColor, this.strokeColor, 255);
+			this.canvas.strokeWeight(this.strokeWeight);
+			this.canvas.rect(pos.x, pos.y, this.width, this.height);
+			if (this.outputText.equals(this.hint))
+			{
+				this.canvas.fill(this.textHintColor.r, this.textHintColor.g, this.textHintColor.b, this.textHintColor.a);
+			}
+			else
+			{
+				this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
+			}
+			this.canvas.textSize(this.textSize);
+			this.canvas.text(this.outputText, posX, posY);
+			
+			this.canvas.endDraw();
+			showCursor();
 		}
-		PVector pos = this.getActualPos();
-		this.canvas.beginDraw();
-		
-		this.canvas.fill(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b, this.backgroundColor.a);
-		this.canvas.stroke(this.strokeColor, this.strokeColor, this.strokeColor, 255);
-		this.canvas.strokeWeight(this.strokeWeight);
-		this.canvas.rect(pos.x, pos.y, this.width, this.height);
-		if (this.outputText.equals(this.hint))
-		{
-			this.canvas.fill(this.textHintColor.r, this.textHintColor.g, this.textHintColor.b, this.textHintColor.a);
-		}
-		else
-		{
-			this.canvas.fill(this.textColor.r, this.textColor.g, this.textColor.b, this.textColor.a);
-		}
-		this.canvas.textSize(this.textSize);
-		this.canvas.text(this.outputText, posX, posY);
-		
-		this.canvas.endDraw();
-		showCursor();
 	}
 }

@@ -58,6 +58,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	protected boolean clicked = false;
 	protected boolean visible = true;
 	protected boolean hovered = false;
+	protected boolean previouslyHovered = false;
 	
 	protected PVector pos = new PVector(0, 0, 0);
 	protected int viewWidth = 0, viewHeight = 0;
@@ -651,26 +652,25 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		float mX = this.context.mouseX;
 		float mY = this.context.mouseY;
 		PVector pos = getActualAbsPos();
-		return (mX >= pos.x && mX <= pos.x + this.width && mY >= pos.y
+		return (this.visible && mX >= pos.x && mX <= pos.x + this.width && mY >= pos.y
 				&& mY <= pos.y + this.height);
 	}
 
-	@Override
-	public boolean onMousePressed(int mouseButton)
+	public View isPressed()
 	{
-		if (this.visible && isHovered())
+		this.clicked = false;
+		return isHovered() ? this : null;
+	}
+	
+	@Override
+	public void onMousePressed(int mouseButton)
+	{
+		this.clicked = true;
+		if (this.onClickListener != null)
 		{
-			this.clicked = true;
-			if (this.onClickListener != null)
-			{
-				this.onClickListener.onClick(this);
-			}
+			Global.logger.log(Level.FINE, "onMousePressed", new Object[] {this.name, this.id});
+			this.onClickListener.onClick(this);
 		}
-		else if (this.clicked)
-		{
-			this.clicked = false;
-		}
-		return this.clicked;
 	}
 
 	@Override
@@ -767,38 +767,38 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		this.viewHeight = this.height + this.margin.getY();
 	}
 	
-	public void update(PGraphics canvas)
+	public void onHoverAction()
 	{
-		this.canvas = canvas;
-		calcPosX();
-		calcPosY();
-		boolean previouslyHovered = this.hovered;
-		this.hovered = isHovered();
-		if (this.hovered)
-		{
-			if (!previouslyHovered)
-			{
-				Global.logger.log(
-					Level.FINER, 
-					"View on hover", 
-					new Object[] {
-							this.name, 
-							this.pos, 
-							this.width, 
-							this.height, 
-							this.viewWidth, 
-							this.viewHeight
-					}
-				);
-				if (this.onHoverListener != null) this.onHoverListener.onHover(this);
-				if (this.onHoverAction != null) this.onHoverAction.run();
+		Global.logger.log(
+			Level.FINER, 
+			"View on hover", 
+			new Object[] {
+					this.name, 
+					this.pos, 
+					this.width, 
+					this.height, 
+					this.viewWidth, 
+					this.viewHeight
 			}
-		}
-		else if (previouslyHovered)
+		);
+		if (this.onHoverListener != null) this.onHoverListener.onHover(this);
+		if (this.onHoverAction != null) this.onHoverAction.run();
+	}
+	
+	public View updateHoverState()
+	{
+		this.previouslyHovered = this.hovered;
+		this.hovered = isHovered();
+		if (!this.hovered && this.previouslyHovered)
 		{
 			if (this.onHoverListener != null) this.onHoverListener.onHoverEnd(this);
 			if (this.onHoverEndAction != null) this.onHoverEndAction.run();
 		}
+		return this.hovered ? this : null;
+	}
+	
+	private void drawViewbox()
+	{
 		if (Global.SHOW_VIEWBOXES && this.visible)
 		{
 			PVector pos;
@@ -818,7 +818,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 			}
 			else
 			{
-				this.canvas.stroke(0, 0, 255);
+				this.canvas.stroke(255, 0, 0);
 				this.canvas.strokeWeight(2);
 			}
 			this.canvas.rect(pos.x, pos.y, this.viewWidth, this.viewHeight);
@@ -827,10 +827,18 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 		}
 	}
 	
-	public void draw()
+	public void update()
 	{
-		draw(this.canvas);
+		calcPosX();
+		calcPosY();
+		drawViewbox();
 	}
 	
-	public abstract void draw(PGraphics canvas);
+	public void draw(PGraphics canvas)
+	{
+		this.canvas = canvas;
+		draw();
+	}
+	
+	public abstract void draw();
 }

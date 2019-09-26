@@ -13,7 +13,6 @@ import drehsystem3d.Global;
 import drehsystem3d.Listener.OnAnimationFinishedListener;
 import drehsystem3d.Listener.OnClickListener;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Button extends TextView
@@ -171,7 +170,7 @@ public class Button extends TextView
 	}
 
 	@Override
-	public boolean onMousePressed(int mouseButton)
+	public void onMousePressed(int mouseButton)
 	{
 		super.onMousePressed(mouseButton);
 		Global.logger.log(Level.FINEST, "Button '" + this.name + "'", new Object[] {this.clicked, this.pos, this.width, this.height});
@@ -182,13 +181,12 @@ public class Button extends TextView
 			this.clickAnimationStartTime = this.context.millis();
 			this.clickAnimationLastTime = this.context.millis();
 		}
-		return this.clicked;
 	}
 	
 	@Override
-	public void draw(PGraphics canvas)
+	public void draw()
 	{
-		super.draw(canvas);
+		super.draw();
 		if (this.clickAnimationVisible)
 		{
 			

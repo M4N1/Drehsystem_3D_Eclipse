@@ -101,11 +101,11 @@ public class Container extends View
 	}
 	
 	@Override
-	public boolean onKeyPressed(int keyCode, char key)
+	public boolean onKeyPressed(int keyCode, char key, boolean repeat)
 	{
-		boolean clicked = super.onKeyPressed(keyCode, key);
+		boolean clicked = super.onKeyPressed(keyCode, key, repeat);
 		for (View v : this.children)
-			clicked = clicked || v.onKeyPressed(keyCode, key);
+			clicked = clicked || v.onKeyPressed(keyCode, key, repeat);
 		return clicked;
 	}
 	

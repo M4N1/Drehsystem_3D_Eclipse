@@ -51,7 +51,7 @@ public class Listener
 
 	public interface UserInputListener
 	{
-		public boolean onKeyPressed(int keyCode, char key);
+		public boolean onKeyPressed(int keyCode, char key, boolean repeat);
 
 		public boolean onKeyReleased(int keyCode, char key);
 
@@ -64,7 +64,7 @@ public class Listener
 
 	public interface KeyListener
 	{
-		public boolean onKeyPressed(int keyCode, char key);
+		public boolean onKeyPressed(int keyCode, char key, boolean repeat);
 
 		public boolean onKeyReleased(int keyCode, char key);
 	}

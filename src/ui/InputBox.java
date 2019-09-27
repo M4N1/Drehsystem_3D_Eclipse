@@ -257,7 +257,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 		tb.setKeyListener(new KeyListener()
 		{
 			@Override
-			public boolean onKeyPressed(int pressedKeyCode, char pressedKey)
+			public boolean onKeyPressed(int pressedKeyCode, char pressedKey, boolean repeat)
 			{
 				if (pressedKeyCode == 10)
 				{			
@@ -274,7 +274,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 								finish();
 								return true;
 							}
-							InputBox.this.textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorPos));
+							InputBox.this.textboxes.get(next).setClicked(true, tb.calcCharPos(tb.cursorIdx));
 							Global.logger.log(Level.FINER, "i:" + i);
 							Global.logger.log(Level.FINER, "tb id:" + id);
 							Global.logger.log(Level.FINER, "size:" + InputBox.this.textboxes.size());
@@ -336,7 +336,7 @@ public class InputBox extends PApplet implements TextBoxListener, OnClickListene
 	public void keyPressed()
 	{
 		this.contents.forEach((v) -> {
-			v.onKeyPressed(this.keyCode, this.key);
+			v.onKeyPressed(this.keyCode, this.key, false);
 		});
 	}
 

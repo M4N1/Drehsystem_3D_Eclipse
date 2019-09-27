@@ -103,6 +103,7 @@ public class Drehsystem3d extends PApplet
 		});
 
 		Settings.setup(this.args);
+		//this.hint(PApplet.ENABLE_KEY_REPEAT);
 		
 		this.currWindowWidth = this.width;
 		this.currWindowHeight = this.height;
@@ -543,19 +544,17 @@ public class Drehsystem3d extends PApplet
 
 	private void checkKeyPressedPermanent()
 	{
-		
 		if (this.keyPressed)
 		{
-			if (this.inputHandler.millisSinceLastKeyEventElapsed(500)
-					|| (this.keyPressedPermanent && this.inputHandler.millisSinceLastKeyEventElapsed(50)))
+			ArrayList<InputHandler.Key> keys = this.inputHandler.keyPressedPermanent();
+			if (!this.keyPressedPermanent && keys.size() > 0) 
 			{
-				int lastKeyCode = this.inputHandler.getLastKeyCode();
-				char lastKey = this.inputHandler.getLastKey();
-				if (!this.keyPressedPermanent)
-					logger.log(Level.FINE, "Key pressed permanent", new Object[] {lastKeyCode, "'"+lastKey+"'"});
 				this.keyPressedPermanent = true;
-				handleKeyPressedEvent(lastKeyCode, lastKey);
+				logger.log(Level.FINE, "keyPressedPermanent", keys);
 			}
+			keys.forEach((k) -> {
+				handleKeyPressedEvent(k.code, k.key, true);
+			});
 		}
 		else
 		{
@@ -1358,16 +1357,16 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		handleKeyPressedEvent(this.keyCode, this.key);
+		logger.log(Level.FINE, "keyPressed", "('" + this.key + "', " + this.keyCode + ")");
+		handleKeyPressedEvent(this.keyCode, this.key, false);
 	}
 
-	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey)
+	public void handleKeyPressedEvent(int pressedKeyCode, char pressedKey, boolean repeat)
 	{
-		logger.log(Level.FINE, "Key pressed ('" + this.key + "', " + this.keyCode + ")");
 		boolean uiElementClicked = false;
 		for (UserInputListener l : this.userInputListeners)
 		{
-			uiElementClicked = uiElementClicked || l.onKeyPressed(this.keyCode, this.key);
+			uiElementClicked = uiElementClicked || l.onKeyPressed(pressedKeyCode, pressedKey, repeat);
 		}
 		if (uiElementClicked) return;
 		switch (pressedKeyCode)
@@ -1459,6 +1458,7 @@ public class Drehsystem3d extends PApplet
 	@Override
 	public void keyReleased()
 	{
+		logger.log(Level.FINE, "keyReleased", "('" + this.key + "', " + this.keyCode + ")");
 		boolean uiElementClicked = this.uiHandler.onKeyReleased(this.keyCode, this.key);
 
 		if (!uiElementClicked)

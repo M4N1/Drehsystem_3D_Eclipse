@@ -3,34 +3,35 @@ package drehsystem3d;
 import java.util.ArrayList;
 
 import drehsystem3d.Listener.UserInputListener;
+import javafx.util.Pair;
 import processing.core.PApplet;
 
 public class InputHandler implements UserInputListener
 {
 	private PApplet context;
-	private ArrayList<Object> keys;
-	private ArrayList<Object> keyCodes;
 	private ArrayList<Object> mouseButtons;
-	private Key lastPressedKey;
+	private ArrayList<Pair<Key, Integer>> keyList;
 	private long millisOflastKeyEvent = 0;
 
 	public InputHandler(PApplet context)
 	{
 		this.context = context;
-		this.keys = new ArrayList<>();
-		this.keyCodes = new ArrayList<>();
+		this.keyList = new ArrayList<>();
 		this.mouseButtons = new ArrayList<>();
-		this.lastPressedKey = new Key(-1, ' ');
 	}
 
 	public boolean isKeyPressed(int keyCode)
 	{
-		return this.keyCodes.contains(keyCode);
+		for (Pair<Key, Integer> p : this.keyList)
+			if (p.getKey().code == keyCode) return true;
+		return false;
 	}
 
 	public boolean isKeyPressed(char key)
 	{
-		return this.keys.contains(key);
+		for (Pair<Key, Integer> p : this.keyList)
+			if (p.getKey().key == key) return true;
+		return false;
 	}
 	
 	public long millisSinceLastKeyEvent()
@@ -43,22 +44,42 @@ public class InputHandler implements UserInputListener
 		return (millisSinceLastKeyEvent() >= elapsed);
 	}
 
-	@Override
-	public boolean onKeyPressed(int keyCode, char key)
+	public ArrayList<Key> keyPressedPermanent()
 	{
+		ArrayList<Key> permanentKeys = new ArrayList<>();
+		for (int i = 0; i < this.keyList.size(); i++)
+		{	
+			Pair<Key, Integer> p = this.keyList.get(i);
+			if (this.context.millis() - p.getValue() > 600)
+			{
+				permanentKeys.add(p.getKey());
+				this.keyList.set(i, new Pair<Key, Integer>(p.getKey(), this.context.millis()-550));
+			}
+		}
+		if (permanentKeys.size() > 0) this.millisOflastKeyEvent = this.context.millis();
+		return permanentKeys;
+	}
+	
+	@Override
+	public boolean onKeyPressed(int keyCode, char key, boolean repeat)
+	{
+		if (repeat) return false;
 		this.millisOflastKeyEvent = this.context.millis();
-		this.lastPressedKey = new Key(keyCode, key);
-		addItem(this.keyCodes, keyCode);
-		addItem(this.keys, key);
+		if (!isKeyPressed(key))
+		{
+			Key k = new Key(keyCode, key);
+			this.keyList.add(new Pair<Key, Integer>(k, this.context.millis()));
+		}
 		return false;
 	}
 
 	@Override
 	public boolean onKeyReleased(int keyCode, char key)
 	{
-		removeItem(this.keyCodes, keyCode);
-		removeItem(this.keys, key);
-		this.lastPressedKey = getPreviousLastKey();
+		Key k = new Key(keyCode, key);
+		for (int i = 0; i < this.keyList.size(); i++)
+			if (this.keyList.get(i).getKey().equals(k))
+				this.keyList.remove(i);
 		return false;
 	}
 
@@ -97,19 +118,6 @@ public class InputHandler implements UserInputListener
 		list.remove(list.lastIndexOf(item));
 	}
 
-	private Key getPreviousLastKey()
-	{
-		if (this.keyCodes.size() == 0 || this.keys.size() == 0)
-		{
-			this.keyCodes.clear();
-			this.keys.clear();
-			return new Key(-1, ' ');
-		}
-		int keyCode = (int) getLastElement(this.keyCodes);
-		char key = (char) getLastElement(this.keys);
-		return new Key(keyCode, key);
-	}
-
 	private Object getLastElement(ArrayList<?> list)
 	{
 		if (list.size() == 0) return null;
@@ -118,15 +126,15 @@ public class InputHandler implements UserInputListener
 
 	public int getLastKeyCode()
 	{
-		return this.lastPressedKey.code;
+		return ((Pair<Key, Integer>)getLastElement(this.keyList)).getKey().code;
 	}
 
 	public char getLastKey()
 	{
-		return this.lastPressedKey.key;
+		return ((Pair<Key, Integer>)getLastElement(this.keyList)).getKey().key;
 	}
 
-	private class Key
+	public class Key
 	{
 		public final int code;
 		public final char key;
@@ -143,6 +151,12 @@ public class InputHandler implements UserInputListener
 			if (obj.getClass() != this.getClass()) return false;
 			Key other = (Key) obj;
 			return (other.code == this.code && other.key == this.key);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "('" + this.key + "', " + this.code + ")";
 		}
 	}
 }

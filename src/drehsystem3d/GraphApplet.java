@@ -100,7 +100,7 @@ public class GraphApplet extends PApplet
 	@Override
 	public void keyPressed()
 	{
-		drehsystem3d.handleKeyPressedEvent(keyCode, key);
+		drehsystem3d.handleKeyPressedEvent(keyCode, key, false);
 	}
 
 	@Override

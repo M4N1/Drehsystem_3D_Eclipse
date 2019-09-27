@@ -95,12 +95,12 @@ public class UIHandler implements UserInputListener, WindowResizeListener
 	}
 
 	@Override
-	public boolean onKeyPressed(int keyCode, char key)
+	public boolean onKeyPressed(int keyCode, char key, boolean repeat)
 	{
 		boolean uiElementClicked = false;
 		for (View v : this.contentsToManage)
 		{
-			uiElementClicked = uiElementClicked || v.onKeyPressed(keyCode, key);
+			uiElementClicked = uiElementClicked || v.onKeyPressed(keyCode, key, repeat);
 		}
 		return uiElementClicked;
 	}

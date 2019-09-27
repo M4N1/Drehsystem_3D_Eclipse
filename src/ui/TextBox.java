@@ -21,7 +21,7 @@ public class TextBox extends TextView
 	protected TextBoxListener mListener;
 	protected KeyListener keyListener;
 	protected Color cursorColor = new Color(255);
-	protected int cursorPos = 0;
+	protected int cursorIdx = 0;
 	protected int dragCursorPos = 0;
 	protected float cursorPosX;
 	protected float dragCursorPosX;
@@ -136,9 +136,9 @@ public class TextBox extends TextView
 		super.onMousePressed(mouseButton);
 		this.mouseDrag = true;
 		updateText();
-		this.cursorPos = calcClosestCharPos(this.context.mouseX);
-		this.dragCursorPos = this.cursorPos;
-		this.cursorPosX = calcCharPos(this.cursorPos);
+		this.cursorIdx = calcClosestCharPos(this.context.mouseX);
+		this.dragCursorPos = this.cursorIdx;
+		this.cursorPosX = calcCharPos(this.cursorIdx);
 		this.dragCursorPosX = this.cursorPosX;
 		resetCursor();
 	}
@@ -147,8 +147,8 @@ public class TextBox extends TextView
 	public void onMouseReleased(int mouseButton)
 	{
 		super.onMouseReleased(mouseButton);
-		this.markedAreaStart = this.dragCursorPos < this.cursorPos ? this.dragCursorPos : this.cursorPos;
-		this.markedAreaLength = Drehsystem3d.abs(this.dragCursorPos - this.cursorPos);
+		this.markedAreaStart = this.dragCursorPos < this.cursorIdx ? this.dragCursorPos : this.cursorIdx;
+		this.markedAreaLength = Drehsystem3d.abs(this.dragCursorPos - this.cursorIdx);
 		this.mouseDrag = false;
 	}
 
@@ -168,15 +168,15 @@ public class TextBox extends TextView
 				if (dist < min)
 				{
 					min = dist;
-					this.cursorPos = i;
+					this.cursorIdx = i;
 				}
 			}
-			this.cursorPosX = calcCharPos(this.cursorPos);
+			this.cursorPosX = calcCharPos(this.cursorIdx);
 		}
 	}
 
 	@Override
-	public boolean onKeyPressed(int pressedKeyCode, char pressedKey)
+	public boolean onKeyPressed(int pressedKeyCode, char pressedKey, boolean repeat)
 	{
 		if (this.clicked)
 		{
@@ -188,13 +188,9 @@ public class TextBox extends TextView
 			{
 				case 8:
 					if (this.markedAreaLength > 0)
-					{
 						deleteMarkedInputChars();
-					}
 					else
-					{
-						deleteInputChar(this.cursorPos, -1);
-					}
+						deleteInputChar(this.cursorIdx, -1);
 					break;
 
 				case 10:
@@ -203,9 +199,7 @@ public class TextBox extends TextView
 
 				case 32:
 					if (this.inputType == InputTypes.ALL || this.inputType == InputTypes.STRING)
-					{
-						addInputChar(this.cursorPos, pressedKey);
-					}
+						addInputChar(this.cursorIdx, pressedKey);
 					break;
 
 				case 37:
@@ -213,13 +207,11 @@ public class TextBox extends TextView
 					{
 						if (this.markedAreaLength == 0)
 						{
-							if (this.cursorPos > 0)
-							{
-								this.markedAreaStart = this.cursorPos - 1;
-							}
+							if (this.cursorIdx > 0)
+								this.markedAreaStart = this.cursorIdx - 1;
 							this.markedAreaLength = 1;
 						}
-						else if (this.markedAreaStart == this.cursorPos)
+						else if (this.markedAreaStart == this.cursorIdx)
 						{
 							if (this.markedAreaStart > 0)
 							{
@@ -228,9 +220,7 @@ public class TextBox extends TextView
 							}
 						}
 						else
-						{
 							this.markedAreaLength--;
-						}
 					}
 					else
 					{
@@ -244,7 +234,7 @@ public class TextBox extends TextView
 					textEdited();
 					if (this.mListener != null)
 					{
-						this.mListener.previousTextBox(this, calcCharPos(this.cursorPos));
+						this.mListener.previousTextBox(this, calcCharPos(this.cursorIdx));
 					}
 					break;
 
@@ -253,17 +243,17 @@ public class TextBox extends TextView
 					{
 						if (this.markedAreaLength == 0)
 						{
-							this.markedAreaStart = this.cursorPos;
+							this.markedAreaStart = this.cursorIdx;
 							this.markedAreaLength = 1;
 						}
-						else if (this.markedAreaStart == this.cursorPos)
+						else if (this.markedAreaStart == this.cursorIdx)
 						{
 							this.markedAreaStart++;
 							this.markedAreaLength--;
 						}
 						else
 						{
-							if (this.cursorPos < this.input.length())
+							if (this.cursorIdx < this.input.length())
 							{
 								this.markedAreaLength++;
 							}
@@ -281,7 +271,7 @@ public class TextBox extends TextView
 					textEdited();
 					if (this.mListener != null)
 					{
-						this.mListener.nextTextBox(this, calcCharPos(this.cursorPos));
+						this.mListener.nextTextBox(this, calcCharPos(this.cursorIdx));
 					}
 					break;
 
@@ -293,12 +283,18 @@ public class TextBox extends TextView
 					}
 					else
 					{
-						deleteInputChar(this.cursorPos, 0);
+						deleteInputChar(this.cursorIdx, 0);
 					}
 					break;
 
 				default:
-					if (isPrintableChar(pressedKey))
+					if (pressedKeyCode == 65 && keyIsPressed(17))
+					{
+						updateCursor(this.input.length() - this.cursorIdx);
+						this.markedAreaStart = 0;
+						this.markedAreaLength = this.input.length();
+					}
+					else if (isPrintableChar(pressedKey))
 					{
 						switch (this.inputType)
 						{
@@ -310,16 +306,10 @@ public class TextBox extends TextView
 								catch (NumberFormatException e)
 								{
 									Global.logger.log(Level.SEVERE, e.getStackTrace().toString());
-									if (!(this.cursorPos == 0 && pressedKey == '-' && !this.input.contains("-")))
-									{
-										break;
-									}
+									if (!(this.cursorIdx == 0 && pressedKey == '-' && !this.input.contains("-"))) break;
 								}
-								if (this.cursorPos == 0 && this.input.contains("-"))
-								{
-									break;
-								}
-								addInputChar(this.cursorPos, pressedKey);
+								if (this.cursorIdx == 0 && this.input.contains("-")) break;
+								addInputChar(this.cursorIdx, pressedKey);
 								break;
 
 							case InputTypes.FLOAT:
@@ -330,56 +320,35 @@ public class TextBox extends TextView
 								catch (NumberFormatException e)
 								{
 									Global.logger.log(Level.SEVERE, e.getStackTrace().toString());
-									if (!(!this.input.contains(".") && pressedKey == '.') && pressedKey != '-')
-									{
-										break;
-									}
+									if (!(!this.input.contains(".") && pressedKey == '.') && pressedKey != '-') break;
 								}
 								if (pressedKey == '-')
 								{
 									if (this.input.contains("-"))
-									{
 										deleteInputChar(1, -1);
-									}
 									else
-									{
 										addInputChar(0, pressedKey);
-									}
 								}
 								else
 								{
-									if (this.cursorPos == 0 && this.input.contains("-"))
-									{
-										break;
-									}
-									addInputChar(this.cursorPos, pressedKey);
+									if (this.cursorIdx == 0 && this.input.contains("-")) break;
+									addInputChar(this.cursorIdx, pressedKey);
 								}
 								break;
 
 							default:
-								addInputChar(this.cursorPos, pressedKey);
+								addInputChar(this.cursorIdx, pressedKey);
 						}
 					}
 					else
 					{
-						boolean keyExists = false;
-						for (int kc : this.keysPressed)
-						{
-							if (kc == pressedKeyCode)
-							{
-								keyExists = true;
-								break;
-							}
-						}
-						if (!keyExists)
-						{
+						if (!this.keysPressed.contains(pressedKeyCode))
 							this.keysPressed.add(pressedKeyCode);
-						}
 					}
 			}
 			if (this.keyListener != null)
 			{
-				this.keyListener.onKeyPressed(pressedKeyCode, pressedKey);
+				this.keyListener.onKeyPressed(pressedKeyCode, pressedKey, repeat);
 			}
 		}
 		return this.clicked;
@@ -387,34 +356,20 @@ public class TextBox extends TextView
 
 	public boolean keyIsPressed(int keyCode)
 	{
-		boolean keyPressed = false;
-		for (int kc : this.keysPressed)
-		{
-			if (kc == keyCode)
-			{
-				keyPressed = true;
-				break;
-			}
-		}
-		return keyPressed;
+		return this.keysPressed.contains(keyCode);
 	}
 
 	@Override
 	public boolean onKeyReleased(int releasedKeyCode, char releasedKey)
 	{
-		for (int i = 0; i < this.keysPressed.size(); i++)
-		{
-			if (this.keysPressed.get(i) == releasedKeyCode)
-			{
-				this.keysPressed.remove(i);
-				break;
-			}
-		}
+		int idx = this.keysPressed.indexOf(releasedKeyCode);
+		if (idx >= 0) this.keysPressed.remove(idx);
 		return super.onKeyReleased(releasedKeyCode, releasedKey);
 	}
 
 	public void addInputChar(int pos, char pressedKey)
 	{
+		if (this.canvas.textWidth(this.input + pressedKey) > this.getWidth() - this.padding.getX()) return;
 		String buffer = "";
 		if (pos > 0)
 		{
@@ -466,7 +421,7 @@ public class TextBox extends TextView
 			buffer += this.input.substring(this.markedAreaStart + this.markedAreaLength, this.input.length());
 		}
 		this.input = buffer;
-		this.cursorPos = this.markedAreaStart;
+		this.cursorIdx = this.markedAreaStart;
 		this.markedAreaStart = 0;
 		this.markedAreaLength = 0;
 		updateText();
@@ -563,15 +518,8 @@ public class TextBox extends TextView
 
 	public void updateCursor(int change)
 	{
-		if (change == -1 && this.cursorPos > 0)
-		{
-			this.cursorPos--;
-		}
-		else if (change == 1 && this.cursorPos < this.input.length())
-		{
-			this.cursorPos++;
-		}
-		this.cursorPosX = calcCharPos(this.cursorPos);
+		this.cursorIdx = (this.cursorIdx + change + this.outputText.length() + 1) % (this.outputText.length() + 1);
+		this.cursorPosX = calcCharPos(this.cursorIdx);
 		resetCursor();
 	}
 
@@ -596,7 +544,7 @@ public class TextBox extends TextView
 		this.setClicked = clicked;
 		if (this.setClicked)
 		{
-			this.cursorPos = calcClosestCharPos(cursorPosX);
+			this.cursorIdx = calcClosestCharPos(cursorPosX);
 			updateCursor(0);
 		}
 	}

@@ -684,7 +684,7 @@ public abstract class View implements UserInputListener, KeyListener, WindowResi
 	}
 
 	@Override
-	public boolean onKeyPressed(int keyCode, char key)
+	public boolean onKeyPressed(int keyCode, char key, boolean repeat)
 	{
 		return this.clicked;
 	}
